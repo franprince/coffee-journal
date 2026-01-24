@@ -40,6 +40,8 @@ export interface Recipe {
   waterType?: string; // Allows custom water types
   pours: Pour[];
   createdAt: Date;
+  coffeeId?: string;
+  coffeeImageUrl?: string;
 }
 
 export const METHOD_SUGGESTIONS = [

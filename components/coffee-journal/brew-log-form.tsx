@@ -12,10 +12,14 @@ import type { BrewLog, Recipe, TasteProfile, Coffee } from '@/lib/types';
 import { Star, Zap, Candy, Circle, AlertTriangle, Save, ChevronDown, Scale, Droplets, Thermometer, Hash, Bean } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AddCoffeeForm } from './add-coffee-form';
 
 interface BrewLogFormProps {
   recipe: Recipe;
   coffees: Coffee[];
+  onAddCoffee: (coffee: Coffee) => void;
   onSave: (log: BrewLog) => void;
   onCancel: () => void;
 }
@@ -27,7 +31,7 @@ const TASTE_DIMENSIONS = [
   { key: 'bitterness' as const, label: 'Bitterness', icon: AlertTriangle, description: 'Dark, roasty, intense' },
 ];
 
-export function BrewLogForm({ recipe, coffees, onSave, onCancel }: BrewLogFormProps) {
+export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: BrewLogFormProps) {
   const [tasteProfile, setTasteProfile] = useState<TasteProfile>({
     acidity: 50,
     sweetness: 50,
@@ -46,6 +50,7 @@ export function BrewLogForm({ recipe, coffees, onSave, onCancel }: BrewLogFormPr
   const [temperature, setTemperature] = useState(recipe.pours?.[0]?.temperature || 93);
   const [pours, setPours] = useState(recipe.pours || []);
   const [selectedCoffeeId, setSelectedCoffeeId] = useState<string>('');
+  const [isAddCoffeeOpen, setIsAddCoffeeOpen] = useState(false);
 
   const updateTaste = (key: keyof TasteProfile, value: number[]) => {
     setTasteProfile(prev => ({ ...prev, [key]: value[0] }));
@@ -80,18 +85,18 @@ export function BrewLogForm({ recipe, coffees, onSave, onCancel }: BrewLogFormPr
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Header */}
       <div className="text-center pb-3 border-b border-border">
-        <h3 className="font-serif text-base font-semibold text-foreground">Log Your Brew</h3>
+        <h3 className="font-display text-base font-semibold text-foreground">Log Your Brew</h3>
         <p className="text-xs text-muted-foreground mt-0.5 mb-3">
           How was your {recipe.name}?
         </p>
 
         {/* Coffee Selector */}
-        <div className="max-w-[200px] mx-auto">
+        <div className="max-w-[240px] mx-auto flex items-center gap-2">
           <Select value={selectedCoffeeId} onValueChange={setSelectedCoffeeId}>
-            <SelectTrigger className="h-8 text-xs bg-secondary/20 border-border/50">
+            <SelectTrigger className="h-8 text-xs bg-secondary/20 border-border/50 flex-1">
               <SelectValue placeholder="Select Coffee Bean..." />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="glass-card">
               {coffees.map(c => (
                 <SelectItem key={c.id} value={c.id} className="text-xs">
                   {c.name}
@@ -99,6 +104,32 @@ export function BrewLogForm({ recipe, coffees, onSave, onCancel }: BrewLogFormPr
               ))}
             </SelectContent>
           </Select>
+
+          <Dialog open={isAddCoffeeOpen} onOpenChange={setIsAddCoffeeOpen}>
+            <DialogTrigger asChild>
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                className="h-8 w-8 shrink-0 bg-secondary/20 border-border/50 hover:bg-secondary/40"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="glass-card border-border sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add New Coffee</DialogTitle>
+              </DialogHeader>
+              <AddCoffeeForm
+                onSuccess={(coffee) => {
+                  onAddCoffee(coffee);
+                  setSelectedCoffeeId(coffee.id);
+                  setIsAddCoffeeOpen(false);
+                }}
+                onCancel={() => setIsAddCoffeeOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
