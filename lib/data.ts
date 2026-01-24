@@ -1,4 +1,25 @@
-import { Recipe, BrewLog } from './types';
+import type { Recipe, BrewLog, Coffee } from '@/lib/types';
+
+export const SAMPLE_COFFEES: Coffee[] = [
+    {
+        id: '1',
+        name: 'Ethiopia Yirgacheffe',
+        roaster: 'Blue Bottle',
+        roastLevel: 'light',
+        origin: 'Ethiopia',
+        process: 'Washed',
+        notes: 'Floral, citrus, tea-like'
+    },
+    {
+        id: '2',
+        name: 'Colombia Huila',
+        roaster: 'Intelligentsia',
+        roastLevel: 'medium',
+        origin: 'Colombia',
+        process: 'Washed',
+        notes: 'Caramel, apple, balanced'
+    }
+];
 
 export const SAMPLE_RECIPES: Recipe[] = [
     {

@@ -1,17 +1,40 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { notFound, useParams } from 'next/navigation';
-import { SAMPLE_RECIPES } from '@/lib/data';
+import { useParams } from 'next/navigation';
 import { METHOD_LABELS } from '@/lib/types';
+import type { BrewLog, Recipe, Coffee } from '@/lib/types';
+import { useRecipe, useCoffees, useLogs } from '@/lib/hooks';
 import { MethodIcon } from '@/components/coffee-journal/method-icons';
-import { ChevronLeft, Coffee, Droplets, Scale, Clock, ArrowRight } from 'lucide-react';
+import { ChevronLeft, Coffee as CoffeeIcon, Droplets, Scale, X, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PourTimeline } from '@/components/coffee-journal/pour-timeline';
+import { BrewLogForm } from '@/components/coffee-journal/brew-log-form';
+import { BrewLogCard } from '@/components/coffee-journal/brew-log-card';
+import { cn } from '@/lib/utils';
 
 export default function RecipeDetailPage() {
     const params = useParams();
     const id = params?.id as string;
-    const recipe = SAMPLE_RECIPES.find((r) => r.id === id);
+
+    // Using Hooks
+    const { recipe, isLoading: isLoadingRecipe } = useRecipe(id);
+    const { coffees } = useCoffees();
+    const { logs, addLog } = useLogs(id);
+
+    const [showLogForm, setShowLogForm] = useState(false);
+
+    const isLoading = isLoadingRecipe; // Simplified loading state
+
+    const handleSaveLog = async (log: BrewLog) => {
+        await addLog(log);
+        setShowLogForm(false);
+    };
+
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center bg-background text-foreground">Loading...</div>;
+    }
 
     if (!recipe) {
         return (
@@ -26,7 +49,7 @@ export default function RecipeDetailPage() {
 
     return (
         <div className="min-h-screen bg-background p-4 md:p-8">
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-3xl mx-auto space-y-8">
                 {/* Recipe Detail View Container */}
                 <div className="relative glass-card rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl animate-fade-in-up">
                     {/* Back button */}
@@ -104,55 +127,79 @@ export default function RecipeDetailPage() {
                             </div>
                         </div>
 
-                        {/* Pour Timeline */}
-                        <div className="space-y-6">
-                            <h3 className="font-serif text-xl font-bold flex items-center gap-2">
-                                <Clock className="w-5 h-5 text-primary" />
-                                Brew Schedule
-                            </h3>
-
-                            <div className="relative pl-4 space-y-8 before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
-                                {recipe.pours?.map((pour, idx) => (
-                                    <div key={pour.id} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${idx * 0.1}s` }}>
-                                        {/* Dot */}
-                                        <div className={`absolute left-[11px] top-1.5 w-4 h-4 rounded-full border-2 border-background z-10 ${idx === 0 || pour.notes?.toLowerCase().includes('bloom')
-                                                ? 'bg-accent shadow-[0_0_10px_oklch(0.65_0.18_55_/_0.5)] border-accent/20'
-                                                : 'bg-coffee-espresso'
-                                            }`} />
-
-                                        <div className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-colors">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className="font-mono text-lg font-bold text-primary">{pour.time}</span>
-                                                <span className="font-mono text-sm font-medium text-coffee-water">
-                                                    {pour.waterAmount}g <span className="text-muted-foreground">water</span>
-                                                </span>
-                                            </div>
-
-                                            {pour.notes && (
-                                                <p className={`text-sm ${idx === 0 || pour.notes?.toLowerCase().includes('bloom')
-                                                        ? 'text-accent font-medium uppercase tracking-wide'
-                                                        : 'text-muted-foreground'
-                                                    }`}>
-                                                    {pour.notes}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                        {/* Pour Timeline Component */}
+                        <div className="mb-10">
+                            <PourTimeline pours={recipe.pours} totalWater={recipe.totalWaterWeight} />
                         </div>
 
                         {/* Action Button */}
-                        <div className="mt-10 sticky bottom-6">
-                            <Button className="w-full rounded-full h-14 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-[0_0_30px_oklch(0.65_0.18_55_/_0.3)] animate-pulse-glow">
-                                <Coffee className="w-5 h-5 mr-2" />
+                        <div className="sticky bottom-6">
+                            <Button
+                                onClick={() => setShowLogForm(true)}
+                                className="w-full rounded-full h-14 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-[0_0_30px_oklch(0.65_0.18_55_/_0.3)] animate-pulse-glow"
+                            >
+                                <CoffeeIcon className="w-5 h-5 mr-2" />
                                 Start Brewing
                             </Button>
                         </div>
-
                     </div>
                 </div>
+
+                {/* Brew Logs Section */}
+                <div className="space-y-4 animate-fade-in-up stagger-1">
+                    <div className="flex items-center justify-between px-2">
+                        <h3 className="font-serif text-xl font-bold flex items-center gap-2">
+                            <BookOpen className="w-5 h-5 text-primary" />
+                            Brew Logs
+                        </h3>
+                        <span className="text-sm text-muted-foreground">{logs.length} brews</span>
+                    </div>
+
+                    {logs.length === 0 ? (
+                        <div className="glass-card rounded-3xl p-8 text-center border border-border">
+                            <p className="text-muted-foreground">No brews logged for this recipe yet.</p>
+                            <Button
+                                variant="link"
+                                onClick={() => setShowLogForm(true)}
+                                className="text-primary mt-2"
+                            >
+                                Log your first brew
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            {logs.map((log) => (
+                                <BrewLogCard key={log.id} log={log} />
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
+
+            {/* Brew Log Form Modal */}
+            {showLogForm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-card w-full max-w-lg rounded-3xl border border-border shadow-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200 relative">
+                        <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card/95 backdrop-blur">
+                            <h3 className="font-serif text-lg font-semibold text-coffee-espresso">Log Brew</h3>
+                            <button
+                                onClick={() => setShowLogForm(false)}
+                                className="p-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <BrewLogForm
+                                recipe={recipe}
+                                coffees={coffees}
+                                onSave={handleSaveLog}
+                                onCancel={() => setShowLogForm(false)}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

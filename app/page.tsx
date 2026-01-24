@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RecipeForm } from '@/components/coffee-journal/recipe-form';
 import { RecipeCard } from '@/components/coffee-journal/recipe-card';
@@ -8,24 +8,30 @@ import { PourTimeline } from '@/components/coffee-journal/pour-timeline';
 import { BrewLogForm } from '@/components/coffee-journal/brew-log-form';
 import { BrewLogCard } from '@/components/coffee-journal/brew-log-card';
 import { RecipeFiltersComponent } from '@/components/coffee-journal/recipe-filters';
-import type { Recipe, BrewLog, RecipeFilters } from '@/lib/types';
+import type { Recipe, BrewLog, RecipeFilters, Coffee } from '@/lib/types';
+import { useRecipes, useCoffees, useAllLogs } from '@/lib/hooks';
 import { METHOD_LABELS } from '@/lib/types';
 import { MethodIcon } from '@/components/coffee-journal/method-icons';
+import { CoffeeManager } from '@/components/coffee-journal/coffee-manager';
 import {
-  Coffee,
+  Coffee as CoffeeIcon,
   Plus,
   BookOpen,
   FlaskConical,
   X,
-  ChevronLeft
+  ChevronLeft,
+  Bean
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { SAMPLE_RECIPES, SAMPLE_LOGS } from '@/lib/data';
+// Removed SAMPLE_LOGS import as we now use real data
 
 export default function CoffeeJournalPage() {
-  const [recipes, setRecipes] = useState<Recipe[]>(SAMPLE_RECIPES);
-  const [logs, setLogs] = useState<BrewLog[]>(SAMPLE_LOGS);
+  const { recipes, refresh: refreshRecipes } = useRecipes();
+  const { logs, addLog: createLog, refresh: refreshLogs } = useAllLogs();
+
+  const { coffees, addCoffee } = useCoffees();
+
   const [activeTab, setActiveTab] = useState('recipes');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
   const [showBrewLog, setShowBrewLog] = useState(false);
@@ -49,7 +55,7 @@ export default function CoffeeJournalPage() {
       return false;
     }
     // Water type filter
-    if (filters.waterTypes.length > 0 && !filters.waterTypes.includes(recipe.waterType)) {
+    if (filters.waterTypes.length > 0 && (!recipe.waterType || !filters.waterTypes.includes(recipe.waterType))) {
       return false;
     }
     // Grind size filter
@@ -59,14 +65,27 @@ export default function CoffeeJournalPage() {
     return true;
   });
 
-  const handleSaveRecipe = (recipe: Recipe) => {
-    setRecipes([recipe, ...recipes]);
-    setShowNewRecipe(false);
+  const handleSaveRecipe = async (recipe: Recipe) => {
+    try {
+      // Import RecipeService at the top if not already, or use hook if we had addRecipe there.
+      // Ideally we move this logic to useRecipes hook completely, but for now:
+      const { RecipeService } = await import('@/lib/db');
+      await RecipeService.createRecipe(recipe);
+      await refreshRecipes(); // Refresh the list from DB
+      setShowNewRecipe(false);
+    } catch (error) {
+      console.error('Failed to save recipe:', error);
+      // TODO: Show error toast to user
+    }
   };
 
-  const handleAddLog = (log: BrewLog) => {
-    setLogs([log, ...logs]);
-    setShowBrewLog(false);
+  const handleAddLog = async (log: BrewLog) => {
+    try {
+      await createLog(log); // This calls service and refreshes
+      setShowBrewLog(false);
+    } catch (error) {
+      console.error('Failed to save log:', error);
+    }
   };
 
   return (
@@ -77,7 +96,7 @@ export default function CoffeeJournalPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 text-primary shadow-lg shadow-primary/10 animate-pulse-glow">
-                <Coffee className="w-6 h-6" />
+                <CoffeeIcon className="w-6 h-6" />
               </div>
               <div>
                 <h1 className="font-serif text-2xl md:text-3xl font-bold text-gradient tracking-tight">
@@ -95,7 +114,7 @@ export default function CoffeeJournalPage() {
                 onClick={() => {
                   setShowNewRecipe(true);
                 }}
-                className="rounded-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground gap-2 shadow-[0_0_20px_oklch(0.65_0.18_55_/_0.3)] transition-all duration-300 hover:scale-105 border-0"
+                className="rounded-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground gap-2 shadow-[0_0_20px_oklch(0.65_0.18_55_/_0.3)] transition-all duration-300 border-0"
               >
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline font-bold">New Recipe</span>
@@ -125,6 +144,13 @@ export default function CoffeeJournalPage() {
                   <BookOpen className="w-4 h-4" />
                   Brew Log
                 </TabsTrigger>
+                <TabsTrigger
+                  value="coffees"
+                  className="flex-1 sm:flex-initial gap-2 data-[state=active]:bg-coffee-espresso data-[state=active]:text-coffee-crema"
+                >
+                  <Bean className="w-4 h-4" />
+                  My Coffees
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="recipes" className="mt-6">
@@ -141,7 +167,7 @@ export default function CoffeeJournalPage() {
                 {recipes.length === 0 ? (
                   <div className="glass-card rounded-2xl p-12 text-center border border-border">
                     <div className="w-16 h-16 mx-auto rounded-2xl bg-secondary flex items-center justify-center mb-4">
-                      <Coffee className="w-8 h-8 text-coffee-espresso" />
+                      <CoffeeIcon className="w-8 h-8 text-coffee-espresso" />
                     </div>
                     <h3 className="font-serif text-lg text-coffee-espresso mb-2">No recipes yet</h3>
                     <p className="text-muted-foreground text-sm mb-4">
@@ -158,7 +184,7 @@ export default function CoffeeJournalPage() {
                 ) : filteredRecipes.length === 0 ? (
                   <div className="glass-card rounded-2xl p-12 text-center border border-border mt-6">
                     <div className="w-16 h-16 mx-auto rounded-2xl bg-secondary flex items-center justify-center mb-4">
-                      <Coffee className="w-8 h-8 text-coffee-espresso" />
+                      <CoffeeIcon className="w-8 h-8 text-coffee-espresso" />
                     </div>
                     <h3 className="font-serif text-lg text-coffee-espresso mb-2">No recipes found</h3>
                     <p className="text-muted-foreground text-sm mb-4">
@@ -208,6 +234,13 @@ export default function CoffeeJournalPage() {
                     ))}
                   </div>
                 )}
+              </TabsContent>
+
+              <TabsContent value="coffees" className="mt-6">
+                <CoffeeManager
+                  coffees={coffees}
+                  onAddCoffee={addCoffee}
+                />
               </TabsContent>
             </Tabs>
           </div>
