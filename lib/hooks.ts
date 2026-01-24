@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { RecipeService, CoffeeService, LogService } from '@/lib/db';
+import { RecipeService, CoffeeService, LogService } from '@/lib/db-client';
 import type { Recipe, Coffee, BrewLog } from '@/lib/types';
 
-export function useRecipes() {
-    const [recipes, setRecipes] = useState<Recipe[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+export function useRecipes(initialData?: Recipe[]) {
+    const [recipes, setRecipes] = useState<Recipe[]>(initialData || []);
+    const [isLoading, setIsLoading] = useState(!initialData);
     const [error, setError] = useState<Error | null>(null);
 
     const refresh = useCallback(async () => {
@@ -21,8 +21,10 @@ export function useRecipes() {
     }, []);
 
     useEffect(() => {
-        refresh();
-    }, [refresh]);
+        if (!initialData) {
+            refresh();
+        }
+    }, [refresh, initialData]);
 
     const addRecipe = async (recipe: Recipe) => {
         await RecipeService.createRecipe(recipe);
@@ -42,9 +44,9 @@ export function useRecipes() {
     return { recipes, isLoading, error, refresh, addRecipe, updateRecipe, deleteRecipe };
 }
 
-export function useCoffees() {
-    const [coffees, setCoffees] = useState<Coffee[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+export function useCoffees(initialData?: Coffee[]) {
+    const [coffees, setCoffees] = useState<Coffee[]>(initialData || []);
+    const [isLoading, setIsLoading] = useState(!initialData);
 
     const refresh = useCallback(async () => {
         setIsLoading(true);
@@ -54,8 +56,10 @@ export function useCoffees() {
     }, []);
 
     useEffect(() => {
-        refresh();
-    }, [refresh]);
+        if (!initialData) {
+            refresh();
+        }
+    }, [refresh, initialData]);
 
     const addCoffee = async (coffee: Coffee) => {
         await CoffeeService.addCoffee(coffee);
@@ -75,9 +79,9 @@ export function useCoffees() {
     return { coffees, isLoading, addCoffee, updateCoffee, deleteCoffee, refresh };
 }
 
-export function useRecipe(id: string) {
-    const [recipe, setRecipe] = useState<Recipe | undefined>(undefined);
-    const [isLoading, setIsLoading] = useState(true);
+export function useRecipe(id: string, initialData?: Recipe) {
+    const [recipe, setRecipe] = useState<Recipe | undefined>(initialData);
+    const [isLoading, setIsLoading] = useState(!initialData);
 
     const refresh = useCallback(async () => {
         if (!id) return;
@@ -88,8 +92,10 @@ export function useRecipe(id: string) {
     }, [id]);
 
     useEffect(() => {
-        refresh();
-    }, [refresh]);
+        if (!initialData) {
+            refresh();
+        }
+    }, [refresh, initialData]);
 
     const updateRecipe = async (updatedRecipe: Recipe) => {
         await RecipeService.updateRecipe(updatedRecipe);
@@ -104,9 +110,9 @@ export function useRecipe(id: string) {
     return { recipe, isLoading, refresh, updateRecipe, deleteRecipe };
 }
 
-export function useLogs(recipeId: string) {
-    const [logs, setLogs] = useState<BrewLog[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+export function useLogs(recipeId: string, initialData?: BrewLog[]) {
+    const [logs, setLogs] = useState<BrewLog[]>(initialData || []);
+    const [isLoading, setIsLoading] = useState(!initialData);
 
     const refresh = useCallback(async () => {
         if (!recipeId) return;
@@ -117,8 +123,10 @@ export function useLogs(recipeId: string) {
     }, [recipeId]);
 
     useEffect(() => {
-        refresh();
-    }, [refresh]);
+        if (!initialData) {
+            refresh();
+        }
+    }, [refresh, initialData]);
 
     const addLog = async (log: BrewLog) => {
         await LogService.createLog(log);
@@ -128,9 +136,9 @@ export function useLogs(recipeId: string) {
     return { logs, isLoading, addLog, refresh };
 }
 
-export function useAllLogs() {
-    const [logs, setLogs] = useState<BrewLog[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+export function useAllLogs(initialData?: BrewLog[]) {
+    const [logs, setLogs] = useState<BrewLog[]>(initialData || []);
+    const [isLoading, setIsLoading] = useState(!initialData);
 
     const refresh = useCallback(async () => {
         setIsLoading(true);
@@ -140,8 +148,10 @@ export function useAllLogs() {
     }, []);
 
     useEffect(() => {
-        refresh();
-    }, [refresh]);
+        if (!initialData) {
+            refresh();
+        }
+    }, [refresh, initialData]);
 
     const addLog = async (log: BrewLog) => {
         await LogService.createLog(log);

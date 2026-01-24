@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { LogService } from '@/lib/db';
+import { LogService } from '@/lib/db-client';
 import type { BrewLog, Recipe, TasteProfile, Coffee } from '@/lib/types';
 import { Star, Zap, Candy, Circle, AlertTriangle, Save, ChevronDown, Scale, Droplets, Thermometer, Hash, Bean, Camera, X } from 'lucide-react';
 import { cn } from '@/lib/utils';

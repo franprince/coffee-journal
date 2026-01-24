@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
-import { SAMPLE_RECIPES, SAMPLE_LOGS, SAMPLE_COFFEES } from '@/lib/data';
 import type { Recipe, BrewLog, Coffee } from '@/lib/types';
+import { mapRecipeFromDB, mapLogFromDB, mapCoffeeFromDB } from './db-mappers';
 
 // Helper to check if Supabase is configured
 const isSupabaseConfigured = () => {
@@ -9,7 +9,7 @@ const isSupabaseConfigured = () => {
 
 export const RecipeService = {
     async getRecipes(): Promise<Recipe[]> {
-        if (!isSupabaseConfigured()) return SAMPLE_RECIPES;
+        if (!isSupabaseConfigured()) return [];
 
         const supabase = createClient();
         const { data, error } = await supabase
@@ -19,7 +19,7 @@ export const RecipeService = {
 
         if (error) {
             console.error('Error fetching recipes:', error);
-            return SAMPLE_RECIPES;
+            return [];
         }
 
         return data.map(dbRecipe => ({
@@ -30,7 +30,7 @@ export const RecipeService = {
 
     async getRecipe(id: string): Promise<Recipe | undefined> {
         if (!isSupabaseConfigured()) {
-            return SAMPLE_RECIPES.find(r => r.id === id);
+            return undefined;
         }
 
         const supabase = createClient();
@@ -163,8 +163,7 @@ export const RecipeService = {
 export const CoffeeService = {
     async getCoffees(): Promise<Coffee[]> {
         if (!isSupabaseConfigured()) {
-            // Need to return sample coffees if not configured
-            return SAMPLE_COFFEES || [];
+            return [];
         }
 
         const supabase = createClient();
@@ -268,7 +267,7 @@ export const CoffeeService = {
 export const LogService = {
     async getLogsForRecipe(recipeId: string): Promise<BrewLog[]> {
         if (!isSupabaseConfigured()) {
-            return SAMPLE_LOGS.filter(l => l.recipeId === recipeId);
+            return [];
         }
 
         const supabase = createClient();
@@ -310,7 +309,7 @@ export const LogService = {
     },
 
     async getAllLogs(): Promise<BrewLog[]> {
-        if (!isSupabaseConfigured()) return SAMPLE_LOGS;
+        if (!isSupabaseConfigured()) return [];
 
         const supabase = createClient();
         const { data, error } = await supabase
@@ -362,61 +361,3 @@ export const LogService = {
         return data.publicUrl;
     }
 };
-
-// -- Mappers --
-
-function mapCoffeeFromDB(dbCoffee: any): Coffee {
-    return {
-        id: dbCoffee.id,
-        name: dbCoffee.name,
-        roaster: dbCoffee.roaster,
-        roastLevel: dbCoffee.roast_level,
-        origin: dbCoffee.origin,
-        process: dbCoffee.process,
-        notes: dbCoffee.notes,
-        imageUrl: dbCoffee.image_url,
-        isArchived: dbCoffee.is_archived,
-    };
-}
-
-function mapRecipeFromDB(dbRecipe: any): Recipe {
-    return {
-        id: dbRecipe.id,
-        name: dbRecipe.name,
-        method: dbRecipe.method,
-        coffeeWeight: dbRecipe.coffee_weight,
-        totalWaterWeight: dbRecipe.total_water_weight,
-        grindSize: dbRecipe.grind_size,
-        waterType: dbRecipe.water_type,
-        coffeeId: dbRecipe.coffee_id,
-        createdAt: new Date(dbRecipe.created_at),
-        pours: dbRecipe.pours?.map((p: any) => ({
-            id: p.id,
-            time: p.time,
-            waterAmount: p.water_amount,
-            temperature: p.temperature,
-            temperatureUnit: p.temperature_unit,
-            notes: p.notes
-        })).sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)) || []
-    };
-}
-
-function mapLogFromDB(dbLog: any): BrewLog {
-    return {
-        id: dbLog.id,
-        recipeId: dbLog.recipe_id,
-        recipeName: 'Unknown', // We might need to join recipes to get name if not stored
-        method: 'Unknown',     // Same here
-        date: new Date(dbLog.date),
-        rating: dbLog.rating,
-        tasteProfile: dbLog.taste_profile,
-        notes: dbLog.notes,
-        coffeeWeight: dbLog.coffee_weight,
-        totalWaterWeight: dbLog.total_water_weight,
-        grindSize: dbLog.grind_size,
-        temperature: dbLog.temperature,
-        imageUrls: dbLog.image_urls || [],
-        pours: dbLog.custom_pours,
-        coffeeId: dbLog.coffee_id,
-    };
-}

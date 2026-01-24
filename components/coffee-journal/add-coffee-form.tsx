@@ -13,7 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { CoffeeService } from '@/lib/db';
+import { CoffeeService } from '@/lib/db-client';
 import { optimizeImage } from '@/lib/images';
 
 interface AddCoffeeFormProps {
