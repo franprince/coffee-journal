@@ -3,7 +3,7 @@
 import type { BrewLog } from '@/lib/types';
 import { METHOD_LABELS } from '@/lib/types';
 import { MethodIcon } from './method-icons';
-import { Star, Calendar, Zap, Candy, Circle, AlertTriangle } from 'lucide-react';
+import { Star, Calendar, Zap, Candy, Circle, AlertTriangle, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BrewLogCardProps {
@@ -17,6 +17,8 @@ export function BrewLogCard({ log }: BrewLogCardProps) {
     year: 'numeric',
   }).format(log.date);
 
+  const hasTweaks = log.coffeeWeight || log.totalWaterWeight || log.grindSize || log.temperature || log.pours;
+
   const tasteItems = [
     { key: 'acidity', label: 'Acidity', icon: Zap, value: log.tasteProfile.acidity },
     { key: 'sweetness', label: 'Sweet', icon: Candy, value: log.tasteProfile.sweetness },
@@ -25,9 +27,16 @@ export function BrewLogCard({ log }: BrewLogCardProps) {
   ];
 
   return (
-    <div className="glass-card rounded-lg p-3 hover:shadow-md transition-all border border-border">
+    <div className="glass-card rounded-lg p-3 hover:shadow-md transition-all border border-border relative group">
+      {/* Tweak Indicator */}
+      {hasTweaks && (
+        <div className="absolute top-2 right-2 text-accent" title="Recipe Modified">
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+        </div>
+      )}
+
       {/* Header - compact */}
-      <div className="flex items-start justify-between mb-2">
+      <div className="flex items-start justify-between mb-2 pr-4">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-coffee-espresso text-coffee-crema">
             <MethodIcon method={log.method} className="w-4 h-4" />
@@ -40,7 +49,7 @@ export function BrewLogCard({ log }: BrewLogCardProps) {
             </div>
           </div>
         </div>
-        
+
         {/* Star rating */}
         <div className="flex items-center gap-0.5">
           {[1, 2, 3, 4, 5].map((star) => (

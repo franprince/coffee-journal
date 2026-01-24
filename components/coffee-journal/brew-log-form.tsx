@@ -4,15 +4,18 @@ import React from "react"
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import type { BrewLog, Recipe, TasteProfile } from '@/lib/types';
-import { Star, Zap, Candy, Circle, AlertTriangle, Save } from 'lucide-react';
+import type { BrewLog, Recipe, TasteProfile, Coffee } from '@/lib/types';
+import { Star, Zap, Candy, Circle, AlertTriangle, Save, ChevronDown, Scale, Droplets, Thermometer, Hash, Bean } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface BrewLogFormProps {
   recipe: Recipe;
+  coffees: Coffee[];
   onSave: (log: BrewLog) => void;
   onCancel: () => void;
 }
@@ -24,7 +27,7 @@ const TASTE_DIMENSIONS = [
   { key: 'bitterness' as const, label: 'Bitterness', icon: AlertTriangle, description: 'Dark, roasty, intense' },
 ];
 
-export function BrewLogForm({ recipe, onSave, onCancel }: BrewLogFormProps) {
+export function BrewLogForm({ recipe, coffees, onSave, onCancel }: BrewLogFormProps) {
   const [tasteProfile, setTasteProfile] = useState<TasteProfile>({
     acidity: 50,
     sweetness: 50,
@@ -34,6 +37,15 @@ export function BrewLogForm({ recipe, onSave, onCancel }: BrewLogFormProps) {
   const [rating, setRating] = useState(4);
   const [notes, setNotes] = useState('');
   const [hoveredStar, setHoveredStar] = useState<number | null>(null);
+
+  // Recipe Tweaks State
+  const [showTweaks, setShowTweaks] = useState(false);
+  const [coffeeWeight, setCoffeeWeight] = useState(recipe.coffeeWeight);
+  const [totalWaterWeight, setTotalWaterWeight] = useState(recipe.totalWaterWeight);
+  const [grindSize, setGrindSize] = useState(recipe.grindSize);
+  const [temperature, setTemperature] = useState(recipe.pours?.[0]?.temperature || 93);
+  const [pours, setPours] = useState(recipe.pours || []);
+  const [selectedCoffeeId, setSelectedCoffeeId] = useState<string>('');
 
   const updateTaste = (key: keyof TasteProfile, value: number[]) => {
     setTasteProfile(prev => ({ ...prev, [key]: value[0] }));
@@ -50,20 +62,151 @@ export function BrewLogForm({ recipe, onSave, onCancel }: BrewLogFormProps) {
       date: new Date(),
       tasteProfile,
       rating,
+      coffeeId: selectedCoffeeId,
+      coffeeName: coffees.find(c => c.id === selectedCoffeeId)?.name,
       notes: notes || undefined,
+      // Save tweaks
+      coffeeWeight,
+      totalWaterWeight,
+      grindSize,
+      temperature,
+      pours: showTweaks ? pours : undefined,
     };
 
     onSave(log);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Header */}
       <div className="text-center pb-3 border-b border-border">
         <h3 className="font-serif text-base font-semibold text-foreground">Log Your Brew</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">
+        <p className="text-xs text-muted-foreground mt-0.5 mb-3">
           How was your {recipe.name}?
         </p>
+
+        {/* Coffee Selector */}
+        <div className="max-w-[200px] mx-auto">
+          <Select value={selectedCoffeeId} onValueChange={setSelectedCoffeeId}>
+            <SelectTrigger className="h-8 text-xs bg-secondary/20 border-border/50">
+              <SelectValue placeholder="Select Coffee Bean..." />
+            </SelectTrigger>
+            <SelectContent>
+              {coffees.map(c => (
+                <SelectItem key={c.id} value={c.id} className="text-xs">
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Recipe Tweaks Section */}
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={() => setShowTweaks(!showTweaks)}
+          className="flex items-center justify-center gap-2 text-xs text-primary font-medium hover:underline mx-auto w-full py-1"
+        >
+          {showTweaks ? 'Hide Recipe Parameters' : 'Adjust Recipe Parameters'}
+          <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showTweaks && "rotate-180")} />
+        </button>
+
+        {showTweaks && (
+          <div className="grid grid-cols-2 gap-3 bg-secondary/30 p-4 rounded-xl border border-border/50 animate-in slide-in-from-top-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Scale className="w-3.5 h-3.5" /> Coffee (g)
+              </Label>
+              <Input
+                type="number"
+                value={coffeeWeight}
+                onChange={(e) => setCoffeeWeight(Number(e.target.value))}
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Droplets className="w-3.5 h-3.5" /> Water (g)
+              </Label>
+              <Input
+                type="number"
+                value={totalWaterWeight}
+                onChange={(e) => setTotalWaterWeight(Number(e.target.value))}
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Hash className="w-3.5 h-3.5" /> Grind
+              </Label>
+              <Input
+                type="number"
+                value={grindSize}
+                onChange={(e) => setGrindSize(Number(e.target.value))}
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Thermometer className="w-3.5 h-3.5" /> Temp (°C)
+              </Label>
+              <Input
+                type="number"
+                value={temperature}
+                onChange={(e) => setTemperature(Number(e.target.value))}
+                className="h-8 text-sm"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Edit Steps Section */}
+        {showTweaks && (
+          <div className="space-y-3 mt-4 border-t border-border pt-3">
+            <Label className="text-xs font-semibold text-foreground uppercase tracking-wider">
+              Pour Schedule Overrides
+            </Label>
+            <div className="space-y-3">
+              {pours.map((pour, index) => (
+                <div key={pour.id} className="grid grid-cols-[60px_60px_1fr] gap-2 items-center">
+                  <Input
+                    value={pour.time}
+                    onChange={(e) => {
+                      const newPours = [...pours];
+                      newPours[index] = { ...pour, time: e.target.value };
+                      setPours(newPours);
+                    }}
+                    className="h-8 text-xs font-mono px-2 text-center"
+                    placeholder="mm:ss"
+                  />
+                  <Input
+                    type="number"
+                    value={pour.waterAmount}
+                    onChange={(e) => {
+                      const newPours = [...pours];
+                      newPours[index] = { ...pour, waterAmount: Number(e.target.value) };
+                      setPours(newPours);
+                    }}
+                    className="h-8 text-xs font-mono px-2 text-center"
+                    placeholder="g"
+                  />
+                  <Input
+                    value={pour.notes || ''}
+                    onChange={(e) => {
+                      const newPours = [...pours];
+                      newPours[index] = { ...pour, notes: e.target.value };
+                      setPours(newPours);
+                    }}
+                    className="h-8 text-xs px-2"
+                    placeholder="Notes..."
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Star Rating */}
@@ -77,7 +220,7 @@ export function BrewLogForm({ recipe, onSave, onCancel }: BrewLogFormProps) {
               onClick={() => setRating(star)}
               onMouseEnter={() => setHoveredStar(star)}
               onMouseLeave={() => setHoveredStar(null)}
-              className="p-0.5 transition-transform hover:scale-110 focus:outline-none"
+              className="p-0.5 transition-transform focus:outline-none"
             >
               <Star
                 className={cn(
@@ -90,7 +233,7 @@ export function BrewLogForm({ recipe, onSave, onCancel }: BrewLogFormProps) {
             </button>
           ))}
         </div>
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-center text-xs text-muted-foreground min-h-[1.25rem]">
           {rating === 1 && 'Needs work'}
           {rating === 2 && 'Below average'}
           {rating === 3 && 'Good'}
@@ -102,7 +245,7 @@ export function BrewLogForm({ recipe, onSave, onCancel }: BrewLogFormProps) {
       {/* Taste Profile Sliders */}
       <div className="space-y-3">
         <Label className="text-foreground text-sm">Taste Profile</Label>
-        
+
         {TASTE_DIMENSIONS.map(({ key, label, icon: Icon, description }) => (
           <div key={key} className="space-y-1">
             <div className="flex items-center justify-between">
@@ -220,6 +363,6 @@ export function BrewLogForm({ recipe, onSave, onCancel }: BrewLogFormProps) {
           Save Log
         </Button>
       </div>
-    </form>
+    </form >
   );
 }
