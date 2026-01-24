@@ -32,7 +32,7 @@ export function RecipeCard({ recipe, onSelect }: RecipeCardProps) {
   return (
     <div
       onClick={() => onSelect?.(recipe)}
-      className="glass-card subtle-glow rounded-xl p-4 transition-all duration-300 group relative hover:shadow-lg cursor-pointer"
+      className="glass-card subtle-glow rounded-3xl p-5 transition-all duration-300 group relative hover:shadow-2xl cursor-pointer border border-white/5 active:scale-95"
     >
       {/* Export Button */}
       <div
@@ -45,7 +45,7 @@ export function RecipeCard({ recipe, onSelect }: RecipeCardProps) {
       {/* Header - compact */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-lg bg-coffee-espresso text-coffee-crema shadow-md group-hover:shadow-lg transition-shadow">
+          <div className="p-2.5 rounded-2xl bg-coffee-espresso/10 text-primary shadow-sm group-hover:shadow-md transition-shadow group-hover:bg-primary/20">
             <MethodIcon method={recipe.method} className="w-5 h-5" />
           </div>
           <div>
@@ -109,7 +109,7 @@ export function RecipeCard({ recipe, onSelect }: RecipeCardProps) {
                   <div className={`flex-1 flex items-center gap-2 py-1.5 px-2 rounded transition-all ${pour.isBloom ? 'bg-gradient-to-r from-accent/10 to-transparent' : ''}`}>
                     <span className="font-mono text-xs font-medium text-foreground w-10">{pour.time}</span>
                     {pour.isBloom && (
-                      <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-coffee-bloom/20 text-coffee-bloom">
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-coffee-bloom/20 text-coffee-bloom tracking-wide uppercase shadow-[0_0_10px_oklch(0.65_0.18_55_/_0.2)]">
                         Bloom
                       </span>
                     )}

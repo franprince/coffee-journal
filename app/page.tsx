@@ -140,34 +140,37 @@ export default function CoffeeJournalPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-card via-card to-secondary/20 backdrop-blur-md border-b border-border shadow-lg">
+      {/* Header - Neon Espresso Style */}
+      <header className="sticky top-0 z-50 bg-background/50 backdrop-blur-xl border-b border-white/5 shadow-2xl">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-coffee-espresso text-coffee-crema shadow-lg">
+              <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 text-primary shadow-lg shadow-primary/10 animate-pulse-glow">
                 <Coffee className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="font-serif text-xl md:text-2xl font-bold text-coffee-espresso">
+                <h1 className="font-serif text-2xl md:text-3xl font-bold text-gradient tracking-tight">
                   Brew Journal
                 </h1>
-                <p className="text-xs text-muted-foreground hidden sm:block">
+                <p className="text-xs text-muted-foreground hidden sm:block font-medium tracking-wide uppercase opacity-80">
                   Perfect your pour
                 </p>
               </div>
             </div>
 
-            <Button
-              onClick={() => {
-                setShowNewRecipe(true);
-                setSelectedRecipe(null);
-              }}
-              className="bg-coffee-espresso hover:bg-coffee-espresso/90 text-coffee-crema gap-2 shadow-lg transition-all duration-300 hover:scale-105"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">New Recipe</span>
-            </Button>
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => {
+                  setShowNewRecipe(true);
+                  setSelectedRecipe(null);
+                }}
+                className="rounded-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground gap-2 shadow-[0_0_20px_oklch(0.65_0.18_55_/_0.3)] transition-all duration-300 hover:scale-105 border-0"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline font-bold">New Recipe</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -301,42 +304,42 @@ export default function CoffeeJournalPage() {
                 </div>
               ) : selectedRecipe ? (
                 // Recipe Detail View
-                <div className="relative">
+                <div className="relative glass-card rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl">
                   {/* Close/back button */}
                   <button
                     onClick={() => setSelectedRecipe(null)}
-                    className="absolute top-4 left-4 p-2 rounded-lg hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-foreground z-10 flex items-center gap-1 text-sm"
+                    className="absolute top-6 left-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground z-10 flex items-center gap-1 text-sm backdrop-blur-md transition-all border border-white/5"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    <span className="hidden sm:inline">Back</span>
+                    <span className="hidden sm:inline font-medium">Back</span>
                   </button>
 
-                  <div className="p-5 pt-14 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                  <div className="p-8 pt-20 max-h-[calc(100vh-8rem)] overflow-y-auto">
                     {/* Recipe Header - Compact & Cohesive */}
-                    <div className="flex items-start gap-4 mb-6">
-                      <div className="p-3 rounded-xl bg-coffee-espresso text-coffee-crema shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-start gap-5 mb-8">
+                      <div className="p-4 rounded-3xl bg-gradient-to-br from-primary/10 to-secondary/10 text-primary border border-white/5 shadow-inner">
                         <MethodIcon method={selectedRecipe.method} className="w-8 h-8" />
                       </div>
                       <div className="flex-1">
                         <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
                           <div>
-                            <h2 className="font-serif text-xl font-bold text-coffee-espresso">
+                            <h2 className="font-serif text-3xl font-bold text-gradient mb-1">
                               {selectedRecipe.name}
                             </h2>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground font-medium tracking-wide uppercase opacity-80">
                               {METHOD_LABELS[selectedRecipe.method as keyof typeof METHOD_LABELS] || selectedRecipe.method}
                             </p>
                           </div>
                         </div>
 
                         {/* Consolidated Stats Row */}
-                        <div className="flex items-center gap-4 mt-3 text-sm">
+                        <div className="flex items-center gap-6 mt-4 text-sm bg-white/5 p-3 rounded-2xl border border-white/5 inline-flex backdrop-blur-sm">
                           {/* Ratio */}
-                          <div className="flex items-baseline gap-1">
-                            <span className="font-serif text-xl font-bold text-coffee-espresso">
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="font-serif text-xl font-bold text-primary">
                               1:{(selectedRecipe.totalWaterWeight / selectedRecipe.coffeeWeight).toFixed(1)}
                             </span>
-                            <span className="text-xs text-muted-foreground">ratio</span>
+                            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">ratio</span>
                           </div>
 
                           <div className="w-px h-8 bg-border" />
