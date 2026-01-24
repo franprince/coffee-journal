@@ -26,7 +26,8 @@
 
   /* Muted */
   --muted: oklch(0.20 0.04 40);
-  --muted-foreground: oklch(0.70 0.05 40);
+  --muted-foreground: oklch(0.75 0.02 40);
+  /* Increased readability */
 
   /* Accent - Shiny Gold */
   --accent: oklch(0.65 0.18 55);
@@ -65,8 +66,8 @@
   --coffee-crema: oklch(0.12 0.02 40);
   /* Used for bg of lighter elements */
   --coffee-bloom: oklch(0.65 0.18 55);
-  --coffee-water: oklch(0.55 0.15 250);
-  /* Blueish */
+  --coffee-water: oklch(0.65 0.12 250);
+  /* Validated contrast */
 }
 
 /* Force dark mode behavior by default */

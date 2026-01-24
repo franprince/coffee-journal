@@ -336,7 +336,7 @@ export default function CoffeeJournalPage() {
                         <div className="flex items-center gap-6 mt-4 text-sm bg-white/5 p-3 rounded-2xl border border-white/5 inline-flex backdrop-blur-sm">
                           {/* Ratio */}
                           <div className="flex items-baseline gap-1.5">
-                            <span className="font-serif text-xl font-bold text-primary">
+                            <span className="font-mono text-xl font-bold text-primary tracking-tight">
                               1:{(selectedRecipe.totalWaterWeight / selectedRecipe.coffeeWeight).toFixed(1)}
                             </span>
                             <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">ratio</span>
