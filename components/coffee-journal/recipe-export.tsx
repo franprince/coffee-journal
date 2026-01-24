@@ -218,7 +218,7 @@ export function RecipeExport({ recipe }: RecipeExportProps) {
         onClick={exportImage}
         variant="ghost"
         size="sm"
-        className="gap-2 bg-black/40 hover:bg-primary hover:text-primary-foreground text-primary border border-white/10 backdrop-blur-md rounded-full font-bold shadow-lg transition-all hover:scale-105"
+        className="gap-2 bg-black/40 hover:bg-primary hover:text-primary-foreground text-primary border border-white/10 backdrop-blur-md rounded-full font-bold shadow-lg transition-all"
       >
         <Download className="h-4 w-4" />
         Export
