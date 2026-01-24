@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { LogService } from '@/lib/db';
 import type { BrewLog, Recipe, TasteProfile, Coffee } from '@/lib/types';
-import { Star, Zap, Candy, Circle, AlertTriangle, Save, ChevronDown, Scale, Droplets, Thermometer, Hash, Bean } from 'lucide-react';
+import { Star, Zap, Candy, Circle, AlertTriangle, Save, ChevronDown, Scale, Droplets, Thermometer, Hash, Bean, Camera, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
@@ -51,6 +52,8 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
   const [pours, setPours] = useState(recipe.pours || []);
   const [selectedCoffeeId, setSelectedCoffeeId] = useState<string>('');
   const [isAddCoffeeOpen, setIsAddCoffeeOpen] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const updateTaste = (key: keyof TasteProfile, value: number[]) => {
     setTasteProfile(prev => ({ ...prev, [key]: value[0] }));
@@ -70,6 +73,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
       coffeeId: selectedCoffeeId,
       coffeeName: coffees.find(c => c.id === selectedCoffeeId)?.name,
       notes: notes || undefined,
+      imageUrls,
       // Save tweaks
       coffeeWeight,
       totalWaterWeight,
@@ -374,6 +378,68 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
           onChange={(e) => setNotes(e.target.value)}
           className="bg-background border-border min-h-[80px] resize-none text-sm"
         />
+      </div>
+
+      {/* Image Upload */}
+      <div className="space-y-2">
+        <Label className="text-foreground text-sm flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5">
+            <Camera className="w-3.5 h-3.5" />
+            Photos
+          </span>
+          <span className="text-muted-foreground text-xs">(optional)</span>
+        </Label>
+
+        <div className="grid grid-cols-4 gap-2">
+          {imageUrls.map((url, index) => (
+            <div key={index} className="relative aspect-square rounded-md overflow-hidden border border-border group">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={url} alt={`Brew photo ${index + 1}`} className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={() => setImageUrls(prev => prev.filter((_, i) => i !== index))}
+                className="absolute top-1 right-1 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+
+          {imageUrls.length < 3 && (
+            <label className="flex flex-col items-center justify-center aspect-square rounded-md border border-dashed border-border bg-secondary/20 hover:bg-secondary/40 cursor-pointer transition-colors relative">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 5 * 1024 * 1024) {
+                    alert("File too large (max 5MB)");
+                    return;
+                  }
+
+                  setIsUploading(true);
+                  try {
+                    const url = await LogService.uploadLogImage(file, file.name);
+                    setImageUrls(prev => [...prev, url]);
+                  } catch (error) {
+                    console.error("Upload failed", error);
+                    alert("Upload failed. Please try again.");
+                  } finally {
+                    setIsUploading(false);
+                  }
+                }}
+                disabled={isUploading}
+              />
+              {isUploading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
+              ) : (
+                <Plus className="w-5 h-5 text-muted-foreground" />
+              )}
+            </label>
+          )}
+        </div>
       </div>
 
       {/* Actions */}

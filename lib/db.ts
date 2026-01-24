@@ -333,6 +333,33 @@ export const LogService = {
             method: dbLog.recipes?.method || 'Unknown',
             coffeeName: dbLog.coffees?.name,
         }));
+    },
+
+    async uploadLogImage(file: Blob, fileName: string): Promise<string> {
+        if (!isSupabaseConfigured()) throw new Error('Supabase not configured');
+
+        const supabase = createClient();
+        const fileExt = 'jpg';
+        const path = `logs/${Date.now()}_${fileName.replace(/[^a-zA-Z0-9]/g, '_')}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('coffee-images') // Reusing same bucket for now
+            .upload(path, file, {
+                contentType: 'image/jpeg',
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (uploadError) {
+            console.error('Error uploading image:', uploadError);
+            throw uploadError;
+        }
+
+        const { data } = supabase.storage
+            .from('coffee-images')
+            .getPublicUrl(path);
+
+        return data.publicUrl;
     }
 };
 
@@ -388,6 +415,7 @@ function mapLogFromDB(dbLog: any): BrewLog {
         totalWaterWeight: dbLog.total_water_weight,
         grindSize: dbLog.grind_size,
         temperature: dbLog.temperature,
+        imageUrls: dbLog.image_urls || [],
         pours: dbLog.custom_pours,
         coffeeId: dbLog.coffee_id,
     };
