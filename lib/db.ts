@@ -14,18 +14,18 @@ export const RecipeService = {
         const supabase = createClient();
         const { data, error } = await supabase
             .from('recipes')
-            .select('*, pours(*)');
+            .select('*, pours(*), coffees(image_url)')
+            .order('created_at', { ascending: false });
 
         if (error) {
             console.error('Error fetching recipes:', error);
-            return SAMPLE_RECIPES; // Fallback on error
+            return SAMPLE_RECIPES;
         }
 
-        // Transform snake_case to camelCase if needed, but Supabase returns JSON
-        // We might need a mapper if DB columns are snake_case (standard SQL) and types are camelCase
-        // The schema uses snake_case: coffee_weight, total_water_weight
-        // We need to map them back to our TypeScript interfaces.
-        return data.map(mapRecipeFromDB);
+        return data.map(dbRecipe => ({
+            ...mapRecipeFromDB(dbRecipe),
+            coffeeImageUrl: dbRecipe.coffees?.image_url
+        }));
     },
 
     async getRecipe(id: string): Promise<Recipe | undefined> {
@@ -36,12 +36,15 @@ export const RecipeService = {
         const supabase = createClient();
         const { data, error } = await supabase
             .from('recipes')
-            .select('*, pours(*)')
+            .select('*, pours(*), coffees(image_url)')
             .eq('id', id)
             .single();
 
         if (error || !data) return undefined;
-        return mapRecipeFromDB(data);
+        return {
+            ...mapRecipeFromDB(data),
+            coffeeImageUrl: data.coffees?.image_url
+        };
     },
 
     async createRecipe(recipe: Recipe): Promise<void> {
@@ -61,6 +64,7 @@ export const RecipeService = {
             total_water_weight: recipe.totalWaterWeight,
             grind_size: recipe.grindSize,
             water_type: recipe.waterType || null,
+            coffee_id: recipe.coffeeId || null,
         };
 
         const { error: recipeError } = await supabase
@@ -94,6 +98,65 @@ export const RecipeService = {
                 throw poursError;
             }
         }
+    },
+
+    async updateRecipe(recipe: Recipe): Promise<void> {
+        if (!isSupabaseConfigured()) return;
+
+        const supabase = createClient();
+
+        const dbRecipe = {
+            name: recipe.name,
+            method: recipe.method,
+            coffee_weight: recipe.coffeeWeight,
+            total_water_weight: recipe.totalWaterWeight,
+            grind_size: recipe.grindSize,
+            water_type: recipe.waterType || null,
+            coffee_id: recipe.coffeeId || null,
+        };
+
+        const { error: recipeError } = await supabase
+            .from('recipes')
+            .update(dbRecipe)
+            .eq('id', recipe.id);
+
+        if (recipeError) throw recipeError;
+
+        // Update pours: delete old and insert new
+        const { error: deletePoursError } = await supabase
+            .from('pours')
+            .delete()
+            .eq('recipe_id', recipe.id);
+
+        if (deletePoursError) throw deletePoursError;
+
+        if (recipe.pours && recipe.pours.length > 0) {
+            const dbPours = recipe.pours.map((pour, index) => ({
+                id: pour.id || crypto.randomUUID(),
+                recipe_id: recipe.id,
+                time: pour.time,
+                water_amount: pour.waterAmount,
+                temperature: pour.temperature,
+                temperature_unit: pour.temperatureUnit,
+                notes: pour.notes || null,
+                order_index: index,
+            }));
+
+            const { error: poursError } = await supabase
+                .from('pours')
+                .insert(dbPours);
+
+            if (poursError) throw poursError;
+        }
+    },
+
+    async deleteRecipe(id: string): Promise<void> {
+        if (!isSupabaseConfigured()) return;
+        const supabase = createClient();
+
+        await supabase.from('pours').delete().eq('recipe_id', id);
+        const { error } = await supabase.from('recipes').delete().eq('id', id);
+        if (error) throw error;
     }
 };
 
@@ -142,6 +205,63 @@ export const CoffeeService = {
             console.error('Error adding coffee:', error);
             throw error;
         }
+    },
+
+    async updateCoffee(coffee: Coffee): Promise<void> {
+        if (!isSupabaseConfigured()) return;
+
+        const dbCoffee = {
+            name: coffee.name,
+            roaster: coffee.roaster,
+            roast_level: coffee.roastLevel,
+            origin: coffee.origin,
+            process: coffee.process,
+            notes: coffee.notes,
+            image_url: coffee.imageUrl,
+            is_archived: coffee.isArchived || false,
+        };
+
+        const supabase = createClient();
+        const { error } = await supabase
+            .from('coffees')
+            .update(dbCoffee)
+            .eq('id', coffee.id);
+
+        if (error) throw error;
+    },
+
+    async deleteCoffee(id: string): Promise<void> {
+        if (!isSupabaseConfigured()) return;
+        const supabase = createClient();
+        const { error } = await supabase.from('coffees').delete().eq('id', id);
+        if (error) throw error;
+    },
+
+    async uploadCoffeeImage(file: Blob, fileName: string): Promise<string> {
+        if (!isSupabaseConfigured()) throw new Error('Supabase not configured');
+
+        const supabase = createClient();
+        const fileExt = 'jpg'; // We convert to jpeg in optimizeImage
+        const path = `${Date.now()}_${fileName.replace(/[^a-zA-Z0-9]/g, '_')}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('coffee-images')
+            .upload(path, file, {
+                contentType: 'image/jpeg',
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (uploadError) {
+            console.error('Error uploading image:', uploadError);
+            throw uploadError;
+        }
+
+        const { data } = supabase.storage
+            .from('coffee-images')
+            .getPublicUrl(path);
+
+        return data.publicUrl;
     }
 };
 
@@ -227,6 +347,7 @@ function mapCoffeeFromDB(dbCoffee: any): Coffee {
         origin: dbCoffee.origin,
         process: dbCoffee.process,
         notes: dbCoffee.notes,
+        imageUrl: dbCoffee.image_url,
         isArchived: dbCoffee.is_archived,
     };
 }
@@ -240,6 +361,7 @@ function mapRecipeFromDB(dbRecipe: any): Recipe {
         totalWaterWeight: dbRecipe.total_water_weight,
         grindSize: dbRecipe.grind_size,
         waterType: dbRecipe.water_type,
+        coffeeId: dbRecipe.coffee_id,
         createdAt: new Date(dbRecipe.created_at),
         pours: dbRecipe.pours?.map((p: any) => ({
             id: p.id,
@@ -266,6 +388,7 @@ function mapLogFromDB(dbLog: any): BrewLog {
         totalWaterWeight: dbLog.total_water_weight,
         grindSize: dbLog.grind_size,
         temperature: dbLog.temperature,
-        pours: dbLog.custom_pours
+        pours: dbLog.custom_pours,
+        coffeeId: dbLog.coffee_id,
     };
 }

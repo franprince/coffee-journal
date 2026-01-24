@@ -24,16 +24,22 @@ export function useRecipes() {
         refresh();
     }, [refresh]);
 
-    const addRecipe = async (recipe: Recipe) => { // Optimistic or Re-fetch? For now, re-fetch or manual update
-        // We assume the service handles the DB insert
-        // Since we don't have a createRecipe in Service yet (it was mocked in component), 
-        // we might need to update Service or just expose a setter for now if it's client-side only for some parts.
-        // Actually, RecipeService.getRecipes is async.
-        // Let's assume we want to update the local list after saving.
-        setRecipes(prev => [recipe, ...prev]);
+    const addRecipe = async (recipe: Recipe) => {
+        await RecipeService.createRecipe(recipe);
+        await refresh();
     };
 
-    return { recipes, isLoading, error, refresh, setRecipes };
+    const updateRecipe = async (recipe: Recipe) => {
+        await RecipeService.updateRecipe(recipe);
+        await refresh();
+    };
+
+    const deleteRecipe = async (id: string) => {
+        await RecipeService.deleteRecipe(id);
+        await refresh();
+    };
+
+    return { recipes, isLoading, error, refresh, addRecipe, updateRecipe, deleteRecipe };
 }
 
 export function useCoffees() {
@@ -56,25 +62,46 @@ export function useCoffees() {
         await refresh();
     };
 
-    return { coffees, isLoading, addCoffee, refresh };
+    const updateCoffee = async (coffee: Coffee) => {
+        await CoffeeService.updateCoffee(coffee);
+        await refresh();
+    };
+
+    const deleteCoffee = async (id: string) => {
+        await CoffeeService.deleteCoffee(id);
+        await refresh();
+    };
+
+    return { coffees, isLoading, addCoffee, updateCoffee, deleteCoffee, refresh };
 }
 
 export function useRecipe(id: string) {
     const [recipe, setRecipe] = useState<Recipe | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
+    const refresh = useCallback(async () => {
         if (!id) return;
-        async function load() {
-            setIsLoading(true);
-            const data = await RecipeService.getRecipe(id);
-            setRecipe(data);
-            setIsLoading(false);
-        }
-        load();
+        setIsLoading(true);
+        const data = await RecipeService.getRecipe(id);
+        setRecipe(data);
+        setIsLoading(false);
     }, [id]);
 
-    return { recipe, isLoading };
+    useEffect(() => {
+        refresh();
+    }, [refresh]);
+
+    const updateRecipe = async (updatedRecipe: Recipe) => {
+        await RecipeService.updateRecipe(updatedRecipe);
+        await refresh();
+    };
+
+    const deleteRecipe = async () => {
+        if (!id) return;
+        await RecipeService.deleteRecipe(id);
+    };
+
+    return { recipe, isLoading, refresh, updateRecipe, deleteRecipe };
 }
 
 export function useLogs(recipeId: string) {
