@@ -62,8 +62,8 @@ export function RecipeExport({ recipe }: RecipeExportProps) {
     const pillHeight = 80
     const pillX = (width - pillWidth) / 2
 
-    // Neon glow for header
-    ctx.shadowColor = 'rgba(168, 85, 247, 0.3)' // Purple glow
+    // Neon glow for header - subtle gold
+    ctx.shadowColor = 'rgba(217, 119, 6, 0.2)' // Amber glow
     ctx.shadowBlur = 20
     ctx.fillStyle = '#2d2420' // Dark espresso
     ctx.beginPath()
@@ -72,13 +72,13 @@ export function RecipeExport({ recipe }: RecipeExportProps) {
     ctx.shadowBlur = 0 // Reset shadow
 
     // Header text
-    ctx.fillStyle = '#f5f5f5'
+    ctx.fillStyle = '#e8d5b5' // Cream
     ctx.font = '32px "Playfair Display", serif'
     ctx.textAlign = 'center'
     ctx.fillText('BREW JOURNAL', width / 2, headerY + 50)
 
     // Recipe name and total time
-    ctx.fillStyle = '#a855f7' // Primary accent (purple/blue-ish)
+    ctx.fillStyle = '#d97706' // Amber accent
     ctx.font = 'bold 36px "Playfair Display", serif'
     ctx.textAlign = 'center'
     ctx.fillText(recipe.name, width / 2, 220)
@@ -89,7 +89,7 @@ export function RecipeExport({ recipe }: RecipeExportProps) {
 
     // Method and ratio on the right
     ctx.textAlign = 'right'
-    ctx.fillStyle = '#d97706' // Amber accent
+    ctx.fillStyle = '#e8d5b5' // Cream
     ctx.font = 'bold 24px sans-serif'
     ctx.fillText(recipe.method.toUpperCase(), width - 100, 290)
 
@@ -101,10 +101,16 @@ export function RecipeExport({ recipe }: RecipeExportProps) {
     let yOffset = 380
     const lineX = 150
 
-    const pours = recipe.pours || []
+    const rawPours = recipe.pours || []
+    // Calculate derived properties
+    const pours = rawPours.map((p, i) => ({
+      ...p,
+      isBloom: i === 0 || p.notes?.toLowerCase().includes('bloom')
+    }))
+
     pours.forEach((pour, index) => {
-      // Timeline dot
-      ctx.fillStyle = pour.isBloom ? '#d97706' : '#2d2420' // Amber for bloom, Espresso for pours
+      // Timeline dot - ALWAYS Amber or visible color
+      ctx.fillStyle = pour.isBloom ? '#d97706' : '#9ca3af' // Amber for bloom, Light Grey for others
       ctx.beginPath()
       ctx.arc(lineX, yOffset, 10, 0, Math.PI * 2)
       ctx.fill()
@@ -119,7 +125,7 @@ export function RecipeExport({ recipe }: RecipeExportProps) {
 
       // Vertical line (except for last item)
       if (index < pours.length - 1) {
-        ctx.strokeStyle = '#374151' // Dark gray border color
+        ctx.strokeStyle = '#4b5563' // Light gray border color
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(lineX, yOffset + 10)
@@ -158,12 +164,12 @@ export function RecipeExport({ recipe }: RecipeExportProps) {
 
       if (index > 0) {
         ctx.font = '24px sans-serif'
-        ctx.fillStyle = '#6b7280' // Muted
+        ctx.fillStyle = '#9ca3af' // Muted
         ctx.fillText(`(+${pour.waterAmount}g)`, lineX + 340, yOffset + 6)
       }
 
-      // Percentage on right
-      ctx.fillStyle = '#a855f7' // Purple accent
+      // Percentage on right - Cream/White (no purple)
+      ctx.fillStyle = '#e8d5b5' // Cream
       ctx.font = 'bold 32px sans-serif'
       ctx.textAlign = 'right'
       ctx.fillText(`${percentage}%`, width - 100, yOffset + 6)
@@ -210,9 +216,9 @@ export function RecipeExport({ recipe }: RecipeExportProps) {
     <div>
       <Button
         onClick={exportImage}
-        variant="outline"
+        variant="ghost"
         size="sm"
-        className="gap-2 bg-card hover:bg-secondary border-border text-coffee-espresso"
+        className="gap-2 bg-black/40 hover:bg-primary hover:text-primary-foreground text-primary border border-white/10 backdrop-blur-md rounded-full font-bold shadow-lg transition-all hover:scale-105"
       >
         <Download className="h-4 w-4" />
         Export
