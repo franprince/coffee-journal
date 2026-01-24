@@ -1,88 +1,181 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
-/* Neon Espresso Theme - Deep Dark & Vibrant Coffee */
-:root {
-  /* Base - Deep Roast (Almost Black/Navy) */
+/* =========================================
+   THEME DEFINITIONS
+   ========================================= */
+
+/* 1. Neon Espresso (Default) - Deep Dark & Vibrant */
+:root[data-theme="neon"] {
   --background: oklch(0.12 0.02 40);
   --foreground: oklch(0.98 0.01 50);
-
-  /* Cards - Dark Chocolate */
   --card: oklch(0.16 0.03 40);
   --card-foreground: oklch(0.98 0.01 50);
-
   --popover: oklch(0.16 0.03 40);
   --popover-foreground: oklch(0.98 0.01 50);
-
-  /* Primary - Vibrant Amber/Gold (Highlight) */
   --primary: oklch(0.65 0.18 55);
   --primary-foreground: oklch(0.12 0.02 40);
-
-  /* Secondary - Steam Blue/Purple (Contrast) */
   --secondary: oklch(0.20 0.04 40);
   --secondary-foreground: oklch(0.98 0.01 50);
-
-  /* Muted */
   --muted: oklch(0.20 0.04 40);
   --muted-foreground: oklch(0.75 0.02 40);
-  /* Increased readability */
-
-  /* Accent - Shiny Gold */
   --accent: oklch(0.65 0.18 55);
   --accent-foreground: oklch(0.12 0.02 40);
-
   --destructive: oklch(0.40 0.15 25);
   --destructive-foreground: oklch(0.98 0.01 50);
-
-  /* Borders - Subtle tint */
   --border: oklch(0.25 0.04 40);
   --input: oklch(0.25 0.04 40);
   --ring: oklch(0.65 0.18 55);
 
-  /* Chart colors */
-  --chart-1: oklch(0.65 0.18 55);
-  --chart-2: oklch(0.55 0.15 300);
-  --chart-3: oklch(0.45 0.12 200);
-  --chart-4: oklch(0.75 0.14 80);
-  --chart-5: oklch(0.60 0.10 40);
-
-  /* Radius - Very rounded as per reference */
-  --radius: 1.5rem;
-
-  --sidebar: oklch(0.16 0.03 40);
-  --sidebar-foreground: oklch(0.98 0.01 50);
-  --sidebar-primary: oklch(0.65 0.18 55);
-  --sidebar-primary-foreground: oklch(0.12 0.02 40);
-  --sidebar-accent: oklch(0.20 0.04 40);
-  --sidebar-accent-foreground: oklch(0.98 0.01 50);
-  --sidebar-border: oklch(0.25 0.04 40);
-  --sidebar-ring: oklch(0.65 0.18 55);
-
-  /* Unified coffee colors - Neon variants */
   --coffee-espresso: oklch(0.95 0.01 80);
-  /* Used for text on dark bg now */
   --coffee-crema: oklch(0.12 0.02 40);
-  /* Used for bg of lighter elements */
   --coffee-bloom: oklch(0.65 0.18 55);
   --coffee-water: oklch(0.65 0.12 250);
-  /* Validated contrast */
+
+  --radius: 1.5rem;
 }
 
-/* Force dark mode behavior by default */
-.dark {
-  --background: oklch(0.12 0.02 40);
-  --foreground: oklch(0.98 0.01 50);
-  /* ... repeat same values if needed for system dark mode preference, 
-     but we are basically forcing a dark theme initially */
+/* 2. Nordic Roast - Minimalist Light */
+:root[data-theme="nordic"] {
+  --background: oklch(0.98 0.01 90);
+  --foreground: oklch(0.20 0.02 90);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.20 0.02 90);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.20 0.02 90);
+  --primary: oklch(0.45 0.15 140);
+  /* Deep Forest Green */
+  --primary-foreground: oklch(0.98 0.01 90);
+  --secondary: oklch(0.95 0.01 90);
+  --secondary-foreground: oklch(0.45 0.15 140);
+  --muted: oklch(0.95 0.01 90);
+  --muted-foreground: oklch(0.60 0.02 90);
+  --accent: oklch(0.70 0.12 80);
+  /* Golden Oak */
+  --accent-foreground: oklch(0.20 0.02 90);
+  --destructive: oklch(0.60 0.15 25);
+  --destructive-foreground: oklch(0.98 0.01 90);
+  --border: oklch(0.92 0.01 90);
+  --input: oklch(0.92 0.01 90);
+  --ring: oklch(0.45 0.15 140);
+
+  --coffee-espresso: oklch(0.20 0.02 90);
+  --coffee-crema: oklch(0.98 0.01 90);
+  --coffee-bloom: oklch(0.70 0.12 80);
+  --coffee-water: oklch(0.55 0.12 240);
+
+  --radius: 1.0rem;
+  /* Sharper */
+}
+
+/* 3. Midnight Tokyo - Cyberpunk Dark */
+:root[data-theme="midnight"] {
+  --background: oklch(0.12 0.05 280);
+  /* Deep Violet Black */
+  --foreground: oklch(0.95 0.02 280);
+  --card: oklch(0.15 0.04 280);
+  --card-foreground: oklch(0.95 0.02 280);
+  --popover: oklch(0.15 0.04 280);
+  --popover-foreground: oklch(0.95 0.02 280);
+  --primary: oklch(0.75 0.18 220);
+  /* Neon Cyan */
+  --primary-foreground: oklch(0.10 0.05 280);
+  --secondary: oklch(0.20 0.06 280);
+  --secondary-foreground: oklch(0.75 0.18 220);
+  --muted: oklch(0.20 0.06 280);
+  --muted-foreground: oklch(0.60 0.05 280);
+  --accent: oklch(0.65 0.22 340);
+  /* Hot Pink */
+  --accent-foreground: oklch(0.95 0.02 280);
+  --destructive: oklch(0.50 0.20 25);
+  --destructive-foreground: oklch(0.95 0.02 280);
+  --border: oklch(0.25 0.05 280);
+  --input: oklch(0.25 0.05 280);
+  --ring: oklch(0.75 0.18 220);
+
+  --coffee-espresso: oklch(0.95 0.02 280);
+  --coffee-crema: oklch(0.12 0.05 280);
+  --coffee-bloom: oklch(0.65 0.22 340);
+  --coffee-water: oklch(0.75 0.18 220);
+
+  --radius: 0.5rem;
+  /* Blocky/Tech */
+}
+
+/* 4. Matcha Zen - Natural Light */
+:root[data-theme="matcha"] {
+  --background: oklch(0.95 0.01 160);
+  /* Mist Grey */
+  --foreground: oklch(0.25 0.04 160);
+  --card: oklch(0.98 0.01 160);
+  --card-foreground: oklch(0.25 0.04 160);
+  --popover: oklch(0.98 0.01 160);
+  --popover-foreground: oklch(0.25 0.04 160);
+  --primary: oklch(0.65 0.16 135);
+  /* Matcha Green */
+  --primary-foreground: oklch(0.98 0.01 160);
+  --secondary: oklch(0.92 0.02 160);
+  --secondary-foreground: oklch(0.45 0.08 60);
+  /* Earthy Brown */
+  --muted: oklch(0.90 0.02 160);
+  --muted-foreground: oklch(0.60 0.04 160);
+  --accent: oklch(0.45 0.08 60);
+  /* Earthy Brown */
+  --accent-foreground: oklch(0.95 0.01 160);
+  --destructive: oklch(0.60 0.12 25);
+  --destructive-foreground: oklch(0.98 0.01 160);
+  --border: oklch(0.88 0.02 160);
+  --input: oklch(0.88 0.02 160);
+  --ring: oklch(0.65 0.16 135);
+
+  --coffee-espresso: oklch(0.25 0.04 160);
+  --coffee-crema: oklch(0.95 0.01 160);
+  --coffee-bloom: oklch(0.65 0.16 135);
+  --coffee-water: oklch(0.55 0.10 220);
+
+  --radius: 1.2rem;
+}
+
+/* 5. Cortado Slate - Modern Warm */
+:root[data-theme="cortado"] {
+  --background: oklch(0.18 0.02 200);
+  /* Dark Slate */
+  --foreground: oklch(0.90 0.02 85);
+  /* Off-white */
+  --card: oklch(0.22 0.02 200);
+  --card-foreground: oklch(0.90 0.02 85);
+  --popover: oklch(0.22 0.02 200);
+  --popover-foreground: oklch(0.90 0.02 85);
+  --primary: oklch(0.65 0.20 50);
+  /* Leather Orange */
+  --primary-foreground: oklch(0.15 0.02 200);
+  --secondary: oklch(0.25 0.02 200);
+  --secondary-foreground: oklch(0.75 0.15 85);
+  /* Brass */
+  --muted: oklch(0.25 0.02 200);
+  --muted-foreground: oklch(0.70 0.02 200);
+  --accent: oklch(0.75 0.15 85);
+  /* Brass */
+  --accent-foreground: oklch(0.18 0.02 200);
+  --destructive: oklch(0.45 0.15 25);
+  --destructive-foreground: oklch(0.90 0.02 85);
+  --border: oklch(0.30 0.02 200);
+  --input: oklch(0.30 0.02 200);
+  --ring: oklch(0.65 0.20 50);
+
+  --coffee-espresso: oklch(0.90 0.02 85);
+  --coffee-crema: oklch(0.18 0.02 200);
+  --coffee-bloom: oklch(0.65 0.20 50);
+  --coffee-water: oklch(0.65 0.10 240);
+
+  --radius: 0.75rem;
 }
 
 @theme inline {
   --font-sans: 'DM Sans', 'DM Sans Fallback', system-ui, sans-serif;
-  --font-display: 'Outfit', sans-serif;
-  --font-serif: 'Outfit', sans-serif;
+  --font-serif: 'Playfair Display', 'Playfair Display Fallback', Georgia, serif;
   --font-mono: 'JetBrains Mono', 'Geist Mono', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -103,23 +196,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+
   --color-coffee-espresso: var(--coffee-espresso);
   --color-coffee-crema: var(--coffee-crema);
   --color-coffee-bloom: var(--coffee-bloom);
@@ -132,43 +213,21 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-    background-image: linear-gradient(to bottom right, oklch(0.12 0.02 40), oklch(0.10 0.02 50));
-    min-height: 100vh;
+    @apply bg-background text-foreground transition-colors duration-500;
   }
 }
 
-/* Modern card styling - Neon/Dark */
+/* Glass Card Defaults */
 .glass-card {
-  background: oklch(0.16 0.03 40 / 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid oklch(0.25 0.04 40 / 0.5);
-  box-shadow:
-    0 4px 6px -1px oklch(0 0 0 / 0.3),
-    0 2px 4px -1px oklch(0 0 0 / 0.2),
-    inset 0 1px 0 0 oklch(1 1 1 / 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  @apply bg-card/60 backdrop-blur-md border border-border/50 shadow-sm transition-all duration-300;
 }
 
 .glass-card:hover {
-  box-shadow:
-    0 20px 25px -5px oklch(0 0 0 / 0.4),
-    0 10px 10px -5px oklch(0 0 0 / 0.3),
-    0 0 20px oklch(0.65 0.18 55 / 0.1);
-  /* Amber glow */
-  border-color: oklch(0.65 0.18 55 / 0.3);
+  @apply shadow-lg border-primary/20 bg-card/80;
 }
 
-.glass-card-light {
-  /* Deprecated in this theme, mapping to dark */
-  background: oklch(0.16 0.03 40);
-  border: 1px solid oklch(0.25 0.04 40);
-}
-
-/* Subtle glow effect */
 .subtle-glow {
-  position: relative;
-  overflow: hidden;
+  @apply relative overflow-hidden;
 }
 
 .subtle-glow::after {
@@ -178,16 +237,19 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, oklch(0.65 0.18 55 / 0.5), transparent);
-  opacity: 0.5;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  opacity: 0.3;
 }
 
-/* Smooth transitions */
-.transition-smooth {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* Utilities */
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, var(--primary), var(--accent));
 }
 
-/* Modern animations */
+/* Animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -200,48 +262,10 @@
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes pulse-glow {
-
-  0%,
-  100% {
-    box-shadow: 0 0 15px oklch(0.65 0.18 55 / 0.2);
-  }
-
-  50% {
-    box-shadow: 0 0 30px oklch(0.65 0.18 55 / 0.4);
-    transform: scale(1.05);
-  }
-}
-
-@keyframes shimmer {
-  from {
-    background-position: 200% 0;
-  }
-
-  to {
-    background-position: -200% 0;
-  }
-}
-
 .animate-fade-in-up {
   animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 3s infinite ease-in-out;
-}
-
-/* Stagger animation delays */
 .stagger-1 {
   animation-delay: 0.05s;
 }
@@ -254,11 +278,7 @@
   animation-delay: 0.15s;
 }
 
-.stagger-4 {
-  animation-delay: 0.2s;
-}
-
-/* Minimal scrollbar - Dark */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -269,25 +289,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.25 0.04 40);
+  background: var(--border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.35 0.05 40);
-}
-
-/* Gradient Text Utility */
-.text-gradient {
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  background-image: linear-gradient(to right, oklch(0.65 0.18 55), oklch(0.70 0.15 40));
-}
-
-.text-gradient-blue {
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  background-image: linear-gradient(to right, oklch(0.55 0.15 250), oklch(0.65 0.10 200));
+  background: var(--secondary);
 }
