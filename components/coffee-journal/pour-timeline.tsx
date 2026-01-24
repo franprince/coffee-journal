@@ -19,7 +19,7 @@ export function PourTimeline({ pours, totalWater, compact = false }: PourTimelin
     );
   }
 
-  const isBloom = (pour: Pour, index: number) => 
+  const isBloom = (pour: Pour, index: number) =>
     index === 0 || pour.notes?.toLowerCase().includes('bloom');
 
   // Calculate cumulative water for visualization
@@ -37,17 +37,17 @@ export function PourTimeline({ pours, totalWater, compact = false }: PourTimelin
         {poursWithCumulative.map((pour, index) => {
           const bloom = isBloom(pour, index);
           const widthPercentage = maxWater > 0 ? ((pour.waterAmount || 0) / maxWater) * 100 : 0;
-          
+
           return (
             <div
               key={pour.id}
               className={cn(
-                'flex-shrink-0 h-9 rounded-lg flex items-center justify-center text-xs font-mono font-medium transition-all duration-200 hover:scale-105',
-                bloom 
+                'flex-shrink-0 h-9 rounded-lg flex items-center justify-center text-xs font-mono font-medium transition-all duration-200',
+                bloom
                   ? 'bg-coffee-bloom/20 text-coffee-bloom border border-coffee-bloom/40'
                   : 'bg-coffee-water/15 text-coffee-water border border-coffee-water/30'
               )}
-              style={{ 
+              style={{
                 minWidth: '52px',
                 width: `${Math.max(widthPercentage, 15)}%`,
                 maxWidth: '120px'
@@ -75,22 +75,35 @@ export function PourTimeline({ pours, totalWater, compact = false }: PourTimelin
 
       {/* Timeline visualization */}
       <div className="relative">
-        {/* Timeline line */}
-        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
-        
+
         {/* Pour nodes */}
         <div className="space-y-4">
           {poursWithCumulative.map((pour, index) => {
             const bloom = isBloom(pour, index);
-            
+            const isLast = index === poursWithCumulative.length - 1;
+
+            const isFirst = index === 0;
+
             return (
-              <div 
+              <div
                 key={pour.id}
-                className="relative flex items-start gap-4 group"
+                className="relative flex items-center gap-4 group"
               >
+                {/* Connecting Lines */}
+                {!isLast && (
+                  <div className={cn(
+                    "absolute left-4 w-0.5 -ml-[1px] bg-border -z-10",
+                    isFirst ? "top-1/2 -bottom-4" : "top-0 -bottom-4"
+                  )} />
+                )}
+
+                {isLast && !isFirst && (
+                  <div className="absolute left-4 top-0 h-1/2 w-0.5 -ml-[1px] bg-border -z-10" />
+                )}
+
                 {/* Timeline node */}
                 <div className={cn(
-                  'relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200 group-hover:scale-110',
+                  'relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200 shrink-0',
                   bloom
                     ? 'bg-coffee-bloom text-white'
                     : 'bg-coffee-espresso text-coffee-crema'
@@ -101,8 +114,8 @@ export function PourTimeline({ pours, totalWater, compact = false }: PourTimelin
                 {/* Pour details */}
                 <div className={cn(
                   'flex-1 rounded-xl p-4 transition-all duration-200 border',
-                  bloom 
-                    ? 'bg-coffee-bloom/10 border-coffee-bloom/30' 
+                  bloom
+                    ? 'bg-coffee-bloom/10 border-coffee-bloom/30'
                     : 'bg-muted/30 border-border/50 group-hover:bg-muted/50'
                 )}>
                   <div className="flex items-center justify-between mb-2">
@@ -128,7 +141,7 @@ export function PourTimeline({ pours, totalWater, compact = false }: PourTimelin
 
                   {/* Water bar */}
                   <div className="h-2.5 bg-background rounded-full overflow-hidden mb-2">
-                    <div 
+                    <div
                       className={cn(
                         'h-full rounded-full transition-all duration-500',
                         bloom ? 'bg-coffee-bloom' : 'bg-coffee-water'
