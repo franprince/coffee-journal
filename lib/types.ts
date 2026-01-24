@@ -72,15 +72,42 @@ export interface TasteProfile {
   bitterness: number; // 0-100
 }
 
+export type RoastLevel = 'light' | 'medium-light' | 'medium' | 'medium-dark' | 'dark';
+
+export interface Coffee {
+  id: string;
+  name: string;
+  roaster: string;
+  roastLevel?: RoastLevel;
+  origin?: string;
+  process?: string;
+  notes?: string;
+  imageUrl?: string;
+  isArchived?: boolean;
+}
+
 export interface BrewLog {
   id: string;
   recipeId: string;
   recipeName: string;
   method: string;
   date: Date;
+
+  // Coffee Used
+  coffeeId?: string;
+  coffeeName?: string; // Snapshot in case coffee is deleted
+
   tasteProfile: TasteProfile;
   rating: number; // 1-5
+
   notes?: string;
+  imageUrls?: string[]; // Up to 5 images
+  // Tweaks/Overrides for this specific brew
+  coffeeWeight?: number;
+  totalWaterWeight?: number;
+  grindSize?: number;
+  temperature?: number;
+  pours?: Pour[];
 }
 
 export const METHOD_LABELS: Record<BrewMethod, string> = {
