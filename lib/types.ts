@@ -1,0 +1,116 @@
+export type BrewMethod =
+  | 'pour-over'
+  | 'v60'
+  | 'chemex'
+  | 'aeropress'
+  | 'french-press'
+  | 'espresso';
+
+export type WaterType =
+  | 'filtered'
+  | 'spring'
+  | 'distilled'
+  | 'tap'
+  | 'third-wave';
+
+export type GrindSize =
+  | 'extra-fine'
+  | 'fine'
+  | 'medium-fine'
+  | 'medium'
+  | 'medium-coarse'
+  | 'coarse';
+
+export interface Pour {
+  id: string;
+  time: string; // mm:ss format
+  waterAmount: number; // grams
+  temperature?: number; // °C or °F
+  temperatureUnit?: 'C' | 'F';
+  notes?: string;
+}
+
+export interface Recipe {
+  id: string;
+  name: string;
+  method: string; // Allows custom methods beyond BrewMethod
+  coffeeWeight: number; // grams
+  totalWaterWeight: number; // grams
+  grindSize: number; // 0-100 slider value
+  waterType?: string; // Allows custom water types
+  pours: Pour[];
+  createdAt: Date;
+}
+
+export const METHOD_SUGGESTIONS = [
+  'V60',
+  'Pour Over',
+  'Chemex',
+  'AeroPress',
+  'French Press',
+  'Espresso',
+  'Moka Pot',
+  'Cold Brew',
+  'Siphon',
+  'Kalita Wave',
+];
+
+export const WATER_SUGGESTIONS = [
+  'Filtered',
+  'Spring',
+  'Distilled',
+  'Tap',
+  'Third Wave Water',
+  'Mineral',
+  'RO Water',
+];
+
+export interface TasteProfile {
+  acidity: number; // 0-100
+  sweetness: number; // 0-100
+  body: number; // 0-100
+  bitterness: number; // 0-100
+}
+
+export interface BrewLog {
+  id: string;
+  recipeId: string;
+  recipeName: string;
+  method: string;
+  date: Date;
+  tasteProfile: TasteProfile;
+  rating: number; // 1-5
+  notes?: string;
+}
+
+export const METHOD_LABELS: Record<BrewMethod, string> = {
+  'pour-over': 'Pour Over',
+  'v60': 'V60',
+  'chemex': 'Chemex',
+  'aeropress': 'AeroPress',
+  'french-press': 'French Press',
+  'espresso': 'Espresso',
+};
+
+export const WATER_TYPE_LABELS: Record<WaterType, string> = {
+  'filtered': 'Filtered',
+  'spring': 'Spring',
+  'distilled': 'Distilled',
+  'tap': 'Tap',
+  'third-wave': 'Third Wave',
+};
+
+export const GRIND_SIZE_LABELS: string[] = [
+  'Extra Fine',
+  'Fine',
+  'Medium Fine',
+  'Medium',
+  'Medium Coarse',
+  'Coarse',
+];
+
+export interface RecipeFilters {
+  methods: string[];
+  waterTypes: string[];
+  grindSizeRange: [number, number];
+}
