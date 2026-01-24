@@ -27,10 +27,10 @@ import { cn } from '@/lib/utils';
 // Removed SAMPLE_LOGS import as we now use real data
 
 export default function CoffeeJournalPage() {
-  const { recipes, refresh: refreshRecipes } = useRecipes();
+  const { recipes, refresh: refreshRecipes, deleteRecipe } = useRecipes();
   const { logs, addLog: createLog, refresh: refreshLogs } = useAllLogs();
 
-  const { coffees, addCoffee } = useCoffees();
+  const { coffees, addCoffee, updateCoffee, deleteCoffee } = useCoffees();
 
   const [activeTab, setActiveTab] = useState('recipes');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
@@ -99,7 +99,7 @@ export default function CoffeeJournalPage() {
                 <CoffeeIcon className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="font-serif text-2xl md:text-3xl font-bold text-gradient tracking-tight">
+                <h1 className="font-display text-2xl md:text-3xl font-bold text-gradient tracking-tight">
                   Brew Journal
                 </h1>
                 <p className="text-xs text-muted-foreground hidden sm:block font-medium tracking-wide uppercase opacity-80">
@@ -169,7 +169,7 @@ export default function CoffeeJournalPage() {
                     <div className="w-16 h-16 mx-auto rounded-2xl bg-secondary flex items-center justify-center mb-4">
                       <CoffeeIcon className="w-8 h-8 text-coffee-espresso" />
                     </div>
-                    <h3 className="font-serif text-lg text-coffee-espresso mb-2">No recipes yet</h3>
+                    <h3 className="font-display text-lg text-coffee-espresso mb-2">No recipes yet</h3>
                     <p className="text-muted-foreground text-sm mb-4">
                       Create your first coffee recipe to get started
                     </p>
@@ -186,7 +186,7 @@ export default function CoffeeJournalPage() {
                     <div className="w-16 h-16 mx-auto rounded-2xl bg-secondary flex items-center justify-center mb-4">
                       <CoffeeIcon className="w-8 h-8 text-coffee-espresso" />
                     </div>
-                    <h3 className="font-serif text-lg text-coffee-espresso mb-2">No recipes found</h3>
+                    <h3 className="font-display text-lg text-coffee-espresso mb-2">No recipes found</h3>
                     <p className="text-muted-foreground text-sm mb-4">
                       Try adjusting your search or filters
                     </p>
@@ -209,6 +209,7 @@ export default function CoffeeJournalPage() {
                       >
                         <RecipeCard
                           recipe={recipe}
+                          onDelete={deleteRecipe}
                         />
                       </div>
                     ))}
@@ -222,7 +223,7 @@ export default function CoffeeJournalPage() {
                     <div className="w-16 h-16 mx-auto rounded-2xl bg-secondary flex items-center justify-center mb-4">
                       <BookOpen className="w-8 h-8 text-coffee-espresso" />
                     </div>
-                    <h3 className="font-serif text-lg text-coffee-espresso mb-2">No brew logs yet</h3>
+                    <h3 className="font-display text-lg text-coffee-espresso mb-2">No brew logs yet</h3>
                     <p className="text-muted-foreground text-sm">
                       Select a recipe and log your first brew
                     </p>
@@ -240,6 +241,8 @@ export default function CoffeeJournalPage() {
                 <CoffeeManager
                   coffees={coffees}
                   onAddCoffee={addCoffee}
+                  onUpdateCoffee={updateCoffee}
+                  onDeleteCoffee={deleteCoffee}
                 />
               </TabsContent>
             </Tabs>
@@ -287,7 +290,7 @@ export default function CoffeeJournalPage() {
           {showNewRecipe && (
             <div className="relative">
               <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card/95 backdrop-blur">
-                <h3 className="font-serif text-lg font-semibold text-coffee-espresso">New Recipe</h3>
+                <h3 className="font-display text-lg font-semibold text-coffee-espresso">New Recipe</h3>
                 <button
                   onClick={() => setShowNewRecipe(false)}
                   className="p-2 rounded-lg hover:bg-secondary/50 transition-colors"

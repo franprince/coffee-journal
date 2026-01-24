@@ -14,16 +14,17 @@ import { Save, Coffee } from 'lucide-react';
 
 interface RecipeFormProps {
   onSave: (recipe: Recipe) => void;
+  editRecipe?: Recipe;
 }
 
-export function RecipeForm({ onSave }: RecipeFormProps) {
-  const [name, setName] = useState('');
-  const [method, setMethod] = useState('V60');
-  const [coffeeWeight, setCoffeeWeight] = useState(18);
-  const [totalWaterWeight, setTotalWaterWeight] = useState(300);
-  const [grindSize, setGrindSize] = useState([50]);
-  const [waterType, setWaterType] = useState('');
-  const [pours, setPours] = useState<Pour[]>([
+export function RecipeForm({ onSave, editRecipe }: RecipeFormProps) {
+  const [name, setName] = useState(editRecipe?.name || '');
+  const [method, setMethod] = useState(editRecipe?.method || 'V60');
+  const [coffeeWeight, setCoffeeWeight] = useState(editRecipe?.coffeeWeight || 18);
+  const [totalWaterWeight, setTotalWaterWeight] = useState(editRecipe?.totalWaterWeight || 300);
+  const [grindSize, setGrindSize] = useState([editRecipe?.grindSize || 50]);
+  const [waterType, setWaterType] = useState(editRecipe?.waterType || '');
+  const [pours, setPours] = useState<Pour[]>(editRecipe?.pours || [
     {
       id: crypto.randomUUID(),
       time: '00:00',
@@ -47,17 +48,17 @@ export function RecipeForm({ onSave }: RecipeFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const recipe: Recipe = {
-      id: crypto.randomUUID(),
+      id: editRecipe?.id || crypto.randomUUID(),
       name: name || 'Untitled Recipe',
       method: method || 'V60',
       coffeeWeight,
       totalWaterWeight,
       grindSize: grindSize[0],
       waterType: waterType || undefined,
-      pours,
-      createdAt: new Date(),
+      pours: pours.map((p, idx) => ({ ...p, id: p.id || crypto.randomUUID() })),
+      createdAt: editRecipe?.createdAt || new Date(),
     };
 
     onSave(recipe);
@@ -71,7 +72,7 @@ export function RecipeForm({ onSave }: RecipeFormProps) {
           <Coffee className="w-4 h-4" />
         </div>
         <div>
-          <h2 className="font-serif text-lg font-semibold text-foreground">New Recipe</h2>
+          <h2 className="font-display text-lg font-semibold text-foreground">{editRecipe ? 'Edit Recipe' : 'New Recipe'}</h2>
         </div>
       </div>
 
@@ -128,7 +129,7 @@ export function RecipeForm({ onSave }: RecipeFormProps) {
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs text-muted-foreground">Ratio</Label>
-          <div className="h-9 flex items-center justify-center rounded-md bg-secondary border border-border font-serif font-bold text-primary">
+          <div className="h-9 flex items-center justify-center rounded-md bg-secondary border border-border font-display font-bold text-primary">
             1:{ratio}
           </div>
         </div>
@@ -180,7 +181,7 @@ export function RecipeForm({ onSave }: RecipeFormProps) {
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-10"
       >
         <Save className="w-4 h-4 mr-2" />
-        Save Recipe
+        {editRecipe ? 'Update Recipe' : 'Save Recipe'}
       </Button>
     </form>
   );
