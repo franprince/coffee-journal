@@ -1,5 +1,5 @@
 'use client';
-
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RecipeForm } from '@/components/coffee-journal/recipe-form';
@@ -27,6 +27,8 @@ interface HomePageClientProps {
 }
 
 export default function HomePageClient({ initialRecipes, initialLogs, initialCoffees }: HomePageClientProps) {
+  const t = useTranslations('HomePage');
+  const tCommon = useTranslations('Common');
   const { recipes, refresh: refreshRecipes, deleteRecipe } = useRecipes(initialRecipes);
   const { logs, addLog: createLog } = useAllLogs(initialLogs);
   const { coffees, addCoffee, updateCoffee, deleteCoffee } = useCoffees(initialCoffees);
@@ -84,7 +86,7 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
               className="rounded-md bg-accent text-accent-foreground hover:bg-accent/90 font-medium shadow-none border border-transparent"
             >
               <Plus className="w-4 h-4 mr-2" />
-              New Recipe
+              {t('createFirstRecipe')}
             </Button>
           </div>
         </div>
@@ -98,21 +100,21 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
               className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-accent data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
             >
               <FlaskConical className="w-4 h-4 mr-2 opacity-70" />
-              Recipes
+              {t('recipes')}
             </TabsTrigger>
             <TabsTrigger
               value="logs"
               className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-accent data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
             >
               <BookOpen className="w-4 h-4 mr-2 opacity-70" />
-              Brew Log
+              {t('brewLog')}
             </TabsTrigger>
             <TabsTrigger
               value="coffees"
               className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-accent data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
             >
               <Bean className="w-4 h-4 mr-2 opacity-70" />
-              Pantry
+              {t('pantry')}
             </TabsTrigger>
           </TabsList>
 
@@ -131,12 +133,12 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
                 <div className="w-12 h-12 mx-auto rounded-full bg-secondary flex items-center justify-center mb-4">
                   <CoffeeIcon className="w-6 h-6 text-muted-foreground" />
                 </div>
-                <h3 className="font-sans text-lg font-bold mb-2">No recipes yet</h3>
+                <h3 className="font-sans text-lg font-bold mb-2">{t('noRecipesTitle')}</h3>
                 <p className="text-muted-foreground text-sm mb-6 max-w-xs mx-auto">
-                  Start your journey by creating your first brew recipe.
+                  {t('noRecipesDesc')}
                 </p>
                 <Button onClick={() => setShowNewRecipe(true)} variant="outline">
-                  Create First Recipe
+                  {t('createFirstRecipe')}
                 </Button>
               </div>
             ) : (
@@ -153,8 +155,8 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
           <TabsContent value="logs" className="animate-fade-in-up">
             {logs.length === 0 ? (
               <div className="journal-card p-12 text-center mt-6">
-                <h3 className="font-serif text-lg font-bold mb-2">No brew logs</h3>
-                <p className="text-muted-foreground text-sm">Brew a recipe to start logging.</p>
+                <h3 className="font-serif text-lg font-bold mb-2">{t('noLogsTitle')}</h3>
+                <p className="text-muted-foreground text-sm">{t('noLogsDesc')}</p>
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 gap-4">
@@ -181,7 +183,7 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
         <div className="fixed inset-0 z-50 flex justify-end bg-background/20 backdrop-blur-sm">
           <div className="w-full max-w-md bg-card border-l border-border h-full shadow-2xl p-6 overflow-y-auto animate-in slide-in-from-right duration-300">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-serif text-xl font-bold">New Recipe</h2>
+              <h2 className="font-serif text-xl font-bold">{useTranslations('RecipeForm')('newTitle')}</h2>
               <Button variant="ghost" size="icon" onClick={() => setShowNewRecipe(false)}>
                 <X className="w-5 h-5" />
               </Button>

@@ -1,0 +1,163 @@
+{
+    "HomePage": {
+        "recipes": "Recipes",
+        "brewLog": "Brew Log",
+        "pantry": "Pantry",
+        "searchPlaceholder": "Search recipes...",
+        "noRecipesTitle": "No recipes yet",
+        "noRecipesDesc": "Start your journey by creating your first brew recipe.",
+        "createFirstRecipe": "Create First Recipe",
+        "noLogsTitle": "No brew logs",
+        "noLogsDesc": "Brew a recipe to start logging.",
+        "pantryEmptyTitle": "Pantry empty",
+        "pantryEmptyDesc": "Add your coffee beans to track your inventory.",
+        "addCoffee": "Add Coffee",
+        "viewPantry": "View Pantry"
+    },
+    "RecipeFilters": {
+        "searchPlaceholder": "Search recipes...",
+        "filters": "Filters",
+        "clearAll": "Clear all",
+        "brewMethod": "Brew Method",
+        "waterType": "Water Type",
+        "grindSizeRange": "Grind Size Range",
+        "resultsCount": "{count} of {total} recipes",
+        "searchLabel": "Search:",
+        "grindLabel": "Grind:"
+    },
+    "Methods": {
+        "pour-over": "Pour Over",
+        "v60": "V60",
+        "chemex": "Chemex",
+        "aeropress": "AeroPress",
+        "french-press": "French Press",
+        "espresso": "Espresso"
+    },
+    "PourTimeline": {
+        "title": "Pour Timeline",
+        "pour": "pour",
+        "pours": "pours",
+        "noPours": "No pours added yet",
+        "bloom": "Bloom",
+        "temperature": "Temperature",
+        "time": "Time",
+        "waterAmount": "Water"
+    },
+    "RecipeDetail": {
+        "notFoundTitle": "Recipe not found",
+        "goHome": "Go Home",
+        "back": "Back",
+        "ratio": "Ratio",
+        "coffee": "Coffee",
+        "water": "Water",
+        "grind": "Grind",
+        "temp": "Temp",
+        "usageGuide": "Usage Guide",
+        "logBrew": "Log Brew",
+        "brewLogsTitle": "Brew Logs",
+        "noLogsTitle": "No brews logged",
+        "noLogsDesc": "No brews logged for this recipe yet.",
+        "logFirstBrew": "Log your first brew",
+        "logBrewModalTitle": "Log Brew",
+        "editRecipeTitle": "Edit Recipe",
+        "deleteRecipeTitle": "Delete Recipe?",
+        "deleteRecipeDesc": "Are you sure you want to delete \"{name}\"?"
+    },
+    "RecipeCard": {
+        "steps": "STEPS",
+        "actions": "actions",
+        "noPours": "No pours recorded",
+        "bloom": "Bloom",
+        "deleteTitle": "Delete Recipe?",
+        "deleteDesc": "Are you sure you want to delete \"{name}\"?"
+    },
+    "RecipeForm": {
+        "editTitle": "Edit Recipe",
+        "newTitle": "New Recipe",
+        "save": "Save Recipe",
+        "update": "Update Recipe",
+        "nameLabel": "Recipe Name",
+        "namePlaceholder": "Morning V60",
+        "methodLabel": "Brew Method",
+        "methodPlaceholder": "V60, Chemex...",
+        "coffeeLabel": "Coffee (g)",
+        "waterLabel": "Water (g)",
+        "ratioLabel": "Ratio",
+        "grindLabel": "Grind Size",
+        "waterTypeLabel": "Water Type (opt)",
+        "waterTypePlaceholder": "Filtered, Spring..."
+    },
+    "BrewLogForm": {
+        "title": "Log Brew",
+        "subtitle": "How was your {name}?",
+        "selectCoffee": "Select Coffee Bean...",
+        "addCoffee": "Add Coffee",
+        "hideTweaks": "Hide Recipe Parameters",
+        "adjustTweaks": "Adjust Recipe Parameters",
+        "tweaks": {
+            "coffee": "Coffee (g)",
+            "water": "Water (g)",
+            "grind": "Grind",
+            "temp": "Temp (°C)",
+            "overrides": "POUR SCHEDULE OVERRIDES"
+        },
+        "rating": "Overall Rating",
+        "ratings": {
+            "1": "Needs work",
+            "2": "Below average",
+            "3": "Good",
+            "4": "Great!",
+            "5": "Perfect!"
+        },
+        "tasteProfile": "Taste Profile",
+        "notes": "Iteration Notes",
+        "notesPlaceholder": "What would you change next time? e.g., Grind finer, bloom longer...",
+        "photos": "Photos",
+        "optional": "(optional)",
+        "uploading": "Uploading...",
+        "save": "Save Log",
+        "cancel": "Cancel"
+    },
+    "AddCoffeeForm": {
+        "title": "Add New Coffee",
+        "editTitle": "Edit Coffee",
+        "imageLabel": "Coffee Image",
+        "uploadPlaceholder": "Upload bean photo",
+        "nameLabel": "Bean Name",
+        "namePlaceholder": "e.g. Ethiopia Yirgacheffe",
+        "roasterLabel": "Roaster",
+        "roasterPlaceholder": "e.g. Onyx",
+        "roastLabel": "Roast",
+        "originLabel": "Region/Origin",
+        "originPlaceholder": "e.g. Gedeb, Ethiopia",
+        "save": "Add to Collection",
+        "update": "Save Changes",
+        "optimizing": "Optimizing...",
+        "saving": "Saving..."
+    },
+    "BrewLogCard": {
+        "recipeModified": "Recipe Modified"
+    },
+    "Taste": {
+        "acidity": "Acidity",
+        "sweetness": "Sweetness",
+        "body": "Body",
+        "bitterness": "Bitterness",
+        "acidityDesc": "Bright, tangy, vibrant",
+        "sweetnessDesc": "Honey, fruit, caramel",
+        "bodyDesc": "Weight, texture, mouthfeel",
+        "bitternessDesc": "Dark, roasty, intense"
+    },
+    "RoastLevels": {
+        "light": "Light",
+        "medium-light": "Medium-Light",
+        "medium": "Medium",
+        "medium-dark": "Medium-Dark",
+        "dark": "Dark"
+    },
+    "Common": {
+        "cancel": "Cancel",
+        "loading": "Loading...",
+        "back": "Back"
+    }
+}

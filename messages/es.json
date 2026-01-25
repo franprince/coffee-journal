@@ -1,0 +1,163 @@
+{
+    "HomePage": {
+        "recipes": "Recetas",
+        "brewLog": "Historial",
+        "pantry": "Despensa",
+        "searchPlaceholder": "Buscar recetas...",
+        "noRecipesTitle": "Sin recetas aún",
+        "noRecipesDesc": "Comienza tu viaje creando tu primera receta de café.",
+        "createFirstRecipe": "Crear Primera Receta",
+        "noLogsTitle": "Sin registros",
+        "noLogsDesc": "Prepara una receta para comenzar a registrar.",
+        "pantryEmptyTitle": "Despensa vacía",
+        "pantryEmptyDesc": "Añade tus granos de café para rastrear tu inventario.",
+        "addCoffee": "Añadir Café",
+        "viewPantry": "Ver Despensa"
+    },
+    "RecipeFilters": {
+        "searchPlaceholder": "Buscar recetas...",
+        "filters": "Filtros",
+        "clearAll": "Borrar todo",
+        "brewMethod": "Método de Preparación",
+        "waterType": "Tipo de Agua",
+        "grindSizeRange": "Rango de Molienda",
+        "resultsCount": "{count} de {total} recetas",
+        "searchLabel": "Búsqueda:",
+        "grindLabel": "Molienda:"
+    },
+    "Methods": {
+        "pour-over": "Pour Over",
+        "v60": "V60",
+        "chemex": "Chemex",
+        "aeropress": "AeroPress",
+        "french-press": "Prensa Francesa",
+        "espresso": "Espresso"
+    },
+    "PourTimeline": {
+        "title": "Línea de tiempo de vertido",
+        "pour": "vertido",
+        "pours": "vertidos",
+        "noPours": "Sin vertidos añadidos aún",
+        "bloom": "Bloom",
+        "temperature": "Temperatura",
+        "time": "Tiempo",
+        "waterAmount": "Agua"
+    },
+    "RecipeDetail": {
+        "notFoundTitle": "Receta no encontrada",
+        "goHome": "Ir al Inicio",
+        "back": "Volver",
+        "ratio": "Ratio",
+        "coffee": "Café",
+        "water": "Agua",
+        "grind": "Molienda",
+        "temp": "Temp",
+        "usageGuide": "Guía de Uso",
+        "logBrew": "Registrar Café",
+        "brewLogsTitle": "Historial",
+        "noLogsTitle": "Sin registros aún",
+        "noLogsDesc": "No hay registros para esta receta aún.",
+        "logFirstBrew": "Registra tu primera preparación",
+        "logBrewModalTitle": "Registrar Preparación",
+        "editRecipeTitle": "Editar Receta",
+        "deleteRecipeTitle": "¿Eliminar Receta?",
+        "deleteRecipeDesc": "¿Estás seguro de que deseas eliminar \"{name}\"?"
+    },
+    "RecipeCard": {
+        "steps": "PASOS",
+        "actions": "acciones",
+        "noPours": "Sin pasos registrados",
+        "bloom": "Bloom",
+        "deleteTitle": "¿Eliminar Receta?",
+        "deleteDesc": "¿Estás seguro de que deseas eliminar \"{name}\"?"
+    },
+    "RecipeForm": {
+        "editTitle": "Editar Receta",
+        "newTitle": "Nueva Receta",
+        "save": "Guardar Receta",
+        "update": "Actualizar Receta",
+        "nameLabel": "Nombre de la Receta",
+        "namePlaceholder": "V60 Mañanero",
+        "methodLabel": "Método",
+        "methodPlaceholder": "V60, Chemex...",
+        "coffeeLabel": "Café (g)",
+        "waterLabel": "Agua (g)",
+        "ratioLabel": "Ratio",
+        "grindLabel": "Molienda",
+        "waterTypeLabel": "Tipo de Agua (opt)",
+        "waterTypePlaceholder": "Filtrada, Manantial..."
+    },
+    "BrewLogForm": {
+        "title": "Registrar Café",
+        "subtitle": "¿Qué tal estuvo tu {name}?",
+        "selectCoffee": "Seleccionar Café...",
+        "addCoffee": "Añadir Café",
+        "hideTweaks": "Ocultar Parámetros",
+        "adjustTweaks": "Ajustar Parámetros",
+        "tweaks": {
+            "coffee": "Café (g)",
+            "water": "Agua (g)",
+            "grind": "Molienda",
+            "temp": "Temp (°C)",
+            "overrides": "AJUSTES DE VERTIDO"
+        },
+        "rating": "Calificación General",
+        "ratings": {
+            "1": "Necesita mejorar",
+            "2": "Por debajo del promedio",
+            "3": "Bueno",
+            "4": "¡Genial!",
+            "5": "¡Perfecto!"
+        },
+        "tasteProfile": "Perfil de Sabor",
+        "notes": "Notas de Iteración (opcional)",
+        "notesPlaceholder": "¿Qué cambiarías la próxima vez? ej., Molienda más fina, más bloom...",
+        "photos": "Fotos",
+        "optional": "(opcional)",
+        "uploading": "Subiendo...",
+        "save": "Guardar Log",
+        "cancel": "Cancelar"
+    },
+    "AddCoffeeForm": {
+        "title": "Añadir Nuevo Café",
+        "editTitle": "Editar Café",
+        "imageLabel": "Imagen del Café",
+        "uploadPlaceholder": "Subir foto del grano",
+        "nameLabel": "Nombre del Grano",
+        "namePlaceholder": "ej. Ethiopia Yirgacheffe",
+        "roasterLabel": "Tostador",
+        "roasterPlaceholder": "ej. Onyx",
+        "roastLabel": "Tueste",
+        "originLabel": "Región/Origen",
+        "originPlaceholder": "ej. Gedeb, Ethiopia",
+        "save": "Añadir a la Colección",
+        "update": "Guardar Cambios",
+        "optimizing": "Optimizando...",
+        "saving": "Guardando..."
+    },
+    "BrewLogCard": {
+        "recipeModified": "Receta Modificada"
+    },
+    "Taste": {
+        "acidity": "Acidez",
+        "sweetness": "Dulzura",
+        "body": "Cuerpo",
+        "bitterness": "Amargor",
+        "acidityDesc": "Brillante, ácido, vibrante",
+        "sweetnessDesc": "Miel, fruta, caramelo",
+        "bodyDesc": "Peso, textura, sensación",
+        "bitternessDesc": "Oscuro, tostado, intenso"
+    },
+    "RoastLevels": {
+        "light": "Ligero",
+        "medium-light": "Medio-Ligero",
+        "medium": "Medio",
+        "medium-dark": "Medio-Oscuro",
+        "dark": "Oscuro"
+    },
+    "Common": {
+        "cancel": "Cancelar",
+        "loading": "Cargando...",
+        "back": "Volver"
+    }
+}
