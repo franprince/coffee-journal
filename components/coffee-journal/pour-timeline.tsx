@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import type { Pour } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Droplets, Thermometer } from 'lucide-react';
@@ -11,10 +13,12 @@ interface PourTimelineProps {
 }
 
 export function PourTimeline({ pours, totalWater, compact = false }: PourTimelineProps) {
+  const t = useTranslations('PourTimeline');
+
   if (pours.length === 0) {
     return (
       <div className="text-sm text-muted-foreground text-center py-4">
-        No pours added yet
+        {t('noPours')}
       </div>
     );
   }
@@ -66,10 +70,10 @@ export function PourTimeline({ pours, totalWater, compact = false }: PourTimelin
     <div className="space-y-1">
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Pour Timeline
+          {t('title')}
         </span>
         <span className="text-xs text-muted-foreground">
-          {pours.length} pour{pours.length !== 1 ? 's' : ''}
+          {pours.length} {pours.length !== 1 ? t('pours') : t('pour')}
         </span>
       </div>
 
@@ -125,7 +129,7 @@ export function PourTimeline({ pours, totalWater, compact = false }: PourTimelin
                       </span>
                       {bloom && (
                         <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-coffee-bloom/20 text-coffee-bloom">
-                          Bloom
+                          {t('bloom')}
                         </span>
                       )}
                     </div>

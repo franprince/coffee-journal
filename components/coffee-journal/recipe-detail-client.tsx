@@ -93,13 +93,15 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                         {/* Recipe Header */}
                         <div className="flex items-start justify-between gap-4 mb-10">
                             <div className="flex items-start gap-4">
-                                <div className="p-4 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-                                    <MethodIcon method={recipe.method} className="w-8 h-8" />
-                                </div>
-                                <div>
-                                    <p className="text-sm text-accent font-bold tracking-wide uppercase mb-1">
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="p-4 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                                        <MethodIcon method={recipe.method} className="w-8 h-8" />
+                                    </div>
+                                    <span className="px-2 py-0.5 rounded-full bg-accent/10 text-accent text-[10px] font-bold uppercase tracking-wide text-center">
                                         {METHOD_LABELS[recipe.method as keyof typeof METHOD_LABELS] ? tMethods(recipe.method) : recipe.method}
-                                    </p>
+                                    </span>
+                                </div>
+                                <div className="pt-1">
                                     <h2 className="text-4xl font-bold text-foreground leading-tight tracking-tight">
                                         {recipe.name}
                                     </h2>

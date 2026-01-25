@@ -18,6 +18,13 @@
         "french-press": "Prensa Francesa",
         "espresso": "Espresso"
     },
+    "PourTimeline": {
+        "title": "Línea de tiempo de vertido",
+        "pour": "vertido",
+        "pours": "vertidos",
+        "noPours": "Sin vertidos añadidos aún",
+        "bloom": "Bloom"
+    },
     "RecipeDetail": {
         "notFoundTitle": "Receta no encontrada",
         "goHome": "Ir al Inicio",

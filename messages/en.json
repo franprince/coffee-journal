@@ -18,6 +18,13 @@
         "french-press": "French Press",
         "espresso": "Espresso"
     },
+    "PourTimeline": {
+        "title": "Pour Timeline",
+        "pour": "pour",
+        "pours": "pours",
+        "noPours": "No pours added yet",
+        "bloom": "Bloom"
+    },
     "RecipeDetail": {
         "notFoundTitle": "Recipe not found",
         "goHome": "Go Home",
