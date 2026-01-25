@@ -91,23 +91,23 @@ export function PourTimeline({ pours, totalWater, compact = false }: PourTimelin
             return (
               <div
                 key={pour.id}
-                className="relative flex items-center gap-4 group"
+                className="relative mt-4 first:mt-0 md:mt-0 block md:flex md:items-center md:gap-4 group"
               >
                 {/* Connecting Lines */}
                 {!isLast && (
                   <div className={cn(
-                    "absolute left-4 w-0.5 -ml-[1px] bg-border -z-10",
+                    "hidden md:block absolute left-4 w-0.5 -ml-[1px] bg-border -z-10",
                     isFirst ? "top-1/2 -bottom-4" : "top-0 -bottom-4"
                   )} />
                 )}
 
                 {isLast && !isFirst && (
-                  <div className="absolute left-4 top-0 h-1/2 w-0.5 -ml-[1px] bg-border -z-10" />
+                  <div className="hidden md:block absolute left-4 top-0 h-1/2 w-0.5 -ml-[1px] bg-border -z-10" />
                 )}
 
                 {/* Timeline node */}
                 <div className={cn(
-                  'relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200 shrink-0',
+                  'absolute -top-3 left-0 z-20 w-6 h-6 text-[10px] md:static md:w-8 md:h-8 md:text-xs rounded-full flex items-center justify-center font-bold transition-all duration-200 shrink-0',
                   bloom
                     ? 'bg-coffee-bloom text-white'
                     : 'bg-coffee-espresso text-coffee-crema'
@@ -117,7 +117,7 @@ export function PourTimeline({ pours, totalWater, compact = false }: PourTimelin
 
                 {/* Pour details */}
                 <div className={cn(
-                  'flex-1 rounded-xl p-4 transition-all duration-200 border',
+                  'w-full md:flex-1 rounded-xl p-3 md:p-4 transition-all duration-200 border',
                   bloom
                     ? 'bg-coffee-bloom/10 border-coffee-bloom/30'
                     : 'bg-muted/30 border-border/50 group-hover:bg-muted/50'
