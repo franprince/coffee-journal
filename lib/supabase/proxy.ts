@@ -5,13 +5,8 @@ import { type NextRequest, NextResponse } from "next/server";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export const createClient = async (request: NextRequest) => {
-    // Create an unmodified response
-    let supabaseResponse = NextResponse.next({
-        request: {
-            headers: request.headers,
-        },
-    });
+export const updateSession = async (request: NextRequest, response: NextResponse) => {
+    let supabaseResponse = response;
 
     const supabase = createServerClient(
         supabaseUrl!,
@@ -23,9 +18,8 @@ export const createClient = async (request: NextRequest) => {
                 },
                 setAll(cookiesToSet) {
                     cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-                    supabaseResponse = NextResponse.next({
-                        request,
-                    })
+
+                    // Update the response cookies
                     cookiesToSet.forEach(({ name, value, options }) =>
                         supabaseResponse.cookies.set(name, value, options)
                     )

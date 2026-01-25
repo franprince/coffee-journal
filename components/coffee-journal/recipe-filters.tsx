@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { useState } from 'react';
 import { Search, Filter, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -33,6 +35,7 @@ export function RecipeFiltersComponent({
     resultCount,
     totalCount,
 }: RecipeFiltersProps) {
+    const t = useTranslations('RecipeFilters');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const activeFilterCount =
@@ -78,7 +81,7 @@ export function RecipeFiltersComponent({
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                         type="text"
-                        placeholder="Search recipes..."
+                        placeholder={t('searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
                         className="pl-9 pr-9"
@@ -98,7 +101,7 @@ export function RecipeFiltersComponent({
                     <PopoverTrigger asChild>
                         <Button variant="outline" className="gap-2 relative">
                             <Filter className="w-4 h-4" />
-                            <span className="hidden sm:inline">Filters</span>
+                            <span className="hidden sm:inline">{t('filters')}</span>
                             {activeFilterCount > 0 && (
                                 <Badge
                                     variant="secondary"
@@ -112,7 +115,7 @@ export function RecipeFiltersComponent({
                     <PopoverContent className="w-80" align="end">
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <h4 className="font-semibold text-sm">Filters</h4>
+                                <h4 className="font-semibold text-sm">{t('filters')}</h4>
                                 {hasActiveFilters && (
                                     <Button
                                         variant="ghost"
@@ -120,7 +123,7 @@ export function RecipeFiltersComponent({
                                         onClick={clearAllFilters}
                                         className="h-auto p-1 text-xs"
                                     >
-                                        Clear all
+                                        {t('clearAll')}
                                     </Button>
                                 )}
                             </div>
@@ -128,7 +131,7 @@ export function RecipeFiltersComponent({
                             {/* Brew Method Filter */}
                             <div className="space-y-2">
                                 <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                    Brew Method
+                                    {t('brewMethod')}
                                 </Label>
                                 <div className="space-y-2 max-h-40 overflow-y-auto">
                                     {METHOD_SUGGESTIONS.map((method) => (
@@ -152,7 +155,7 @@ export function RecipeFiltersComponent({
                             {/* Water Type Filter */}
                             <div className="space-y-2">
                                 <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                    Water Type
+                                    {t('waterType')}
                                 </Label>
                                 <div className="space-y-2 max-h-40 overflow-y-auto">
                                     {WATER_SUGGESTIONS.map((waterType) => (
@@ -176,7 +179,7 @@ export function RecipeFiltersComponent({
                             {/* Grind Size Filter */}
                             <div className="space-y-3">
                                 <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                    Grind Size Range
+                                    {t('grindSizeRange')}
                                 </Label>
                                 <div className="px-2">
                                     <Slider
@@ -202,12 +205,12 @@ export function RecipeFiltersComponent({
             {hasActiveFilters && (
                 <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs text-muted-foreground">
-                        {resultCount} of {totalCount} recipes
+                        {t('resultsCount', { count: resultCount, total: totalCount })}
                     </span>
 
                     {searchQuery && (
                         <Badge variant="secondary" className="gap-1">
-                            Search: "{searchQuery}"
+                            {t('searchLabel')} "{searchQuery}"
                             <button
                                 onClick={() => onSearchChange('')}
                                 className="ml-1 hover:text-foreground"
@@ -243,7 +246,7 @@ export function RecipeFiltersComponent({
 
                     {(filters.grindSizeRange[0] !== 0 || filters.grindSizeRange[1] !== 1400) && (
                         <Badge variant="secondary" className="gap-1">
-                            Grind: {filters.grindSizeRange[0]} - {filters.grindSizeRange[1]}µm
+                            {t('grindLabel')} {filters.grindSizeRange[0]} - {filters.grindSizeRange[1]}µm
                             <button
                                 onClick={() => handleGrindSizeChange([0, 1400])}
                                 className="ml-1 hover:text-foreground"

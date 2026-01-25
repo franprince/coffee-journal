@@ -4,32 +4,37 @@ import type { BrewLog } from '@/lib/types';
 import { MethodIcon } from './method-icons';
 import { Star, Calendar, Zap, Candy, Circle, AlertTriangle, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFormatter, useTranslations } from 'next-intl';
 
 interface BrewLogCardProps {
   log: BrewLog;
 }
 
 export function BrewLogCard({ log }: BrewLogCardProps) {
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
+  const t = useTranslations('BrewLogCard');
+  const tTaste = useTranslations('Taste');
+  const format = useFormatter();
+
+  const formattedDate = format.dateTime(new Date(log.date), {
     month: 'short',
     day: 'numeric',
-    year: 'numeric',
-  }).format(log.date);
+    year: 'numeric'
+  });
 
   const hasTweaks = log.coffeeWeight || log.totalWaterWeight || log.grindSize || log.temperature || log.pours;
 
   const tasteItems = [
-    { key: 'acidity', label: 'Acidity', icon: Zap, value: log.tasteProfile.acidity },
-    { key: 'sweetness', label: 'Sweet', icon: Candy, value: log.tasteProfile.sweetness },
-    { key: 'body', label: 'Body', icon: Circle, value: log.tasteProfile.body },
-    { key: 'bitterness', label: 'Bitter', icon: AlertTriangle, value: log.tasteProfile.bitterness },
+    { key: 'acidity', label: tTaste('acidity'), icon: Zap, value: log.tasteProfile.acidity },
+    { key: 'sweetness', label: tTaste('sweetness'), icon: Candy, value: log.tasteProfile.sweetness },
+    { key: 'body', label: tTaste('body'), icon: Circle, value: log.tasteProfile.body },
+    { key: 'bitterness', label: tTaste('bitterness'), icon: AlertTriangle, value: log.tasteProfile.bitterness },
   ];
 
   return (
     <div className="modern-card p-5 hover:shadow-lg transition-all relative group bg-card border-none ring-1 ring-border/20">
       {/* Tweak Indicator */}
       {hasTweaks && (
-        <div className="absolute top-4 right-4 text-accent bg-accent/10 p-1 rounded-full" title="Recipe Modified">
+        <div className="absolute top-4 right-4 text-accent bg-accent/10 p-1 rounded-full" title={t('recipeModified')}>
           <SlidersHorizontal className="w-3.5 h-3.5" />
         </div>
       )}
@@ -100,10 +105,10 @@ export function BrewLogCard({ log }: BrewLogCardProps) {
             />
           </svg>
           {/* Labels */}
-          <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 text-[8px] font-bold text-muted-foreground uppercase">Acid</span>
-          <span className="absolute right-0 top-1/2 translate-x-2 -translate-y-1/2 text-[8px] font-bold text-muted-foreground uppercase">Sweet</span>
-          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2 text-[8px] font-bold text-muted-foreground uppercase">Body</span>
-          <span className="absolute left-0 top-1/2 -translate-x-3 -translate-y-1/2 text-[8px] font-bold text-muted-foreground uppercase">Bitter</span>
+          <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 text-[8px] font-bold text-muted-foreground uppercase">{tTaste('acidity').slice(0, 4)}</span>
+          <span className="absolute right-0 top-1/2 translate-x-2 -translate-y-1/2 text-[8px] font-bold text-muted-foreground uppercase">{tTaste('sweetness').slice(0, 5)}</span>
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2 text-[8px] font-bold text-muted-foreground uppercase">{tTaste('body')}</span>
+          <span className="absolute left-0 top-1/2 -translate-x-3 -translate-y-1/2 text-[8px] font-bold text-muted-foreground uppercase">{tTaste('bitterness').slice(0, 6)}</span>
         </div>
       </div>
 

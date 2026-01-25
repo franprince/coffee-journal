@@ -1,14 +1,14 @@
 import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
+import { updateSession } from '@/lib/supabase/proxy';
+import { NextRequest } from 'next/server';
 
-const proxy = createMiddleware({
-    // A list of all locales that are supported
-    locales: ['es', 'en'],
+const intlMiddleware = createMiddleware(routing);
 
-    // Used when no locale matches
-    defaultLocale: 'es'
-});
-
-export default proxy;
+export default async function middleware(request: NextRequest) {
+    const response = intlMiddleware(request);
+    return await updateSession(request, response);
+}
 
 export const config = {
     // Match only internationalized pathnames
