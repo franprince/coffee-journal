@@ -1,0 +1,42 @@
+{
+    "HomePage": {
+        "recipes": "Recipes",
+        "brewLog": "Brew Log",
+        "pantry": "Pantry",
+        "searchPlaceholder": "Search recipes...",
+        "noRecipesTitle": "No recipes yet",
+        "noRecipesDesc": "Start your journey by creating your first brew recipe.",
+        "createFirstRecipe": "Create First Recipe",
+        "noLogsTitle": "No brew logs",
+        "noLogsDesc": "Brew a recipe to start logging."
+    },
+    "RecipeCard": {
+        "steps": "STEPS",
+        "actions": "actions",
+        "noPours": "No pours recorded",
+        "bloom": "Bloom",
+        "deleteTitle": "Delete Recipe?",
+        "deleteDesc": "Are you sure you want to delete \"{name}\"?"
+    },
+    "RecipeForm": {
+        "editTitle": "Edit Recipe",
+        "newTitle": "New Recipe",
+        "save": "Save Recipe",
+        "update": "Update Recipe",
+        "nameLabel": "Recipe Name",
+        "namePlaceholder": "Morning V60",
+        "methodLabel": "Brew Method",
+        "methodPlaceholder": "V60, Chemex...",
+        "coffeeLabel": "Coffee (g)",
+        "waterLabel": "Water (g)",
+        "ratioLabel": "Ratio",
+        "grindLabel": "Grind Size",
+        "waterTypeLabel": "Water Type (opt)",
+        "waterTypePlaceholder": "Filtered, Spring..."
+    },
+    "Common": {
+        "cancel": "Cancel",
+        "loading": "Loading...",
+        "back": "Back"
+    }
+}

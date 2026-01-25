@@ -1,0 +1,42 @@
+{
+    "HomePage": {
+        "recipes": "Recetas",
+        "brewLog": "Historial",
+        "pantry": "Despensa",
+        "searchPlaceholder": "Buscar recetas...",
+        "noRecipesTitle": "Sin recetas aún",
+        "noRecipesDesc": "Comienza tu viaje creando tu primera receta de café.",
+        "createFirstRecipe": "Crear Primera Receta",
+        "noLogsTitle": "Sin registros",
+        "noLogsDesc": "Prepara una receta para comenzar a registrar."
+    },
+    "RecipeCard": {
+        "steps": "PASOS",
+        "actions": "acciones",
+        "noPours": "Sin pasos registrados",
+        "bloom": "Bloom",
+        "deleteTitle": "¿Eliminar Receta?",
+        "deleteDesc": "¿Estás seguro de que deseas eliminar \"{name}\"?"
+    },
+    "RecipeForm": {
+        "editTitle": "Editar Receta",
+        "newTitle": "Nueva Receta",
+        "save": "Guardar Receta",
+        "update": "Actualizar Receta",
+        "nameLabel": "Nombre de la Receta",
+        "namePlaceholder": "V60 Mañanero",
+        "methodLabel": "Método",
+        "methodPlaceholder": "V60, Chemex...",
+        "coffeeLabel": "Café (g)",
+        "waterLabel": "Agua (g)",
+        "ratioLabel": "Ratio",
+        "grindLabel": "Molienda",
+        "waterTypeLabel": "Tipo de Agua (opt)",
+        "waterTypePlaceholder": "Filtrada, Manantial..."
+    },
+    "Common": {
+        "cancel": "Cancelar",
+        "loading": "Cargando...",
+        "back": "Volver"
+    }
+}
