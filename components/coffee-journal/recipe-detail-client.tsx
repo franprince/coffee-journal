@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -24,6 +26,8 @@ interface RecipeDetailClientProps {
 }
 
 export default function RecipeDetailClient({ initialRecipe, initialLogs, initialCoffees, recipeId }: RecipeDetailClientProps) {
+    const t = useTranslations('RecipeDetail');
+    const tMethods = useTranslations('Methods');
     const router = useRouter();
 
     // Using Hooks with properties
@@ -63,9 +67,9 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
     if (!recipe) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
-                <h1 className="text-3xl font-bold mb-4">Recipe not found</h1>
+                <h1 className="text-3xl font-bold mb-4">{t('notFoundTitle')}</h1>
                 <Link href="/">
-                    <Button className="rounded-full">Go Home</Button>
+                    <Button className="rounded-full">{t('goHome')}</Button>
                 </Link>
             </div>
         );
@@ -82,7 +86,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                         className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-secondary hover:bg-secondary/80 text-foreground transition-all ml-8 mt-8 group font-medium text-sm"
                     >
                         <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-                        Back
+                        {t('back')}
                     </Link>
 
                     <div className="p-8 pt-6">
@@ -94,7 +98,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                 </div>
                                 <div>
                                     <p className="text-sm text-accent font-bold tracking-wide uppercase mb-1">
-                                        {METHOD_LABELS[recipe.method as keyof typeof METHOD_LABELS] || recipe.method}
+                                        {METHOD_LABELS[recipe.method as keyof typeof METHOD_LABELS] ? tMethods(recipe.method) : recipe.method}
                                     </p>
                                     <h2 className="text-4xl font-bold text-foreground leading-tight tracking-tight">
                                         {recipe.name}
@@ -123,11 +127,10 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
 
                         {/* Specs Grid - Floating Bubbles */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-10">
-                            {/* Ratio */}
                             <div className="col-span-1 p-4 rounded-2xl bg-secondary/30 flex flex-col gap-1 items-center justify-center text-center">
                                 <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
                                     <Zap className="w-4 h-4" />
-                                    <span className="text-xs font-bold uppercase">Ratio</span>
+                                    <span className="text-xs font-bold uppercase">{t('ratio')}</span>
                                 </div>
                                 <span className="text-xl font-bold text-foreground">1:{(recipe.totalWaterWeight / recipe.coffeeWeight).toFixed(1)}</span>
                             </div>
@@ -136,7 +139,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                             <div className="col-span-1 p-4 rounded-2xl bg-secondary/30 flex flex-col gap-1 items-center justify-center text-center">
                                 <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
                                     <Scale className="w-4 h-4" />
-                                    <span className="text-xs font-bold uppercase">Coffee</span>
+                                    <span className="text-xs font-bold uppercase">{t('coffee')}</span>
                                 </div>
                                 <span className="text-lg font-mono font-medium">{recipe.coffeeWeight}g</span>
                             </div>
@@ -145,7 +148,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                             <div className="col-span-1 p-4 rounded-2xl bg-secondary/30 flex flex-col gap-1 items-center justify-center text-center">
                                 <div className="flex items-center justify-center gap-1.5 text-coffee-water mb-1">
                                     <Droplets className="w-4 h-4" />
-                                    <span className="text-xs font-bold uppercase">Water</span>
+                                    <span className="text-xs font-bold uppercase">{t('water')}</span>
                                 </div>
                                 <span className="text-lg font-mono font-medium text-coffee-water">{recipe.totalWaterWeight}g</span>
                             </div>
@@ -154,7 +157,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                             <div className="col-span-1 p-4 rounded-2xl bg-secondary/30 flex flex-col gap-1 items-center justify-center text-center">
                                 <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
                                     <Hash className="w-4 h-4" />
-                                    <span className="text-xs font-bold uppercase">Grind</span>
+                                    <span className="text-xs font-bold uppercase">{t('grind')}</span>
                                 </div>
                                 <span className="text-lg font-medium">{recipe.grindSize}µm</span>
                             </div>
@@ -163,7 +166,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                             <div className="col-span-1 p-4 rounded-2xl bg-secondary/30 flex flex-col gap-1 items-center justify-center text-center">
                                 <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
                                     <Thermometer className="w-4 h-4" />
-                                    <span className="text-xs font-bold uppercase">Temp</span>
+                                    <span className="text-xs font-bold uppercase">{t('temp')}</span>
                                 </div>
                                 <span className="text-lg font-medium">{recipe.pours?.[0]?.temperature || 93}°C</span>
                             </div>
@@ -171,7 +174,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
 
                         {/* Pour Timeline Component */}
                         <div className="mb-10 bg-secondary/10 p-6 rounded-3xl border border-border/40">
-                            <h3 className="text-lg font-bold mb-4 text-foreground">Usage Guide</h3>
+                            <h3 className="text-lg font-bold mb-4 text-foreground">{t('usageGuide')}</h3>
                             <PourTimeline pours={recipe.pours} totalWater={recipe.totalWaterWeight} />
                         </div>
 
@@ -182,7 +185,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                 className="w-full h-16 text-lg font-bold rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20 transition-transform active:scale-95"
                             >
                                 <CoffeeIcon className="w-6 h-6 mr-2" />
-                                Log Brew
+                                {t('logBrew')}
                             </Button>
                         </div>
                     </div>
@@ -192,20 +195,20 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                 <div className="space-y-6">
                     <div className="flex items-center justify-between px-4">
                         <h3 className="text-2xl font-bold flex items-center gap-2 text-foreground">
-                            Brew Logs
+                            {t('brewLogsTitle')}
                             <span className="text-base text-muted-foreground font-medium bg-secondary/50 px-3 py-1 rounded-full">{logs.length}</span>
                         </h3>
                     </div>
 
                     {logs.length === 0 ? (
                         <div className="modern-card border border-dashed border-border p-12 text-center bg-transparent shadow-none">
-                            <p className="text-muted-foreground mb-4">No brews logged for this recipe yet.</p>
+                            <p className="text-muted-foreground mb-4">{t('noLogsDesc')}</p>
                             <Button
                                 variant="outline"
                                 onClick={() => setShowLogForm(true)}
                                 className="rounded-full border-primary/20 text-primary hover:bg-primary/5"
                             >
-                                Log your first brew
+                                {t('logFirstBrew')}
                             </Button>
                         </div>
                     ) : (
@@ -223,7 +226,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/60 backdrop-blur-md animate-in fade-in duration-200">
                     <div className="bg-card w-full max-w-lg rounded-[2rem] shadow-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200 relative ring-1 ring-border/20">
                         <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-border/40 bg-card/80 backdrop-blur">
-                            <h3 className="text-xl font-bold">Log Brew</h3>
+                            <h3 className="text-xl font-bold">{t('logBrewModalTitle')}</h3>
                             <button
                                 onClick={() => setShowLogForm(false)}
                                 className="p-2 rounded-full hover:bg-secondary transition-colors"
@@ -248,7 +251,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                 <div className="fixed inset-0 z-50 flex items-center justify-end bg-background/30 backdrop-blur-md">
                     <div className="w-full max-w-md bg-card border-l border-border/20 h-full shadow-2xl p-6 overflow-y-auto animate-in slide-in-from-right duration-300">
                         <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-2xl font-bold">Edit Recipe</h3>
+                            <h3 className="text-2xl font-bold">{t('editRecipeTitle')}</h3>
                             <button
                                 onClick={() => setShowEditForm(false)}
                                 className="p-2 rounded-full hover:bg-secondary transition-colors"
@@ -268,8 +271,8 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                 isOpen={showDeleteConfirm}
                 onClose={() => setShowDeleteConfirm(false)}
                 onConfirm={confirmDelete}
-                title="Delete Recipe?"
-                description={`Are you sure you want to delete "${recipe.name}"?`}
+                title={t('deleteRecipeTitle')}
+                description={t('deleteRecipeDesc', { name: recipe.name })}
             />
         </div>
     );

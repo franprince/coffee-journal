@@ -10,6 +10,34 @@
         "noLogsTitle": "No brew logs",
         "noLogsDesc": "Brew a recipe to start logging."
     },
+    "Methods": {
+        "pour-over": "Pour Over",
+        "v60": "V60",
+        "chemex": "Chemex",
+        "aeropress": "AeroPress",
+        "french-press": "French Press",
+        "espresso": "Espresso"
+    },
+    "RecipeDetail": {
+        "notFoundTitle": "Recipe not found",
+        "goHome": "Go Home",
+        "back": "Back",
+        "ratio": "Ratio",
+        "coffee": "Coffee",
+        "water": "Water",
+        "grind": "Grind",
+        "temp": "Temp",
+        "usageGuide": "Usage Guide",
+        "logBrew": "Log Brew",
+        "brewLogsTitle": "Brew Logs",
+        "noLogsTitle": "No brews logged",
+        "noLogsDesc": "No brews logged for this recipe yet.",
+        "logFirstBrew": "Log your first brew",
+        "logBrewModalTitle": "Log Brew",
+        "editRecipeTitle": "Edit Recipe",
+        "deleteRecipeTitle": "Delete Recipe?",
+        "deleteRecipeDesc": "Are you sure you want to delete \"{name}\"?"
+    },
     "RecipeCard": {
         "steps": "STEPS",
         "actions": "actions",

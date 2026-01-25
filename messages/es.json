@@ -10,6 +10,34 @@
         "noLogsTitle": "Sin registros",
         "noLogsDesc": "Prepara una receta para comenzar a registrar."
     },
+    "Methods": {
+        "pour-over": "Pour Over",
+        "v60": "V60",
+        "chemex": "Chemex",
+        "aeropress": "AeroPress",
+        "french-press": "Prensa Francesa",
+        "espresso": "Espresso"
+    },
+    "RecipeDetail": {
+        "notFoundTitle": "Receta no encontrada",
+        "goHome": "Ir al Inicio",
+        "back": "Volver",
+        "ratio": "Ratio",
+        "coffee": "Café",
+        "water": "Agua",
+        "grind": "Molienda",
+        "temp": "Temp",
+        "usageGuide": "Guía de Uso",
+        "logBrew": "Registrar Café",
+        "brewLogsTitle": "Historial",
+        "noLogsTitle": "Sin registros aún",
+        "noLogsDesc": "No hay registros para esta receta aún.",
+        "logFirstBrew": "Registra tu primera preparación",
+        "logBrewModalTitle": "Registrar Preparación",
+        "editRecipeTitle": "Editar Receta",
+        "deleteRecipeTitle": "¿Eliminar Receta?",
+        "deleteRecipeDesc": "¿Estás seguro de que deseas eliminar \"{name}\"?"
+    },
     "RecipeCard": {
         "steps": "PASOS",
         "actions": "acciones",

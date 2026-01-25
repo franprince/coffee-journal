@@ -19,6 +19,7 @@ interface RecipeCardProps {
 
 export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
   const t = useTranslations('RecipeCard');
+  const tMethods = useTranslations('Methods');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const ratio = recipe.coffeeWeight > 0
     ? (recipe.totalWaterWeight / recipe.coffeeWeight).toFixed(1)
@@ -58,7 +59,7 @@ export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-muted-foreground flex items-center gap-1 font-medium px-0 py-0.5 w-fit uppercase tracking-wider mb-1">
-                    {METHOD_LABELS[recipe.method as keyof typeof METHOD_LABELS] || recipe.method}
+                    {METHOD_LABELS[recipe.method as keyof typeof METHOD_LABELS] ? tMethods(recipe.method) : recipe.method}
                   </p>
                   <h3 className="font-bold text-xl text-foreground leading-tight group-hover:text-primary transition-colors pr-2">
                     {recipe.name}
