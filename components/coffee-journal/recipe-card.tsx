@@ -1,10 +1,10 @@
-'use client';
+import { useTranslations } from 'next-intl';
 
 import { useState } from 'react';
 import Link from 'next/link';
 
 import type { Recipe } from '@/lib/types';
-import { METHOD_LABELS, GRIND_SIZE_LABELS } from '@/lib/types';
+import { METHOD_LABELS } from '@/lib/types';
 import { MethodIcon } from './method-icons';
 import { RecipeExport } from './recipe-export';
 import { Clock, Droplets, Scale, Coffee, Trash2, Zap } from 'lucide-react';
@@ -18,12 +18,13 @@ interface RecipeCardProps {
 }
 
 export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
+  const t = useTranslations('RecipeCard');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const ratio = recipe.coffeeWeight > 0
     ? (recipe.totalWaterWeight / recipe.coffeeWeight).toFixed(1)
     : '0';
 
-  const grindLabel = GRIND_SIZE_LABELS[Math.floor(recipe.grindSize / (100 / (GRIND_SIZE_LABELS.length - 1)))];
+
 
   const totalTime = recipe.pours && recipe.pours.length > 0
     ? recipe.pours[recipe.pours.length - 1].time
@@ -84,6 +85,10 @@ export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
                 <span className="font-mono font-medium">{recipe.totalWaterWeight}g</span>
               </div>
               <div className="flex items-center gap-1.5 p-2 rounded-lg bg-secondary/30">
+                <div className="w-4 h-4 flex items-center justify-center text-muted-foreground font-mono text-xs font-bold border border-border rounded-sm">µ</div>
+                <span className="font-mono font-medium">{recipe.grindSize}</span>
+              </div>
+              <div className="flex items-center gap-1.5 p-2 rounded-lg bg-secondary/30">
                 <Clock className="w-4 h-4 text-muted-foreground" />
                 <span className="font-mono font-medium">{totalTime}</span>
               </div>
@@ -92,13 +97,13 @@ export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
             {/* Pour Timeline - Soft Dots */}
             <div className="pt-4 border-t border-border/30">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Steps</span>
-                <span className="text-[10px] text-muted-foreground">{poursWithCumulative.length} actions</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t('steps')}</span>
+                <span className="text-[10px] text-muted-foreground">{poursWithCumulative.length} {t('actions')}</span>
               </div>
 
               {poursWithCumulative.length === 0 ? (
                 <div className="text-sm text-muted-foreground text-center py-2 italic">
-                  No pours recorded
+                  {t('noPours')}
                 </div>
               ) : (
                 <div className="relative pl-2">
@@ -116,7 +121,7 @@ export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
                           <div className="flex-1 min-w-0">
                             {pour.isBloom && (
                               <span className="inline-block px-2 py-0.5 text-[10px] font-bold bg-accent/10 text-accent rounded-full mr-2">
-                                Bloom
+                                {t('bloom')}
                               </span>
                             )}
                             {pour.notes && !pour.isBloom && (
@@ -164,8 +169,8 @@ export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={() => onDelete?.(recipe.id)}
-        title="Delete Recipe?"
-        description={`Are you sure you want to delete "${recipe.name}"?`}
+        title={t('deleteTitle')}
+        description={t('deleteDesc', { name: recipe.name })}
       />
     </div>
   );
