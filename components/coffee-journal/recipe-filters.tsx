@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { METHOD_SUGGESTIONS, WATER_SUGGESTIONS, GRIND_SIZE_LABELS } from '@/lib/types';
+import { METHOD_SUGGESTIONS, WATER_SUGGESTIONS } from '@/lib/types';
 import type { RecipeFilters } from '@/lib/types';
 
 interface RecipeFiltersProps {
@@ -38,7 +38,7 @@ export function RecipeFiltersComponent({
     const activeFilterCount =
         filters.methods.length +
         filters.waterTypes.length +
-        (filters.grindSizeRange[0] !== 0 || filters.grindSizeRange[1] !== 100 ? 1 : 0);
+        (filters.grindSizeRange[0] !== 0 || filters.grindSizeRange[1] !== 1400 ? 1 : 0);
 
     const handleMethodToggle = (method: string) => {
         const newMethods = filters.methods.includes(method)
@@ -62,7 +62,7 @@ export function RecipeFiltersComponent({
         onFiltersChange({
             methods: [],
             waterTypes: [],
-            grindSizeRange: [0, 100],
+            grindSizeRange: [0, 1400],
         });
         onSearchChange('');
     };
@@ -181,15 +181,15 @@ export function RecipeFiltersComponent({
                                 <div className="px-2">
                                     <Slider
                                         min={0}
-                                        max={100}
-                                        step={1}
+                                        max={1400}
+                                        step={10}
                                         value={filters.grindSizeRange}
                                         onValueChange={handleGrindSizeChange}
                                         className="w-full"
                                     />
                                     <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-                                        <span>{GRIND_SIZE_LABELS[Math.floor(filters.grindSizeRange[0] / (100 / (GRIND_SIZE_LABELS.length - 1)))]}</span>
-                                        <span>{GRIND_SIZE_LABELS[Math.floor(filters.grindSizeRange[1] / (100 / (GRIND_SIZE_LABELS.length - 1)))]}</span>
+                                        <span>{filters.grindSizeRange[0]}µm</span>
+                                        <span>{filters.grindSizeRange[1]}µm</span>
                                     </div>
                                 </div>
                             </div>
@@ -241,11 +241,11 @@ export function RecipeFiltersComponent({
                         </Badge>
                     ))}
 
-                    {(filters.grindSizeRange[0] !== 0 || filters.grindSizeRange[1] !== 100) && (
+                    {(filters.grindSizeRange[0] !== 0 || filters.grindSizeRange[1] !== 1400) && (
                         <Badge variant="secondary" className="gap-1">
-                            Grind: {GRIND_SIZE_LABELS[Math.floor(filters.grindSizeRange[0] / (100 / (GRIND_SIZE_LABELS.length - 1)))]} - {GRIND_SIZE_LABELS[Math.floor(filters.grindSizeRange[1] / (100 / (GRIND_SIZE_LABELS.length - 1)))]}
+                            Grind: {filters.grindSizeRange[0]} - {filters.grindSizeRange[1]}µm
                             <button
-                                onClick={() => handleGrindSizeChange([0, 100])}
+                                onClick={() => handleGrindSizeChange([0, 1400])}
                                 className="ml-1 hover:text-foreground"
                             >
                                 <X className="w-3 h-3" />

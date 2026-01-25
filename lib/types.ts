@@ -36,7 +36,7 @@ export interface Recipe {
   method: string; // Allows custom methods beyond BrewMethod
   coffeeWeight: number; // grams
   totalWaterWeight: number; // grams
-  grindSize: number; // 0-100 slider value
+  grindSize: number; // 0-1400 microns
   waterType?: string; // Allows custom water types
   pours: Pour[];
   createdAt: Date;
@@ -129,14 +129,7 @@ export const WATER_TYPE_LABELS: Record<WaterType, string> = {
   'third-wave': 'Third Wave',
 };
 
-export const GRIND_SIZE_LABELS: string[] = [
-  'Extra Fine',
-  'Fine',
-  'Medium Fine',
-  'Medium',
-  'Medium Coarse',
-  'Coarse',
-];
+
 
 export interface RecipeFilters {
   methods: string[];

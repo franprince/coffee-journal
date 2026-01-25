@@ -156,7 +156,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                     <Hash className="w-4 h-4" />
                                     <span className="text-xs font-bold uppercase">Grind</span>
                                 </div>
-                                <span className="text-lg font-medium">{recipe.grindSize}</span>
+                                <span className="text-lg font-medium">{recipe.grindSize}µm</span>
                             </div>
 
                             {/* Temp */}
