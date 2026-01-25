@@ -3,8 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/routing';
 import { METHOD_LABELS } from '@/lib/types';
 import type { BrewLog, Recipe, Coffee } from '@/lib/types';
 import { useRecipe, useCoffees, useLogs } from '@/lib/hooks';
