@@ -1,15 +1,17 @@
 import { RecipeServiceServer, LogServiceServer, CoffeeServiceServer } from '@/lib/db-server';
 import RecipeDetailClient from '@/components/coffee-journal/recipe-detail-client';
 import { notFound } from 'next/navigation';
+import { extractIdFromSlug } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
-    params: Promise<{ id: string }>;
+    params: Promise<{ slug: string }>;
 }
 
 export default async function RecipePage({ params }: PageProps) {
-    const { id } = await params;
+    const { slug } = await params;
+    const id = extractIdFromSlug(slug);
 
     const recipe = await RecipeServiceServer.getRecipe(id);
 

@@ -1,8 +1,9 @@
 import { useTranslations } from 'next-intl';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 
+import { createRecipeSlug } from '@/lib/utils';
 import type { Recipe } from '@/lib/types';
 import { METHOD_LABELS } from '@/lib/types';
 import { MethodIcon } from './method-icons';
@@ -40,7 +41,7 @@ export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
 
   return (
     <div className="relative group">
-      <Link href={`/recipe/${recipe.id}`}>
+      <Link href={`/recipe/${createRecipeSlug(recipe.method, recipe.id)}`}>
         <div
           className="modern-card group relative cursor-pointer hover:shadow-lg active:scale-[0.98] overflow-hidden bg-card"
         >
