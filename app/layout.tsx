@@ -51,13 +51,17 @@ export const viewport: Viewport = {
 
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
+  params: { locale: string };
 }>) {
+  const { locale } = await params;
+
   return (
-    <html lang="en">
+    <html lang={locale || 'es'}>
       <body className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`}>
         <ThemeProvider>
           <div className="fixed top-4 right-4 z-50">
