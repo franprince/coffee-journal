@@ -2,8 +2,6 @@ import React from "react"
 import type { Metadata, Viewport } from 'next'
 
 import { Analytics } from '@vercel/analytics/next'
-import { ThemeProvider } from '@/components/theme-provider'
-import { ThemeToggle } from '@/components/theme-toggle'
 import './globals.css'
 import { DM_Sans, Playfair_Display, Comfortaa as V0_Font_Comfortaa, Geist_Mono as V0_Font_Geist_Mono, Playfair_Display as V0_Font_Playfair_Display } from 'next/font/google'
 
@@ -63,13 +61,8 @@ export default async function RootLayout({
   return (
     <html lang={locale || 'es'}>
       <body className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`}>
-        <ThemeProvider>
-          <div className="fixed top-4 right-4 z-50">
-            <ThemeToggle />
-          </div>
-          {children}
-          <Analytics />
-        </ThemeProvider>
+        {children}
+        <Analytics />
       </body>
     </html>
   )
