@@ -1,4 +1,5 @@
 'use client';
+import { useTranslations } from 'next-intl';
 
 import React from "react"
 
@@ -23,6 +24,7 @@ interface BrewLogFormProps {
   onAddCoffee: (coffee: Coffee) => void;
   onSave: (log: BrewLog) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 const TASTE_DIMENSIONS = [
@@ -32,7 +34,9 @@ const TASTE_DIMENSIONS = [
   { key: 'bitterness' as const, label: 'Bitterness', icon: AlertTriangle, description: 'Dark, roasty, intense' },
 ];
 
-export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: BrewLogFormProps) {
+export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel, isLoading }: BrewLogFormProps) {
+  const t = useTranslations('BrewLogForm');
+  const tTaste = useTranslations('Taste');
   const [tasteProfile, setTasteProfile] = useState<TasteProfile>({
     acidity: 50,
     sweetness: 50,
@@ -89,16 +93,16 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Header */}
       <div className="text-center pb-3 border-b border-border">
-        <h3 className="font-display text-base font-semibold text-foreground">Log Your Brew</h3>
+        <h3 className="font-display text-base font-semibold text-foreground">{t('title')}</h3>
         <p className="text-xs text-muted-foreground mt-0.5 mb-3">
-          How was your {recipe.name}?
+          {t('subtitle', { name: recipe.name })}
         </p>
 
         {/* Coffee Selector */}
         <div className="max-w-[240px] mx-auto flex items-center gap-2">
           <Select value={selectedCoffeeId} onValueChange={setSelectedCoffeeId}>
             <SelectTrigger className="h-8 text-xs bg-secondary/20 border-border/50 flex-1">
-              <SelectValue placeholder="Select Coffee Bean..." />
+              <SelectValue placeholder={t('selectCoffee')} />
             </SelectTrigger>
             <SelectContent className="glass-card">
               {coffees.map(c => (
@@ -122,7 +126,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
             </DialogTrigger>
             <DialogContent className="glass-card border-border sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Add New Coffee</DialogTitle>
+                <DialogTitle>{t('addCoffee')}</DialogTitle>
               </DialogHeader>
               <AddCoffeeForm
                 onSuccess={(coffee) => {
@@ -144,7 +148,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
           onClick={() => setShowTweaks(!showTweaks)}
           className="flex items-center justify-center gap-2 text-xs text-primary font-medium hover:underline mx-auto w-full py-1"
         >
-          {showTweaks ? 'Hide Recipe Parameters' : 'Adjust Recipe Parameters'}
+          {showTweaks ? t('hideTweaks') : t('adjustTweaks')}
           <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showTweaks && "rotate-180")} />
         </button>
 
@@ -152,7 +156,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
           <div className="grid grid-cols-2 gap-3 bg-secondary/30 p-4 rounded-xl border border-border/50 animate-in slide-in-from-top-2">
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Scale className="w-3.5 h-3.5" /> Coffee (g)
+                <Scale className="w-3.5 h-3.5" /> {t('tweaks.coffee')}
               </Label>
               <Input
                 type="number"
@@ -163,7 +167,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Droplets className="w-3.5 h-3.5" /> Water (g)
+                <Droplets className="w-3.5 h-3.5" /> {t('tweaks.water')}
               </Label>
               <Input
                 type="number"
@@ -174,7 +178,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Hash className="w-3.5 h-3.5" /> Grind
+                <Hash className="w-3.5 h-3.5" /> {t('tweaks.grind')}
               </Label>
               <Input
                 type="number"
@@ -185,7 +189,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Thermometer className="w-3.5 h-3.5" /> Temp (°C)
+                <Thermometer className="w-3.5 h-3.5" /> {t('tweaks.temp')}
               </Label>
               <Input
                 type="number"
@@ -201,7 +205,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
         {showTweaks && (
           <div className="space-y-3 mt-4 border-t border-border pt-3">
             <Label className="text-xs font-semibold text-foreground uppercase tracking-wider">
-              Pour Schedule Overrides
+              {t('tweaks.overrides')}
             </Label>
             <div className="space-y-3">
               {pours.map((pour, index) => (
@@ -246,7 +250,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
 
       {/* Star Rating */}
       <div className="space-y-2">
-        <Label className="text-foreground text-center block text-sm">Overall Rating</Label>
+        <Label className="text-foreground text-center block text-sm">{t('rating')}</Label>
         <div className="flex items-center justify-center gap-1.5">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -269,24 +273,20 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
           ))}
         </div>
         <p className="text-center text-xs text-muted-foreground min-h-[1.25rem]">
-          {rating === 1 && 'Needs work'}
-          {rating === 2 && 'Below average'}
-          {rating === 3 && 'Good'}
-          {rating === 4 && 'Great!'}
-          {rating === 5 && 'Perfect!'}
+          {rating && t(`ratings.${rating}`)}
         </p>
       </div>
 
       {/* Taste Profile Sliders */}
       <div className="space-y-3">
-        <Label className="text-foreground text-sm">Taste Profile</Label>
+        <Label className="text-foreground text-sm">{t('tasteProfile')}</Label>
 
-        {TASTE_DIMENSIONS.map(({ key, label, icon: Icon, description }) => (
+        {TASTE_DIMENSIONS.map(({ key, icon: Icon }) => (
           <div key={key} className="space-y-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <Icon className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-xs font-medium text-foreground">{label}</span>
+                <span className="text-xs font-medium text-foreground">{tTaste(key)}</span>
               </div>
               <span className="text-xs text-muted-foreground font-mono">
                 {tasteProfile[key]}%
@@ -299,7 +299,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
               step={5}
               className="py-1"
             />
-            <p className="text-[10px] text-muted-foreground">{description}</p>
+            <p className="text-[10px] text-muted-foreground">{tTaste(`${key}Desc`)}</p>
           </div>
         ))}
       </div>
@@ -352,16 +352,16 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
           </svg>
           {/* Labels */}
           <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 text-[10px] text-muted-foreground">
-            Acidity
+            {tTaste('acidity')}
           </span>
           <span className="absolute right-0 top-1/2 translate-x-1 -translate-y-1/2 text-[10px] text-muted-foreground">
-            Sweet
+            {tTaste('sweetness')}
           </span>
           <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1 text-[10px] text-muted-foreground">
-            Body
+            {tTaste('body')}
           </span>
           <span className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 text-[10px] text-muted-foreground">
-            Bitter
+            {tTaste('bitterness')}
           </span>
         </div>
       </div>
@@ -369,11 +369,11 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
       {/* Notes */}
       <div className="space-y-1.5">
         <Label htmlFor="notes" className="text-foreground text-sm">
-          Iteration Notes <span className="text-muted-foreground text-xs">(optional)</span>
+          {t('notes')} <span className="text-muted-foreground text-xs">{t('optional')}</span>
         </Label>
         <Textarea
           id="notes"
-          placeholder="What would you change next time? e.g., Grind finer, bloom longer..."
+          placeholder={t('notesPlaceholder')}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           className="bg-background border-border min-h-[80px] resize-none text-sm"
@@ -385,9 +385,9 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
         <Label className="text-foreground text-sm flex items-center gap-1.5">
           <span className="flex items-center gap-1.5">
             <Camera className="w-3.5 h-3.5" />
-            Photos
+            {t('photos')}
           </span>
-          <span className="text-muted-foreground text-xs">(optional)</span>
+          <span className="text-muted-foreground text-xs">{t('optional')}</span>
         </Label>
 
         <div className="grid grid-cols-4 gap-2">
@@ -450,14 +450,19 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
           onClick={onCancel}
           className="flex-1 h-9 text-sm bg-transparent"
         >
-          Cancel
+          {t('cancel')}
         </Button>
         <Button
           type="submit"
+          disabled={isLoading}
           className="flex-1 h-9 text-sm bg-coffee-espresso hover:bg-coffee-espresso/90 text-coffee-crema"
         >
-          <Save className="w-3.5 h-3.5 mr-1.5" />
-          Save Log
+          {isLoading ? (
+            <div className="w-3.5 h-3.5 mr-1.5 border-2 border-coffee-crema/30 border-t-coffee-crema rounded-full animate-spin" />
+          ) : (
+            <Save className="w-3.5 h-3.5 mr-1.5" />
+          )}
+          {t('save')}
         </Button>
       </div>
     </form >
