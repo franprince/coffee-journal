@@ -52,6 +52,9 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
   const [showNewRecipe, setShowNewRecipe] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [recipeViewMode, setRecipeViewMode] = useState<'my' | 'community'>('my');
+  // Loading states
+  const [isSaving, setIsSaving] = useState(false);
+  const [forkingRecipeId, setForkingRecipeId] = useState<string | null>(null);
   const locale = useLocale();
 
   // Search and filter state
@@ -63,7 +66,9 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
   });
 
   // Filter recipes based on view mode
-  const currentRecipes = recipeViewMode === 'my' ? myRecipes : communityRecipes;
+  const currentRecipes = recipeViewMode === 'my'
+    ? myRecipes
+    : communityRecipes.filter(r => r.owner_id !== user?.id);
 
   const filteredRecipes = currentRecipes.filter(recipe => {
     if (searchQuery && !recipe.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
@@ -76,6 +81,7 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
   const handleForkRecipe = async (recipe: Recipe) => {
     if (!user) return; // Should prompt login if not logged in
     try {
+      setForkingRecipeId(recipe.id);
       const { RecipeService } = await import('@/lib/db-client');
       await RecipeService.forkRecipe(recipe.id, user.id);
       await refreshMyRecipes();
@@ -83,17 +89,22 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
       // Maybe show toast success
     } catch (error) {
       console.error('Failed to fork recipe:', error);
+    } finally {
+      setForkingRecipeId(null);
     }
   };
 
   const handleSaveRecipe = async (recipe: Recipe) => {
     try {
+      setIsSaving(true);
       const { RecipeService } = await import('@/lib/db-client');
       await RecipeService.createRecipe(recipe);
       await refreshMyRecipes();
       setShowNewRecipe(false);
     } catch (error) {
       console.error('Failed to save recipe:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -148,7 +159,6 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
       <SettingsDialog
         open={showSettings}
         onOpenChange={setShowSettings}
-        locale={locale}
       />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
@@ -234,6 +244,7 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
                       onDelete={recipeViewMode === 'my' ? deleteRecipe : undefined}
                       onFork={recipeViewMode === 'community' ? handleForkRecipe : undefined}
                       isOwner={recipe.owner_id === user?.id}
+                      isForking={forkingRecipeId === recipe.id}
                     />
                   </div>
                 ))}
@@ -277,7 +288,7 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
                 <X className="w-5 h-5" />
               </Button>
             </div>
-            <RecipeForm onSave={handleSaveRecipe} />
+            <RecipeForm onSave={handleSaveRecipe} isLoading={isSaving} />
           </div>
         </div>
       )}

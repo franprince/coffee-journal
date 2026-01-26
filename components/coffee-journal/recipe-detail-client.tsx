@@ -16,6 +16,8 @@ import { BrewLogCard } from '@/components/coffee-journal/brew-log-card';
 import { RecipeForm } from '@/components/coffee-journal/recipe-form';
 import { DeleteConfirmDialog } from '@/components/coffee-journal/delete-confirm-dialog';
 import { cn } from '@/lib/utils';
+import { useSettings } from '@/lib/hooks/use-settings';
+import { micronsToClicks } from '@/lib/grinders';
 
 interface RecipeDetailClientProps {
     initialRecipe?: Recipe;
@@ -28,6 +30,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
     const t = useTranslations('RecipeDetail');
     const tMethods = useTranslations('Methods');
     const router = useRouter();
+    const { settings } = useSettings();
 
     // Using Hooks with properties
     const { recipe, isLoading: isLoadingRecipe, updateRecipe, deleteRecipe } = useRecipe(recipeId, initialRecipe);
@@ -37,12 +40,20 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
     const [showLogForm, setShowLogForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isSavingLog, setIsSavingLog] = useState(false);
 
     const isLoading = isLoadingRecipe && !recipe;
 
     const handleSaveLog = async (log: BrewLog) => {
-        await addLog(log);
-        setShowLogForm(false);
+        setIsSavingLog(true);
+        try {
+            await addLog(log);
+            setShowLogForm(false);
+        } catch (error) {
+            console.error('Failed to save log:', error);
+        } finally {
+            setIsSavingLog(false);
+        }
     };
 
     const handleEditRecipe = async (updatedRecipe: Recipe) => {
@@ -161,6 +172,11 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                     <span className="text-[10px] md:text-xs font-bold uppercase">{t('grind')}</span>
                                 </div>
                                 <span className="text-sm md:text-lg font-medium">{recipe.grindSize}µm</span>
+                                {settings?.preferredGrinder && (
+                                    <span className="text-[10px] text-muted-foreground font-mono">
+                                        ~{micronsToClicks(recipe.grindSize, settings.preferredGrinder)}
+                                    </span>
+                                )}
                             </div>
 
                             {/* Temp */}
@@ -242,6 +258,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                 onAddCoffee={addCoffee}
                                 onSave={handleSaveLog}
                                 onCancel={() => setShowLogForm(false)}
+                                isLoading={isSavingLog}
                             />
                         </div>
                     </div>

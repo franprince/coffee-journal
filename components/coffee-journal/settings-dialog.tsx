@@ -1,60 +1,52 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { usePathname, useRouter } from '@/i18n/routing';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Globe } from 'lucide-react';
+import { GRINDERS, GrinderId } from '@/lib/grinders';
+import { useSettings } from '@/lib/hooks/use-settings';
 
 interface SettingsDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    locale: string;
 }
 
-export function SettingsDialog({ open, onOpenChange, locale }: SettingsDialogProps) {
+export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     const t = useTranslations('Settings');
-    const router = useRouter();
-    const pathname = usePathname();
-
-    const handleLanguageChange = (newLocale: string) => {
-        router.replace(pathname, { locale: newLocale });
-    };
+    const { settings, updateGrinder } = useSettings();
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md gap-6">
+            <DialogContent className="sm:max-w-[425px] glass-card border-border">
                 <DialogHeader>
-                    <DialogTitle className="font-serif text-xl">{t('title')}</DialogTitle>
+                    <DialogTitle>{t('title')}</DialogTitle>
+                    <DialogDescription>
+                        Customize your Brew Journal experience.
+                    </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <Label className="text-sm font-medium flex items-center gap-2">
-                            <Globe className="w-4 h-4" />
-                            {t('language')}
-                        </Label>
-                        <Select defaultValue={locale} onValueChange={handleLanguageChange}>
-                            <SelectTrigger>
-                                <SelectValue placeholder={t('selectLanguage')} />
+                <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="grinder">Default Grinder</Label>
+                        <Select
+                            value={settings.preferredGrinder}
+                            onValueChange={(val) => updateGrinder(val as GrinderId)}
+                        >
+                            <SelectTrigger id="grinder" className="bg-secondary/20 border-border/50">
+                                <SelectValue placeholder="Select grinder" />
                             </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="en">{t('english')}</SelectItem>
-                                <SelectItem value="es">{t('spanish')}</SelectItem>
+                            <SelectContent className="glass-card">
+                                {Object.values(GRINDERS).map((grinder) => (
+                                    <SelectItem key={grinder.id} value={grinder.id}>
+                                        {grinder.name}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
+                        <p className="text-[10px] text-muted-foreground">
+                            This will calculate click estimates in recipes automatically.
+                        </p>
                     </div>
                 </div>
             </DialogContent>
