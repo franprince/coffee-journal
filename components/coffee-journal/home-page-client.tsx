@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface HomePageClientProps {
   initialRecipes: Recipe[];
@@ -38,24 +39,26 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
   const tCommon = useTranslations('Common');
   const tRecipeForm = useTranslations('RecipeForm');
   const tSettings = useTranslations('Settings');
-
-  // My Recipes
-  const { recipes: myRecipes, refresh: refreshMyRecipes, deleteRecipe } = useRecipes(initialRecipes, user?.id);
-
-  // Community Recipes (fetched only when tab is active or requested)
-  const { recipes: communityRecipes, refresh: refreshCommunityRecipes } = useRecipes(undefined, undefined);
-
-  const { logs, addLog: createLog } = useAllLogs(initialLogs);
-  const { coffees, addCoffee, updateCoffee, deleteCoffee } = useCoffees(initialCoffees);
+  const locale = useLocale();
 
   const [activeTab, setActiveTab] = useState('recipes');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [recipeViewMode, setRecipeViewMode] = useState<'my' | 'community'>('my');
+  const [recipeViewMode, setRecipeViewMode] = useState<'my' | 'community'>(user ? 'my' : 'community');
   // Loading states
   const [isSaving, setIsSaving] = useState(false);
   const [forkingRecipeId, setForkingRecipeId] = useState<string | null>(null);
-  const locale = useLocale();
+  const [deletingRecipeId, setDeletingRecipeId] = useState<string | null>(null);
+
+  // My Recipes
+  const { recipes: myRecipes, refresh: refreshMyRecipes, deleteRecipe } = useRecipes(initialRecipes, user?.id ?? 'guest');
+
+  // Community Recipes (fetched only when tab is active or requested, or if guest)
+  const shouldFetchCommunity = !user || recipeViewMode === 'community';
+  const { recipes: communityRecipes, refresh: refreshCommunityRecipes } = useRecipes(undefined, undefined);
+
+  const { logs, addLog: createLog } = useAllLogs(initialLogs);
+  const { coffees, addCoffee, updateCoffee, deleteCoffee } = useCoffees(initialCoffees);
 
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,9 +89,10 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
       await RecipeService.forkRecipe(recipe.id, user.id);
       await refreshMyRecipes();
       setRecipeViewMode('my');
-      // Maybe show toast success
+      toast.success(t('recipeForkedSuccess', { name: recipe.name }));
     } catch (error) {
       console.error('Failed to fork recipe:', error);
+      toast.error(t('recipeForkFailed'));
     } finally {
       setForkingRecipeId(null);
     }
@@ -101,10 +105,25 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
       await RecipeService.createRecipe(recipe);
       await refreshMyRecipes();
       setShowNewRecipe(false);
+      toast.success(tCommon('savedSuccess'));
     } catch (error) {
       console.error('Failed to save recipe:', error);
+      toast.error(tCommon('savedError'));
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDeleteRecipe = async (id: string) => {
+    try {
+      setDeletingRecipeId(id);
+      await deleteRecipe(id);
+      toast.success(t('recipeDeletedSuccess'));
+    } catch (error) {
+      console.error('Failed to delete recipe:', error);
+      toast.error(t('recipeDeleteFailed'));
+    } finally {
+      setDeletingRecipeId(null);
     }
   };
 
@@ -198,24 +217,27 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
             />
 
             <div className="flex gap-4 mb-6 border-b border-border/40 pb-0">
-              <button
-                onClick={() => setRecipeViewMode('my')}
-                className={cn(
-                  "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
-                  recipeViewMode === 'my'
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                )}
-              >
-                My Recipes
-              </button>
+              {user && (
+                <button
+                  onClick={() => setRecipeViewMode('my')}
+                  className={cn(
+                    "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+                    recipeViewMode === 'my'
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  My Recipes
+                </button>
+              )}
               <button
                 onClick={() => { setRecipeViewMode('community'); refreshCommunityRecipes(); }}
                 className={cn(
                   "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
                   recipeViewMode === 'community'
                     ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
+                  !user && "border-primary text-primary" // Active style for guests
                 )}
               >
                 Community
@@ -241,10 +263,11 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
                   <div key={recipe.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 4)}`}>
                     <RecipeCard
                       recipe={recipe}
-                      onDelete={recipeViewMode === 'my' ? deleteRecipe : undefined}
+                      onDelete={recipeViewMode === 'my' ? handleDeleteRecipe : undefined}
                       onFork={recipeViewMode === 'community' ? handleForkRecipe : undefined}
                       isOwner={recipe.owner_id === user?.id}
                       isForking={forkingRecipeId === recipe.id}
+                      isDeleting={deletingRecipeId === recipe.id}
                     />
                   </div>
                 ))}

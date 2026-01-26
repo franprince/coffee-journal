@@ -1,4 +1,5 @@
 import { RecipeServiceServer, LogServiceServer, CoffeeServiceServer } from '@/lib/db-server';
+import { createClient as createServerClient } from '@/lib/supabase/server';
 import RecipeDetailClient from '@/components/coffee-journal/recipe-detail-client';
 import { notFound } from 'next/navigation';
 import { extractIdFromSlug } from '@/lib/utils';
@@ -19,6 +20,9 @@ export default async function RecipePage({ params }: PageProps) {
         notFound();
     }
 
+    const supabase = await createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     const logs = await LogServiceServer.getLogsForRecipe(id);
     const coffees = await CoffeeServiceServer.getCoffees();
 
@@ -28,6 +32,7 @@ export default async function RecipePage({ params }: PageProps) {
             initialRecipe={recipe}
             initialLogs={logs}
             initialCoffees={coffees}
+            currentUser={user}
         />
     );
 }

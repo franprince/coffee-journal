@@ -12,7 +12,11 @@
         "pantryEmptyTitle": "Pantry empty",
         "pantryEmptyDesc": "Add your coffee beans to track your inventory.",
         "addCoffee": "Add Coffee",
-        "viewPantry": "View Pantry"
+        "viewPantry": "View Pantry",
+        "recipeForkedSuccess": "Saved \"{name}\" to My Recipes",
+        "recipeForkFailed": "Failed to save recipe",
+        "recipeDeletedSuccess": "Recipe deleted successfully",
+        "recipeDeleteFailed": "Failed to delete recipe"
     },
     "RecipeFilters": {
         "searchPlaceholder": "Search recipes...",
@@ -61,7 +65,8 @@
         "logBrewModalTitle": "Log Brew",
         "editRecipeTitle": "Edit Recipe",
         "deleteRecipeTitle": "Delete Recipe?",
-        "deleteRecipeDesc": "Are you sure you want to delete \"{name}\"?"
+        "deleteRecipeDesc": "Are you sure you want to delete \"{name}\"?",
+        "saveToMyRecipes": "Save to My Recipes"
     },
     "RecipeCard": {
         "steps": "STEPS",
@@ -158,7 +163,9 @@
     "Common": {
         "cancel": "Cancel",
         "loading": "Loading...",
-        "back": "Back"
+        "back": "Back",
+        "savedSuccess": "Saved successfully",
+        "savedError": "Failed to save"
     },
     "Auth": {
         "signIn": "Sign In",

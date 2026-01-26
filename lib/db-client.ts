@@ -32,6 +32,9 @@ export const RecipeService = {
 
         if (ownerId) {
             query = query.eq('owner_id', ownerId);
+        } else {
+            // Community view: only show public recipes
+            query = query.eq('is_public', true);
         }
 
         const { data, error } = await query;
@@ -87,7 +90,8 @@ export const RecipeService = {
             grind_size: recipe.grindSize,
             water_type: recipe.waterType || null,
             coffee_id: recipe.coffeeId || null,
-            owner_id: user.id
+            owner_id: user.id,
+            is_public: recipe.isPublic !== undefined ? recipe.isPublic : true
         };
 
         const { error: recipeError } = await supabase
@@ -203,8 +207,8 @@ export const RecipeService = {
         if (error) throw error;
     },
 
-    async forkRecipe(originalRecipeId: string, newOwnerId: string): Promise<void> {
-        if (!isSupabaseConfigured()) return;
+    async forkRecipe(originalRecipeId: string, newOwnerId: string): Promise<string> {
+        if (!isSupabaseConfigured()) throw new Error('Supabase not configured');
         const supabase = createClient();
 
         // 1. Fetch original recipe
@@ -227,7 +231,8 @@ export const RecipeService = {
             grind_size: original.grind_size,
             water_type: original.water_type,
             coffee_id: original.coffee_id, // Keep link to coffee if public, otherwise might be null if strictly private (but we made them public)
-            owner_id: newOwnerId
+            owner_id: newOwnerId,
+            is_public: false // Forked recipes are private clones/copies by default
         };
 
         const { error: insertError } = await supabase
@@ -255,6 +260,8 @@ export const RecipeService = {
 
             if (poursError) throw poursError;
         }
+
+        return newRecipeId;
     }
 };
 

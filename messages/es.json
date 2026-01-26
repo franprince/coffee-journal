@@ -12,7 +12,11 @@
         "pantryEmptyTitle": "Despensa vacía",
         "pantryEmptyDesc": "Añade tus granos de café para rastrear tu inventario.",
         "addCoffee": "Añadir Café",
-        "viewPantry": "Ver Despensa"
+        "viewPantry": "Ver Despensa",
+        "recipeForkedSuccess": "Guardado \"{name}\" en Mis Recetas",
+        "recipeForkFailed": "Error al guardar receta",
+        "recipeDeletedSuccess": "Receta eliminada correctamente",
+        "recipeDeleteFailed": "Error al eliminar receta"
     },
     "RecipeFilters": {
         "searchPlaceholder": "Buscar recetas...",
@@ -61,7 +65,8 @@
         "logBrewModalTitle": "Registrar Preparación",
         "editRecipeTitle": "Editar Receta",
         "deleteRecipeTitle": "¿Eliminar Receta?",
-        "deleteRecipeDesc": "¿Estás seguro de que deseas eliminar \"{name}\"?"
+        "deleteRecipeDesc": "¿Estás seguro de que deseas eliminar \"{name}\"?",
+        "saveToMyRecipes": "Guardar en Mis Recetas"
     },
     "RecipeCard": {
         "steps": "PASOS",
@@ -158,7 +163,9 @@
     "Common": {
         "cancel": "Cancelar",
         "loading": "Cargando...",
-        "back": "Volver"
+        "back": "Volver",
+        "savedSuccess": "Guardado correctamente",
+        "savedError": "Error al guardar"
     },
     "Auth": {
         "signIn": "Iniciar Sesión",
