@@ -8,7 +8,7 @@ import type { Recipe } from '@/lib/types';
 import { METHOD_LABELS } from '@/lib/types';
 import { MethodIcon } from './method-icons';
 import { RecipeExport } from './recipe-export';
-import { Clock, Droplets, Scale, Coffee, Trash2, Zap } from 'lucide-react';
+import { Clock, Droplets, Scale, Coffee, Trash2, Zap, Heart } from 'lucide-react';
 import { Button } from '../ui/button';
 import { DeleteConfirmDialog } from './delete-confirm-dialog';
 
@@ -18,9 +18,11 @@ interface RecipeCardProps {
   onDelete?: (id: string) => void;
   onFork?: (recipe: Recipe) => void;
   isOwner?: boolean;
+  isForking?: boolean;
 }
 
-export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true }: RecipeCardProps) {
+export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true, isForking = false }: RecipeCardProps) {
+  // ... existing code ...
   const t = useTranslations('RecipeCard');
   const tMethods = useTranslations('Methods');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -164,10 +166,14 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true 
               e.stopPropagation();
               onFork(recipe);
             }}
+            disabled={isForking}
             title="Save to My Recipes"
           >
-            <Clock className="w-4 h-4 hidden" /> {/* Dummy icon reference if needed, but we use Heart/Copy */}
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5 4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>
+            {isForking ? (
+              <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            ) : (
+              <Heart className="w-4 h-4" />
+            )}
           </Button>
         )}
 
