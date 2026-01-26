@@ -9,7 +9,10 @@ export default async function CoffeeJournalPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    const recipes = await RecipeServiceServer.getRecipes();
+    // Fetch ONLY the user's recipes for the initial state of "My Recipes"
+    // Community recipes will be fetched client-side on demand, or we could pass them too if we wanted SSR for them.
+    // For now, let's fix the bug by ensuring initialRecipes are OWNED by the user.
+    const recipes = await RecipeServiceServer.getRecipes(user?.id);
     const logs = await LogServiceServer.getAllLogs();
     const coffees = await CoffeeServiceServer.getCoffees();
 

@@ -3,12 +3,18 @@ import type { Recipe, BrewLog, Coffee } from '@/lib/types';
 import { mapRecipeFromDB, mapLogFromDB, mapCoffeeFromDB } from './db-mappers';
 
 export const RecipeServiceServer = {
-    async getRecipes(): Promise<Recipe[]> {
+    async getRecipes(ownerId?: string): Promise<Recipe[]> {
         const supabase = await createServerClient();
-        const { data, error } = await supabase
+        let query = supabase
             .from('recipes')
             .select('*, pours(*), coffees(image_url)')
             .order('created_at', { ascending: false });
+
+        if (ownerId) {
+            query = query.eq('owner_id', ownerId);
+        }
+
+        const { data, error } = await query;
 
         if (error) {
             console.error('Error fetching recipes (server):', error);
