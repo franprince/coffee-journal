@@ -83,8 +83,8 @@ export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCo
                         className="glass-card p-0 rounded-2xl border border-border/50 hover:bg-secondary/20 transition-all flex flex-col overflow-hidden group/card"
                     >
                         {coffee.imageUrl ? (
-                            <div className="w-full aspect-[3/2] overflow-hidden border-b border-border/50">
-                                <img src={coffee.imageUrl} alt={coffee.name} className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105" />
+                            <div className="w-full aspect-[3/2] border-b border-border/50 max-h-[500px] overflow-hidden">
+                                <img src={coffee.imageUrl} alt={coffee.name} className="w-full h-full object-cover" />
                             </div>
                         ) : (
                             <div className="w-full aspect-[3/2] bg-secondary/30 flex items-center justify-center border-b border-dashed border-border/50 text-muted-foreground">

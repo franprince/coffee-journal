@@ -46,7 +46,7 @@ export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
           className="modern-card group relative cursor-pointer hover:shadow-lg active:scale-[0.98] overflow-hidden bg-card"
         >
           {recipe.coffeeImageUrl && (
-            <div className="w-full aspect-[2/1] border-b border-border/20">
+            <div className="w-full aspect-[2/1] border-b border-border/20 max-h-[500px] overflow-hidden">
               {/* Clean Image - No Vintage Filter */}
               <img src={recipe.coffeeImageUrl} alt={recipe.name} className="w-full h-full object-cover" />
             </div>
