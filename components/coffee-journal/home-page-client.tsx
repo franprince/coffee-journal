@@ -7,15 +7,21 @@ import { RecipeCard } from '@/components/coffee-journal/recipe-card';
 import { BrewLogCard } from '@/components/coffee-journal/brew-log-card';
 import { RecipeFiltersComponent } from '@/components/coffee-journal/recipe-filters';
 import type { Recipe, BrewLog, RecipeFilters, Coffee } from '@/lib/types';
+import type { User } from '@supabase/supabase-js';
 import { useRecipes, useCoffees, useAllLogs } from '@/lib/hooks';
 import { CoffeeManager } from '@/components/coffee-journal/coffee-manager';
+import { AuthDialog } from '@/components/coffee-journal/auth-dialog';
+import { UserNav } from '@/components/coffee-journal/user-nav';
+import { SettingsDialog } from '@/components/coffee-journal/settings-dialog';
+import { useLocale } from 'next-intl';
 import {
   Coffee as CoffeeIcon,
   Plus,
   BookOpen,
   FlaskConical,
   X,
-  Bean
+  Bean,
+  Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -24,24 +30,29 @@ interface HomePageClientProps {
   initialRecipes: Recipe[];
   initialLogs: BrewLog[];
   initialCoffees: Coffee[];
+  user: User | null;
 }
 
-export default function HomePageClient({ initialRecipes, initialLogs, initialCoffees }: HomePageClientProps) {
+export default function HomePageClient({ initialRecipes, initialLogs, initialCoffees, user }: HomePageClientProps) {
   const t = useTranslations('HomePage');
   const tCommon = useTranslations('Common');
+  const tRecipeForm = useTranslations('RecipeForm');
+  const tSettings = useTranslations('Settings');
   const { recipes, refresh: refreshRecipes, deleteRecipe } = useRecipes(initialRecipes);
   const { logs, addLog: createLog } = useAllLogs(initialLogs);
   const { coffees, addCoffee, updateCoffee, deleteCoffee } = useCoffees(initialCoffees);
 
   const [activeTab, setActiveTab] = useState('recipes');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const locale = useLocale();
 
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<RecipeFilters>({
     methods: [],
     waterTypes: [],
-    grindSizeRange: [0, 100],
+    grindSizeRange: [0, 1400],
   });
 
   // Filter recipes
@@ -81,16 +92,42 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
               </div>
             </div>
 
-            <Button
-              onClick={() => setShowNewRecipe(true)}
-              className="rounded-md bg-accent text-accent-foreground hover:bg-accent/90 font-medium shadow-none border border-transparent"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {t('createFirstRecipe')}
-            </Button>
+            <div className="flex items-center gap-4">
+              {user ? (
+                <>
+                  <Button
+                    onClick={() => setShowNewRecipe(true)}
+                    className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-medium shadow-none border border-transparent px-6"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    {t('createFirstRecipe')}
+                  </Button>
+                  <UserNav user={user} />
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-foreground"
+                    onClick={() => setShowSettings(true)}
+                    aria-label={tSettings('title')}
+                  >
+                    <Settings className="w-5 h-5" />
+                  </Button>
+                  <AuthDialog />
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
+
+      <SettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        locale={locale}
+      />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
@@ -183,7 +220,7 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
         <div className="fixed inset-0 z-50 flex justify-end bg-background/20 backdrop-blur-sm">
           <div className="w-full max-w-md bg-card border-l border-border h-full shadow-2xl p-6 overflow-y-auto animate-in slide-in-from-right duration-300">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-serif text-xl font-bold">{useTranslations('RecipeForm')('newTitle')}</h2>
+              <h2 className="font-serif text-xl font-bold">{tRecipeForm('newTitle')}</h2>
               <Button variant="ghost" size="icon" onClick={() => setShowNewRecipe(false)}>
                 <X className="w-5 h-5" />
               </Button>

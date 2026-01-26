@@ -7,6 +7,19 @@ const isSupabaseConfigured = () => {
     return !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 };
 
+// Helper to extract storage path from public URL
+const getStoragePathFromUrl = (url: string, bucket: string) => {
+    try {
+        const parts = url.split(`/${bucket}/`);
+        if (parts.length < 2) return null;
+        // The URL might contain query params (e.g. for cache busting)
+        return parts[1].split('?')[0];
+    } catch (error) {
+        console.error('Error extracting storage path:', error);
+        return null;
+    }
+};
+
 export const RecipeService = {
     async getRecipes(): Promise<Recipe[]> {
         if (!isSupabaseConfigured()) return [];
@@ -55,6 +68,9 @@ export const RecipeService = {
 
         const supabase = createClient();
 
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
         // Insert recipe first
         const dbRecipe = {
             id: recipe.id,
@@ -65,6 +81,7 @@ export const RecipeService = {
             grind_size: recipe.grindSize,
             water_type: recipe.waterType || null,
             coffee_id: recipe.coffeeId || null,
+            owner_id: user.id
         };
 
         const { error: recipeError } = await supabase
@@ -154,6 +171,27 @@ export const RecipeService = {
         if (!isSupabaseConfigured()) return;
         const supabase = createClient();
 
+        // 1. Fetch images from logs before deleting them
+        const { data: logs } = await supabase
+            .from('brew_logs')
+            .select('image_urls')
+            .eq('recipe_id', id);
+
+        if (logs && logs.length > 0) {
+            const allImages = logs.flatMap(log => log.image_urls || []);
+            const paths = allImages
+                .map(url => getStoragePathFromUrl(url, 'coffee-images'))
+                .filter(Boolean) as string[];
+
+            if (paths.length > 0) {
+                const { error: storageError } = await supabase.storage
+                    .from('coffee-images')
+                    .remove(paths);
+                if (storageError) console.error('Error deleting recipe images:', storageError);
+            }
+        }
+
+        // 2. Delete database records
         await supabase.from('pours').delete().eq('recipe_id', id);
         const { error } = await supabase.from('recipes').delete().eq('id', id);
         if (error) throw error;
@@ -186,6 +224,10 @@ export const CoffeeService = {
             return;
         }
 
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
         const dbCoffee = {
             id: coffee.id, // Ensure ID is passed if generated on client, or omit to let DB generate
             name: coffee.name,
@@ -196,9 +238,8 @@ export const CoffeeService = {
             notes: coffee.notes,
             image_url: coffee.imageUrl, // Image support
             is_archived: coffee.isArchived || false,
+            owner_id: user.id
         };
-
-        const supabase = createClient();
         const { error } = await supabase.from('coffees').insert(dbCoffee);
         if (error) {
             console.error('Error adding coffee:', error);
@@ -232,6 +273,25 @@ export const CoffeeService = {
     async deleteCoffee(id: string): Promise<void> {
         if (!isSupabaseConfigured()) return;
         const supabase = createClient();
+
+        // 1. Fetch coffee to get image URL
+        const { data: coffee } = await supabase
+            .from('coffees')
+            .select('image_url')
+            .eq('id', id)
+            .single();
+
+        if (coffee?.image_url) {
+            const path = getStoragePathFromUrl(coffee.image_url, 'coffee-images');
+            if (path) {
+                const { error: storageError } = await supabase.storage
+                    .from('coffee-images')
+                    .remove([path]);
+                if (storageError) console.error('Error deleting coffee image:', storageError);
+            }
+        }
+
+        // 2. Delete database record
         const { error } = await supabase.from('coffees').delete().eq('id', id);
         if (error) throw error;
     },
@@ -284,6 +344,10 @@ export const LogService = {
     async createLog(log: BrewLog): Promise<void> {
         if (!isSupabaseConfigured()) return;
 
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
         const dbLog = {
             id: log.id,
             recipe_id: log.recipeId,
@@ -298,9 +362,8 @@ export const LogService = {
             image_urls: log.imageUrls || [], // Image support
             date: log.date.toISOString(),
             coffee_id: log.coffeeId, // Link to coffee
+            owner_id: user.id
         };
-
-        const supabase = createClient();
         const { error } = await supabase.from('brew_logs').insert(dbLog);
         if (error) {
             console.error('Error saving log:', error);

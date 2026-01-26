@@ -159,5 +159,22 @@
         "cancel": "Cancelar",
         "loading": "Cargando...",
         "back": "Volver"
+    },
+    "Auth": {
+        "signIn": "Iniciar Sesión",
+        "signOut": "Cerrar Sesión",
+        "signInWithGoogle": "Continuar con Google",
+        "signInWithTwitter": "Continuar con Twitter",
+        "dialogTitle": "Bienvenido a Brew Journal",
+        "dialogDescription": "Inicia sesión para guardar tus recetas e historial en todos tus dispositivos."
+    },
+    "Settings": {
+        "title": "Configuración",
+        "language": "Idioma",
+        "theme": "Tema",
+        "appearance": "Apariencia",
+        "selectLanguage": "Seleccionar Idioma",
+        "english": "Inglés",
+        "spanish": "Español"
     }
 }
