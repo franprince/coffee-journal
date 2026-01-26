@@ -28,7 +28,7 @@ export function useSettings() {
                 .from('user_settings')
                 .select('preferred_grinder')
                 .eq('user_id', user.id)
-                .single();
+                .maybeSingle();
 
             if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
                 console.error('Error fetching settings:', error);
