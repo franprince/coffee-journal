@@ -68,6 +68,9 @@ export const RecipeService = {
 
         const supabase = createClient();
 
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
         // Insert recipe first
         const dbRecipe = {
             id: recipe.id,
@@ -78,6 +81,7 @@ export const RecipeService = {
             grind_size: recipe.grindSize,
             water_type: recipe.waterType || null,
             coffee_id: recipe.coffeeId || null,
+            owner_id: user.id
         };
 
         const { error: recipeError } = await supabase
@@ -220,6 +224,10 @@ export const CoffeeService = {
             return;
         }
 
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
         const dbCoffee = {
             id: coffee.id, // Ensure ID is passed if generated on client, or omit to let DB generate
             name: coffee.name,
@@ -230,9 +238,8 @@ export const CoffeeService = {
             notes: coffee.notes,
             image_url: coffee.imageUrl, // Image support
             is_archived: coffee.isArchived || false,
+            owner_id: user.id
         };
-
-        const supabase = createClient();
         const { error } = await supabase.from('coffees').insert(dbCoffee);
         if (error) {
             console.error('Error adding coffee:', error);
@@ -337,6 +344,10 @@ export const LogService = {
     async createLog(log: BrewLog): Promise<void> {
         if (!isSupabaseConfigured()) return;
 
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
         const dbLog = {
             id: log.id,
             recipe_id: log.recipeId,
@@ -351,9 +362,8 @@ export const LogService = {
             image_urls: log.imageUrls || [], // Image support
             date: log.date.toISOString(),
             coffee_id: log.coffeeId, // Link to coffee
+            owner_id: user.id
         };
-
-        const supabase = createClient();
         const { error } = await supabase.from('brew_logs').insert(dbLog);
         if (error) {
             console.error('Error saving log:', error);
