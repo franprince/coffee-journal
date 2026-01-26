@@ -24,6 +24,7 @@ export function mapRecipeFromDB(dbRecipe: any): Recipe {
         grindSize: dbRecipe.grind_size,
         waterType: dbRecipe.water_type,
         coffeeId: dbRecipe.coffee_id,
+        owner_id: dbRecipe.owner_id,
         createdAt: new Date(dbRecipe.created_at),
         pours: dbRecipe.pours?.map((p: any) => ({
             id: p.id,

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { RecipeService, CoffeeService, LogService } from '@/lib/db-client';
 import type { Recipe, Coffee, BrewLog } from '@/lib/types';
 
-export function useRecipes(initialData?: Recipe[]) {
+export function useRecipes(initialData?: Recipe[], ownerId?: string) {
     const [recipes, setRecipes] = useState<Recipe[]>(initialData || []);
     const [isLoading, setIsLoading] = useState(!initialData);
     const [error, setError] = useState<Error | null>(null);
@@ -10,7 +10,7 @@ export function useRecipes(initialData?: Recipe[]) {
     const refresh = useCallback(async () => {
         try {
             setIsLoading(true);
-            const data = await RecipeService.getRecipes();
+            const data = await RecipeService.getRecipes(ownerId);
             setRecipes(data);
             setError(null);
         } catch (err) {
@@ -18,7 +18,7 @@ export function useRecipes(initialData?: Recipe[]) {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [ownerId]);
 
     useEffect(() => {
         if (!initialData) {

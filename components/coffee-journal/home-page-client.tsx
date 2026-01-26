@@ -38,13 +38,20 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
   const tCommon = useTranslations('Common');
   const tRecipeForm = useTranslations('RecipeForm');
   const tSettings = useTranslations('Settings');
-  const { recipes, refresh: refreshRecipes, deleteRecipe } = useRecipes(initialRecipes);
+
+  // My Recipes
+  const { recipes: myRecipes, refresh: refreshMyRecipes, deleteRecipe } = useRecipes(initialRecipes, user?.id);
+
+  // Community Recipes (fetched only when tab is active or requested)
+  const { recipes: communityRecipes, refresh: refreshCommunityRecipes } = useRecipes(undefined, undefined);
+
   const { logs, addLog: createLog } = useAllLogs(initialLogs);
   const { coffees, addCoffee, updateCoffee, deleteCoffee } = useCoffees(initialCoffees);
 
   const [activeTab, setActiveTab] = useState('recipes');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [recipeViewMode, setRecipeViewMode] = useState<'my' | 'community'>('my');
   const locale = useLocale();
 
   // Search and filter state
@@ -55,8 +62,10 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
     grindSizeRange: [0, 1400],
   });
 
-  // Filter recipes
-  const filteredRecipes = recipes.filter(recipe => {
+  // Filter recipes based on view mode
+  const currentRecipes = recipeViewMode === 'my' ? myRecipes : communityRecipes;
+
+  const filteredRecipes = currentRecipes.filter(recipe => {
     if (searchQuery && !recipe.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (filters.methods.length > 0 && !filters.methods.includes(recipe.method)) return false;
     if (filters.waterTypes.length > 0 && (!recipe.waterType || !filters.waterTypes.includes(recipe.waterType))) return false;
@@ -64,11 +73,24 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
     return true;
   });
 
+  const handleForkRecipe = async (recipe: Recipe) => {
+    if (!user) return; // Should prompt login if not logged in
+    try {
+      const { RecipeService } = await import('@/lib/db-client');
+      await RecipeService.forkRecipe(recipe.id, user.id);
+      await refreshMyRecipes();
+      setRecipeViewMode('my');
+      // Maybe show toast success
+    } catch (error) {
+      console.error('Failed to fork recipe:', error);
+    }
+  };
+
   const handleSaveRecipe = async (recipe: Recipe) => {
     try {
       const { RecipeService } = await import('@/lib/db-client');
       await RecipeService.createRecipe(recipe);
-      await refreshRecipes();
+      await refreshMyRecipes();
       setShowNewRecipe(false);
     } catch (error) {
       console.error('Failed to save recipe:', error);
@@ -162,10 +184,35 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
               filters={filters}
               onFiltersChange={setFilters}
               resultCount={filteredRecipes.length}
-              totalCount={recipes.length}
+              totalCount={currentRecipes.length}
             />
 
-            {recipes.length === 0 ? (
+            <div className="flex gap-4 mb-6 border-b border-border/40 pb-0">
+              <button
+                onClick={() => setRecipeViewMode('my')}
+                className={cn(
+                  "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+                  recipeViewMode === 'my'
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                )}
+              >
+                My Recipes
+              </button>
+              <button
+                onClick={() => { setRecipeViewMode('community'); refreshCommunityRecipes(); }}
+                className={cn(
+                  "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+                  recipeViewMode === 'community'
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Community
+              </button>
+            </div>
+
+            {currentRecipes.length === 0 ? (
               <div className="modern-card p-12 text-center mt-6 rounded-3xl">
                 <div className="w-12 h-12 mx-auto rounded-full bg-secondary flex items-center justify-center mb-4">
                   <CoffeeIcon className="w-6 h-6 text-muted-foreground" />
@@ -182,7 +229,12 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
               <div className="grid sm:grid-cols-2 gap-6 mt-6">
                 {filteredRecipes.map((recipe, index) => (
                   <div key={recipe.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 4)}`}>
-                    <RecipeCard recipe={recipe} onDelete={deleteRecipe} />
+                    <RecipeCard
+                      recipe={recipe}
+                      onDelete={recipeViewMode === 'my' ? deleteRecipe : undefined}
+                      onFork={recipeViewMode === 'community' ? handleForkRecipe : undefined}
+                      isOwner={recipe.owner_id === user?.id}
+                    />
                   </div>
                 ))}
               </div>

@@ -42,6 +42,7 @@ export interface Recipe {
   createdAt: Date;
   coffeeId?: string;
   coffeeImageUrl?: string;
+  owner_id?: string;
 }
 
 export const METHOD_SUGGESTIONS = [

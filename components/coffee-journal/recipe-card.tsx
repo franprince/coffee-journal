@@ -16,9 +16,11 @@ interface RecipeCardProps {
   recipe: Recipe;
   onSelect?: (recipe: Recipe) => void;
   onDelete?: (id: string) => void;
+  onFork?: (recipe: Recipe) => void;
+  isOwner?: boolean;
 }
 
-export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
+export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true }: RecipeCardProps) {
   const t = useTranslations('RecipeCard');
   const tMethods = useTranslations('Methods');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -151,7 +153,25 @@ export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
         className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
       >
         <RecipeExport recipe={recipe} />
-        {onDelete && (
+
+        {!isOwner && onFork && (
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-9 w-9 rounded-full bg-background shadow-lg hover:bg-primary hover:text-primary-foreground transition-colors border border-border/10"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onFork(recipe);
+            }}
+            title="Save to My Recipes"
+          >
+            <Clock className="w-4 h-4 hidden" /> {/* Dummy icon reference if needed, but we use Heart/Copy */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5 4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>
+          </Button>
+        )}
+
+        {isOwner && onDelete && (
           <Button
             size="icon"
             variant="secondary"
