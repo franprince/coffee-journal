@@ -12,6 +12,9 @@ export const RecipeServiceServer = {
 
         if (ownerId) {
             query = query.eq('owner_id', ownerId);
+        } else {
+            // Community view: only show public recipes
+            query = query.eq('is_public', true);
         }
 
         const { data, error } = await query;

@@ -25,6 +25,7 @@ export function mapRecipeFromDB(dbRecipe: any): Recipe {
         waterType: dbRecipe.water_type,
         coffeeId: dbRecipe.coffee_id,
         owner_id: dbRecipe.owner_id,
+        isPublic: dbRecipe.is_public !== false, // Default to true if null
         createdAt: new Date(dbRecipe.created_at),
         pours: dbRecipe.pours?.map((p: any) => ({
             id: p.id,

@@ -43,6 +43,7 @@ export interface Recipe {
   coffeeId?: string;
   coffeeImageUrl?: string;
   owner_id?: string;
+  isPublic?: boolean;
 }
 
 export const METHOD_SUGGESTIONS = [
