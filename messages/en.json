@@ -159,5 +159,22 @@
         "cancel": "Cancel",
         "loading": "Loading...",
         "back": "Back"
+    },
+    "Auth": {
+        "signIn": "Sign In",
+        "signOut": "Sign Out",
+        "signInWithGoogle": "Continue with Google",
+        "signInWithTwitter": "Continue with Twitter",
+        "dialogTitle": "Welcome to Brew Journal",
+        "dialogDescription": "Sign in to save your recipes and brew logs across devices."
+    },
+    "Settings": {
+        "title": "Settings",
+        "language": "Language",
+        "theme": "Theme",
+        "appearance": "Appearance",
+        "selectLanguage": "Select Language",
+        "english": "English",
+        "spanish": "Spanish"
     }
 }
