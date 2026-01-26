@@ -19,9 +19,10 @@ interface RecipeCardProps {
   onFork?: (recipe: Recipe) => void;
   isOwner?: boolean;
   isForking?: boolean;
+  isDeleting?: boolean;
 }
 
-export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true, isForking = false }: RecipeCardProps) {
+export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true, isForking = false, isDeleting = false }: RecipeCardProps) {
   // ... existing code ...
   const t = useTranslations('RecipeCard');
   const tMethods = useTranslations('Methods');
@@ -187,8 +188,13 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
               e.stopPropagation();
               setShowDeleteConfirm(true);
             }}
+            disabled={isDeleting}
           >
-            <Trash2 className="w-4 h-4" />
+            {isDeleting ? (
+              <div className="w-4 h-4 border-2 border-destructive/30 border-t-destructive rounded-full animate-spin group-hover:border-white/30 group-hover:border-t-white" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
           </Button>
         )}
       </div>
