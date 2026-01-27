@@ -1,4 +1,5 @@
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import { useState } from 'react';
 import { Link } from '@/i18n/routing';
@@ -51,9 +52,15 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
           className="modern-card group relative cursor-pointer hover:shadow-lg active:scale-[0.98] overflow-hidden bg-card"
         >
           {recipe.coffeeImageUrl && (
-            <div className="w-full aspect-[2/1] border-b border-border/20 max-h-[500px] overflow-hidden">
+            <div className="w-full aspect-[2/1] border-b border-border/20 max-h-[500px] overflow-hidden relative">
               {/* Clean Image - No Vintage Filter */}
-              <img src={recipe.coffeeImageUrl} alt={recipe.name} className="w-full h-full object-cover" />
+              <Image
+                src={recipe.coffeeImageUrl}
+                alt={recipe.name}
+                fill
+                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
             </div>
           )}
           <div className="p-6">
