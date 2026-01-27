@@ -186,6 +186,13 @@
         "removeDesc": "This will permanently remove this coffee from your collection.",
         "deleteSuccess": "Coffee removed successfully",
         "deleteFailed": "Failed to remove coffee",
+        "roastLevels": {
+            "light": "Light",
+            "medium-light": "Medium-Light",
+            "medium": "Medium",
+            "medium-dark": "Medium-Dark",
+            "dark": "Dark"
+        },
         "addSuccess": "Coffee added successfully",
         "addFailed": "Failed to add coffee",
         "editSuccess": "Coffee updated successfully",

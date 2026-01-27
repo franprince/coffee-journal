@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { AddCoffeeForm } from './add-coffee-form';
 import { DeleteConfirmDialog } from './delete-confirm-dialog';
+import { ROAST_LEVELS } from './roast-level-selector';
 
 interface CoffeeManagerProps {
     coffees: Coffee[];
@@ -135,9 +136,17 @@ export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCo
                                         <Trash2 className="w-4 h-4" />
                                     </Button>
                                 </div>
-                                <span className="text-[10px] absolute bottom-4 right-4 uppercase tracking-widest font-black px-2 py-0.5 rounded-lg bg-secondary text-secondary-foreground border border-border/50 shrink-0">
-                                    {coffee.roastLevel}
-                                </span>
+                                {(() => {
+                                    const roast = ROAST_LEVELS.find(r => r.id === coffee.roastLevel);
+                                    return (
+                                        <span
+                                            className="text-[10px] absolute bottom-4 right-4 uppercase tracking-widest font-black px-2 py-0.5 rounded-lg border border-border/50 shrink-0 text-white shadow-sm"
+                                            style={{ backgroundColor: roast?.color || '#A47148' }}
+                                        >
+                                            {roast ? t(`roastLevels.${roast.id}`) : coffee.roastLevel}
+                                        </span>
+                                    );
+                                })()}
                             </div>
                             <div className="space-y-1.5">
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -148,6 +157,15 @@ export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCo
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground/90">
                                         <MapPin className="w-4 h-4 opacity-70" />
                                         <span className="truncate">{coffee.origin}</span>
+                                    </div>
+                                )}
+                                {coffee.flavors && coffee.flavors.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 pt-1">
+                                        {coffee.flavors.map((flavor, index) => (
+                                            <span key={index} className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-secondary/50 text-secondary-foreground border border-border/50">
+                                                {flavor}
+                                            </span>
+                                        ))}
                                     </div>
                                 )}
                             </div>

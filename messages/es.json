@@ -186,6 +186,13 @@
         "removeDesc": "Esto eliminará permanentemente este café de tu colección.",
         "deleteSuccess": "Café eliminado correctamente",
         "deleteFailed": "Error al eliminar café",
+        "roastLevels": {
+            "light": "Claro",
+            "medium-light": "Medio-Claro",
+            "medium": "Medio",
+            "medium-dark": "Medio-Oscuro",
+            "dark": "Oscuro"
+        },
         "addSuccess": "Café añadido correctamente",
         "addFailed": "Error al añadir café",
         "editSuccess": "Café actualizado correctamente",

@@ -10,7 +10,7 @@ interface RoastLevelSelectorProps {
     onChange: (value: RoastLevel) => void;
 }
 
-const ROAST_LEVELS: { id: RoastLevel; color: string; label: string }[] = [
+export const ROAST_LEVELS: { id: RoastLevel; color: string; label: string }[] = [
     { id: 'light', color: '#D4A373', label: 'Light' },
     { id: 'medium-light', color: '#BC8A5F', label: 'Med-Light' }, // Adding to bridge the gap
     { id: 'medium', color: '#A47148', label: 'Medium' },
