@@ -30,6 +30,7 @@ import { toast } from 'sonner';
 
 interface HomePageClientProps {
   initialRecipes: Recipe[];
+  initialCommunityRecipes: Recipe[];
   initialLogs: BrewLog[];
   initialCoffees: Coffee[];
   user: User | null;

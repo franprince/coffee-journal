@@ -7,12 +7,13 @@ import { useRecipes, useCoffees, useAllLogs } from '../hooks';
 
 interface UseJournalProps {
     initialRecipes: Recipe[];
+    initialCommunityRecipes: Recipe[];
     initialLogs: BrewLog[];
     initialCoffees: Coffee[];
     user: User | null;
 }
 
-export function useJournal({ initialRecipes, initialLogs, initialCoffees, user }: UseJournalProps) {
+export function useJournal({ initialRecipes, initialCommunityRecipes, initialLogs, initialCoffees, user }: UseJournalProps) {
     const t = useTranslations('HomePage');
     const tCommon = useTranslations('Common');
 
@@ -32,7 +33,7 @@ export function useJournal({ initialRecipes, initialLogs, initialCoffees, user }
     const {
         recipes: communityRecipes,
         refresh: refreshCommunityRecipes
-    } = useRecipes(undefined, undefined);
+    } = useRecipes(initialCommunityRecipes, undefined);
 
     const { logs, addLog: createLog } = useAllLogs(initialLogs);
     const { coffees, addCoffee, updateCoffee, deleteCoffee } = useCoffees(initialCoffees);
