@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Plus, Bean, MapPin, Factory, Camera, Edit2, Trash2, MoreVertical } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -107,8 +108,14 @@ export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCo
                         className="glass-card p-0 rounded-2xl border border-border/50 hover:bg-secondary/20 transition-all flex flex-col overflow-hidden group/card"
                     >
                         {coffee.imageUrl ? (
-                            <div className="w-full aspect-[3/2] border-b border-border/50 max-h-[500px] overflow-hidden">
-                                <img src={coffee.imageUrl} alt={coffee.name} className="w-full h-full object-cover" />
+                            <div className="w-full aspect-[3/2] border-b border-border/50 max-h-[500px] overflow-hidden relative">
+                                <Image
+                                    src={coffee.imageUrl}
+                                    alt={coffee.name}
+                                    fill
+                                    className="w-full h-full object-cover"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
                             </div>
                         ) : (
                             <div className="w-full aspect-[3/2] bg-secondary/30 flex items-center justify-center border-b border-dashed border-border/50 text-muted-foreground">

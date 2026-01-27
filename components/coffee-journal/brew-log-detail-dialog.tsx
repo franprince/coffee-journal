@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations, useFormatter } from 'next-intl';
+import Image from 'next/image';
 import { useState } from 'react';
 import type { BrewLog } from '@/lib/types';
 import {
@@ -176,7 +177,13 @@ export function BrewLogDetailDialog({
                             <div className="grid grid-cols-3 gap-2">
                                 {log.imageUrls.map((url, i) => (
                                     <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-border/20">
-                                        <img src={url} alt={`Brew log ${i + 1}`} className="w-full h-full object-cover" />
+                                        <Image
+                                            src={url}
+                                            alt={`Brew log ${i + 1}`}
+                                            fill
+                                            className="w-full h-full object-cover"
+                                            sizes="(max-width: 768px) 33vw, 150px"
+                                        />
                                     </div>
                                 ))}
                             </div>
