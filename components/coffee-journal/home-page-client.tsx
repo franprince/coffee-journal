@@ -13,6 +13,7 @@ import { CoffeeManager } from '@/components/coffee-journal/coffee-manager';
 import { AuthDialog } from '@/components/coffee-journal/auth-dialog';
 import { UserNav } from '@/components/coffee-journal/user-nav';
 import { SettingsDialog } from '@/components/coffee-journal/settings-dialog';
+import { BrewLogDetailDialog } from '@/components/coffee-journal/brew-log-detail-dialog';
 import { useLocale } from 'next-intl';
 import {
   Coffee as CoffeeIcon,
@@ -50,6 +51,7 @@ export default function HomePageClient(props: HomePageClientProps) {
     waterTypes: [],
     grindSizeRange: [0, 1400],
   });
+  const [selectedLog, setSelectedLog] = useState<BrewLog | null>(null);
 
   // Data & Operations from Generic Hook
   const {
@@ -67,7 +69,8 @@ export default function HomePageClient(props: HomePageClientProps) {
     refreshCommunityRecipes,
     addCoffee,
     updateCoffee,
-    deleteCoffee
+    deleteCoffee,
+    saveLogAsRecipe
   } = useJournal(props);
 
   // Derived Data (Filtering logic moves back to component)
@@ -263,7 +266,11 @@ export default function HomePageClient(props: HomePageClientProps) {
             ) : (
               <div className="grid sm:grid-cols-2 gap-4">
                 {logs.map((log) => (
-                  <BrewLogCard key={log.id} log={log} />
+                  <BrewLogCard
+                    key={log.id}
+                    log={log}
+                    onClick={() => setSelectedLog(log)}
+                  />
                 ))}
               </div>
             )}
@@ -294,6 +301,19 @@ export default function HomePageClient(props: HomePageClientProps) {
           </div>
         </div>
       )}
+
+      <BrewLogDetailDialog
+        log={selectedLog}
+        isOpen={!!selectedLog}
+        onClose={() => setSelectedLog(null)}
+        onSaveAsRecipe={async (log, name) => {
+          const newRecipeId = await saveLogAsRecipe(log, name);
+          if (newRecipeId) {
+            setSelectedLog(null);
+          }
+        }}
+        isLoading={isSaving}
+      />
     </main>
   );
 }
