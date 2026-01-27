@@ -9,7 +9,9 @@ export default async function CoffeeJournalPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    const recipes = await RecipeServiceServer.getRecipes();
+    // Fetch ONLY the user's recipes for the initial state of "My Recipes"
+    // Community recipes will be fetched client-side on demand.
+    const recipes = user ? await RecipeServiceServer.getRecipes(user.id) : [];
     const logs = await LogServiceServer.getAllLogs();
     const coffees = await CoffeeServiceServer.getCoffees();
 

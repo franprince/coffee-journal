@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { DM_Sans, Playfair_Display, Comfortaa as V0_Font_Comfortaa, Geist_Mono as V0_Font_Geist_Mono, Playfair_Display as V0_Font_Playfair_Display } from 'next/font/google'
+import { Toaster } from "@/components/ui/sonner"
 
 // Initialize fonts
 const _comfortaa = V0_Font_Comfortaa({ subsets: ['latin'], weight: ["300", "400", "500", "600", "700"] })
@@ -63,6 +64,7 @@ export default async function RootLayout({
       <body className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`}>
         {children}
         <Analytics />
+        <Toaster />
       </body>
     </html>
   )

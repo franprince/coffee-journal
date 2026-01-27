@@ -9,10 +9,16 @@
         "createFirstRecipe": "Crear Primera Receta",
         "noLogsTitle": "Sin registros",
         "noLogsDesc": "Prepara una receta para comenzar a registrar.",
+        "myRecipes": "Mis Recetas",
+        "community": "Comunidad",
         "pantryEmptyTitle": "Despensa vacía",
         "pantryEmptyDesc": "Añade tus granos de café para rastrear tu inventario.",
         "addCoffee": "Añadir Café",
-        "viewPantry": "Ver Despensa"
+        "viewPantry": "Ver Despensa",
+        "recipeForkedSuccess": "Guardado \"{name}\" en Mis Recetas",
+        "recipeForkFailed": "Error al guardar receta",
+        "recipeDeletedSuccess": "Receta eliminada correctamente",
+        "recipeDeleteFailed": "Error al eliminar receta"
     },
     "RecipeFilters": {
         "searchPlaceholder": "Buscar recetas...",
@@ -61,7 +67,8 @@
         "logBrewModalTitle": "Registrar Preparación",
         "editRecipeTitle": "Editar Receta",
         "deleteRecipeTitle": "¿Eliminar Receta?",
-        "deleteRecipeDesc": "¿Estás seguro de que deseas eliminar \"{name}\"?"
+        "deleteRecipeDesc": "¿Estás seguro de que deseas eliminar \"{name}\"?",
+        "saveToMyRecipes": "Guardar en Mis Recetas"
     },
     "RecipeCard": {
         "steps": "PASOS",
@@ -158,7 +165,9 @@
     "Common": {
         "cancel": "Cancelar",
         "loading": "Cargando...",
-        "back": "Volver"
+        "back": "Volver",
+        "savedSuccess": "Guardado correctamente",
+        "savedError": "Error al guardar"
     },
     "Auth": {
         "signIn": "Iniciar Sesión",
@@ -167,6 +176,45 @@
         "signInWithTwitter": "Continuar con Twitter",
         "dialogTitle": "Bienvenido a Brew Journal",
         "dialogDescription": "Inicia sesión para guardar tus recetas e historial en todos tus dispositivos."
+    },
+    "CoffeeManager": {
+        "title": "Mis Granos de Café",
+        "addCoffee": "Añadir Café",
+        "editTitle": "Editar Café",
+        "addTitle": "Añadir Nuevo Café",
+        "removeTitle": "¿Eliminar Café?",
+        "removeDesc": "Esto eliminará permanentemente este café de tu colección.",
+        "deleteSuccess": "Café eliminado correctamente",
+        "deleteFailed": "Error al eliminar café",
+        "roastLevels": {
+            "light": "Claro",
+            "medium-light": "Medio-Claro",
+            "medium": "Medio",
+            "medium-dark": "Medio-Oscuro",
+            "dark": "Oscuro"
+        },
+        "addSuccess": "Café añadido correctamente",
+        "addFailed": "Error al añadir café",
+        "editSuccess": "Café actualizado correctamente",
+        "editFailed": "Error al actualizar café",
+        "form": {
+            "imageLabel": "Imagen del Café",
+            "uploadPlaceholder": "Subir foto",
+            "roasterLabel": "Tostador",
+            "roasterPlaceholder": "ej. Onyx",
+            "roastLevelLabel": "Nivel de Tueste",
+            "flavorsLabel": "Notas de Cata / Sabores",
+            "flavorsPlaceholder": "Escribe y presiona Enter (ej. Frutal, Nuez)",
+            "originLabel": "Región/Origen",
+            "originPlaceholder": "ej. Gedeb, Etiopía",
+            "optional": "(Opcional)",
+            "cancel": "Cancelar",
+            "save": "Guardar Cambios",
+            "add": "Añadir a la Colección",
+            "saving": "Guardando...",
+            "optimizing": "Optimizando...",
+            "namePlaceholder": "Nombre del Café"
+        }
     },
     "Settings": {
         "title": "Configuración",

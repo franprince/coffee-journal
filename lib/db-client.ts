@@ -21,14 +21,23 @@ const getStoragePathFromUrl = (url: string, bucket: string) => {
 };
 
 export const RecipeService = {
-    async getRecipes(): Promise<Recipe[]> {
+    async getRecipes(ownerId?: string): Promise<Recipe[]> {
         if (!isSupabaseConfigured()) return [];
 
         const supabase = createClient();
-        const { data, error } = await supabase
+        let query = supabase
             .from('recipes')
             .select('*, pours(*), coffees(image_url)')
             .order('created_at', { ascending: false });
+
+        if (ownerId) {
+            query = query.eq('owner_id', ownerId);
+        } else {
+            // Community view: only show public recipes
+            query = query.eq('is_public', true);
+        }
+
+        const { data, error } = await query;
 
         if (error) {
             console.error('Error fetching recipes:', error);
@@ -81,7 +90,8 @@ export const RecipeService = {
             grind_size: recipe.grindSize,
             water_type: recipe.waterType || null,
             coffee_id: recipe.coffeeId || null,
-            owner_id: user.id
+            owner_id: user.id,
+            is_public: recipe.isPublic !== undefined ? recipe.isPublic : true
         };
 
         const { error: recipeError } = await supabase
@@ -195,6 +205,63 @@ export const RecipeService = {
         await supabase.from('pours').delete().eq('recipe_id', id);
         const { error } = await supabase.from('recipes').delete().eq('id', id);
         if (error) throw error;
+    },
+
+    async forkRecipe(originalRecipeId: string, newOwnerId: string): Promise<string> {
+        if (!isSupabaseConfigured()) throw new Error('Supabase not configured');
+        const supabase = createClient();
+
+        // 1. Fetch original recipe
+        const { data: original, error: fetchError } = await supabase
+            .from('recipes')
+            .select('*, pours(*)')
+            .eq('id', originalRecipeId)
+            .single();
+
+        if (fetchError || !original) throw fetchError || new Error('Recipe not found');
+
+        // 2. Create new recipe object (stripped of ID and user specific data)
+        const newRecipeId = crypto.randomUUID();
+        const dbRecipe = {
+            id: newRecipeId,
+            name: `${original.name} (Copy)`,
+            method: original.method,
+            coffee_weight: original.coffee_weight,
+            total_water_weight: original.total_water_weight,
+            grind_size: original.grind_size,
+            water_type: original.water_type,
+            coffee_id: original.coffee_id, // Keep link to coffee if public, otherwise might be null if strictly private (but we made them public)
+            owner_id: newOwnerId,
+            is_public: false // Forked recipes are private clones/copies by default
+        };
+
+        const { error: insertError } = await supabase
+            .from('recipes')
+            .insert(dbRecipe);
+
+        if (insertError) throw insertError;
+
+        // 3. Create new pours
+        if (original.pours && original.pours.length > 0) {
+            const dbPours = original.pours.map((pour: any) => ({
+                id: crypto.randomUUID(),
+                recipe_id: newRecipeId,
+                time: pour.time,
+                water_amount: pour.water_amount,
+                temperature: pour.temperature,
+                temperature_unit: pour.temperature_unit,
+                notes: pour.notes,
+                order_index: pour.order_index,
+            }));
+
+            const { error: poursError } = await supabase
+                .from('pours')
+                .insert(dbPours);
+
+            if (poursError) throw poursError;
+        }
+
+        return newRecipeId;
     }
 };
 
@@ -235,6 +302,7 @@ export const CoffeeService = {
             roast_level: coffee.roastLevel,
             origin: coffee.origin,
             process: coffee.process,
+            flavors: coffee.flavors,
             notes: coffee.notes,
             image_url: coffee.imageUrl, // Image support
             is_archived: coffee.isArchived || false,
@@ -256,6 +324,7 @@ export const CoffeeService = {
             roast_level: coffee.roastLevel,
             origin: coffee.origin,
             process: coffee.process,
+            flavors: coffee.flavors,
             notes: coffee.notes,
             image_url: coffee.imageUrl,
             is_archived: coffee.isArchived || false,

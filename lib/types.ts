@@ -42,6 +42,8 @@ export interface Recipe {
   createdAt: Date;
   coffeeId?: string;
   coffeeImageUrl?: string;
+  owner_id?: string;
+  isPublic?: boolean;
 }
 
 export const METHOD_SUGGESTIONS = [
@@ -83,6 +85,7 @@ export interface Coffee {
   roastLevel?: RoastLevel;
   origin?: string;
   process?: string;
+  flavors?: string[];
   notes?: string;
   imageUrl?: string;
   isArchived?: boolean;

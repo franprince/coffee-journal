@@ -72,7 +72,6 @@ export function UserNav({ user }: UserNavProps) {
             <SettingsDialog
                 open={isSettingsOpen}
                 onOpenChange={setIsSettingsOpen}
-                locale={locale}
             />
         </DropdownMenu>
     );

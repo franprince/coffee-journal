@@ -1,4 +1,5 @@
 'use client';
+import { useTranslations } from 'next-intl';
 
 import React from "react"
 
@@ -11,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { LogService } from '@/lib/db-client';
 import type { BrewLog, Recipe, TasteProfile, Coffee } from '@/lib/types';
 import { Star, Zap, Candy, Circle, AlertTriangle, Save, ChevronDown, Scale, Droplets, Thermometer, Hash, Bean, Camera, X } from 'lucide-react';
+import { CoffeeLoader } from '@/components/ui/coffee-loader';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
@@ -22,7 +24,9 @@ interface BrewLogFormProps {
   coffees: Coffee[];
   onAddCoffee: (coffee: Coffee) => void;
   onSave: (log: BrewLog) => void;
+  onSaveAsNewRecipe?: (log: BrewLog, newName: string) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 const TASTE_DIMENSIONS = [
@@ -32,7 +36,9 @@ const TASTE_DIMENSIONS = [
   { key: 'bitterness' as const, label: 'Bitterness', icon: AlertTriangle, description: 'Dark, roasty, intense' },
 ];
 
-export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: BrewLogFormProps) {
+export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onSaveAsNewRecipe, onCancel, isLoading }: BrewLogFormProps) {
+  const t = useTranslations('BrewLogForm');
+  const tTaste = useTranslations('Taste');
   const [tasteProfile, setTasteProfile] = useState<TasteProfile>({
     acidity: 50,
     sweetness: 50,
@@ -54,6 +60,17 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
   const [isAddCoffeeOpen, setIsAddCoffeeOpen] = useState(false);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+
+  // New Recipe State
+  const [showSaveAsNew, setShowSaveAsNew] = useState(false);
+  const [newRecipeName, setNewRecipeName] = useState(`${recipe.name} (Variant)`);
+
+  const hasChanges =
+    coffeeWeight !== recipe.coffeeWeight ||
+    totalWaterWeight !== recipe.totalWaterWeight ||
+    grindSize !== recipe.grindSize ||
+    temperature !== (recipe.pours?.[0]?.temperature || 93);
+
 
   const updateTaste = (key: keyof TasteProfile, value: number[]) => {
     setTasteProfile(prev => ({ ...prev, [key]: value[0] }));
@@ -89,16 +106,16 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Header */}
       <div className="text-center pb-3 border-b border-border">
-        <h3 className="font-display text-base font-semibold text-foreground">Log Your Brew</h3>
+        <h3 className="font-display text-base font-semibold text-foreground">{t('title')}</h3>
         <p className="text-xs text-muted-foreground mt-0.5 mb-3">
-          How was your {recipe.name}?
+          {t('subtitle', { name: recipe.name })}
         </p>
 
         {/* Coffee Selector */}
         <div className="max-w-[240px] mx-auto flex items-center gap-2">
           <Select value={selectedCoffeeId} onValueChange={setSelectedCoffeeId}>
             <SelectTrigger className="h-8 text-xs bg-secondary/20 border-border/50 flex-1">
-              <SelectValue placeholder="Select Coffee Bean..." />
+              <SelectValue placeholder={t('selectCoffee')} />
             </SelectTrigger>
             <SelectContent className="glass-card">
               {coffees.map(c => (
@@ -120,16 +137,20 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
                 <Plus className="w-4 h-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="glass-card border-border sm:max-w-[425px]">
+            <DialogContent
+              className="glass-card border-border sm:max-w-[425px]"
+              onInteractOutside={(e) => e.preventDefault()}
+            >
               <DialogHeader>
-                <DialogTitle>Add New Coffee</DialogTitle>
+                <DialogTitle className="sr-only">{t('addCoffee')}</DialogTitle>
               </DialogHeader>
               <AddCoffeeForm
-                onSuccess={(coffee) => {
+                onSubmit={async (coffee) => {
                   onAddCoffee(coffee);
                   setSelectedCoffeeId(coffee.id);
                   setIsAddCoffeeOpen(false);
                 }}
+                defaultName={`Coffee Bean #${coffees.length + 1}`}
                 onCancel={() => setIsAddCoffeeOpen(false)}
               />
             </DialogContent>
@@ -144,7 +165,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
           onClick={() => setShowTweaks(!showTweaks)}
           className="flex items-center justify-center gap-2 text-xs text-primary font-medium hover:underline mx-auto w-full py-1"
         >
-          {showTweaks ? 'Hide Recipe Parameters' : 'Adjust Recipe Parameters'}
+          {showTweaks ? t('hideTweaks') : t('adjustTweaks')}
           <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showTweaks && "rotate-180")} />
         </button>
 
@@ -152,7 +173,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
           <div className="grid grid-cols-2 gap-3 bg-secondary/30 p-4 rounded-xl border border-border/50 animate-in slide-in-from-top-2">
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Scale className="w-3.5 h-3.5" /> Coffee (g)
+                <Scale className="w-3.5 h-3.5" /> {t('tweaks.coffee')}
               </Label>
               <Input
                 type="number"
@@ -163,7 +184,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Droplets className="w-3.5 h-3.5" /> Water (g)
+                <Droplets className="w-3.5 h-3.5" /> {t('tweaks.water')}
               </Label>
               <Input
                 type="number"
@@ -174,7 +195,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Hash className="w-3.5 h-3.5" /> Grind
+                <Hash className="w-3.5 h-3.5" /> {t('tweaks.grind')}
               </Label>
               <Input
                 type="number"
@@ -185,7 +206,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Thermometer className="w-3.5 h-3.5" /> Temp (°C)
+                <Thermometer className="w-3.5 h-3.5" /> {t('tweaks.temp')}
               </Label>
               <Input
                 type="number"
@@ -201,7 +222,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
         {showTweaks && (
           <div className="space-y-3 mt-4 border-t border-border pt-3">
             <Label className="text-xs font-semibold text-foreground uppercase tracking-wider">
-              Pour Schedule Overrides
+              {t('tweaks.overrides')}
             </Label>
             <div className="space-y-3">
               {pours.map((pour, index) => (
@@ -246,7 +267,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
 
       {/* Star Rating */}
       <div className="space-y-2">
-        <Label className="text-foreground text-center block text-sm">Overall Rating</Label>
+        <Label className="text-foreground text-center block text-sm">{t('rating')}</Label>
         <div className="flex items-center justify-center gap-1.5">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -269,24 +290,20 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
           ))}
         </div>
         <p className="text-center text-xs text-muted-foreground min-h-[1.25rem]">
-          {rating === 1 && 'Needs work'}
-          {rating === 2 && 'Below average'}
-          {rating === 3 && 'Good'}
-          {rating === 4 && 'Great!'}
-          {rating === 5 && 'Perfect!'}
+          {rating && t(`ratings.${rating}`)}
         </p>
       </div>
 
       {/* Taste Profile Sliders */}
       <div className="space-y-3">
-        <Label className="text-foreground text-sm">Taste Profile</Label>
+        <Label className="text-foreground text-sm">{t('tasteProfile')}</Label>
 
-        {TASTE_DIMENSIONS.map(({ key, label, icon: Icon, description }) => (
+        {TASTE_DIMENSIONS.map(({ key, icon: Icon }) => (
           <div key={key} className="space-y-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <Icon className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-xs font-medium text-foreground">{label}</span>
+                <span className="text-xs font-medium text-foreground">{tTaste(key)}</span>
               </div>
               <span className="text-xs text-muted-foreground font-mono">
                 {tasteProfile[key]}%
@@ -299,7 +316,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
               step={5}
               className="py-1"
             />
-            <p className="text-[10px] text-muted-foreground">{description}</p>
+            <p className="text-[10px] text-muted-foreground">{tTaste(`${key}Desc`)}</p>
           </div>
         ))}
       </div>
@@ -352,16 +369,16 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
           </svg>
           {/* Labels */}
           <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 text-[10px] text-muted-foreground">
-            Acidity
+            {tTaste('acidity')}
           </span>
           <span className="absolute right-0 top-1/2 translate-x-1 -translate-y-1/2 text-[10px] text-muted-foreground">
-            Sweet
+            {tTaste('sweetness')}
           </span>
           <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1 text-[10px] text-muted-foreground">
-            Body
+            {tTaste('body')}
           </span>
           <span className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 text-[10px] text-muted-foreground">
-            Bitter
+            {tTaste('bitterness')}
           </span>
         </div>
       </div>
@@ -369,11 +386,11 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
       {/* Notes */}
       <div className="space-y-1.5">
         <Label htmlFor="notes" className="text-foreground text-sm">
-          Iteration Notes <span className="text-muted-foreground text-xs">(optional)</span>
+          {t('notes')} <span className="text-muted-foreground text-xs">{t('optional')}</span>
         </Label>
         <Textarea
           id="notes"
-          placeholder="What would you change next time? e.g., Grind finer, bloom longer..."
+          placeholder={t('notesPlaceholder')}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           className="bg-background border-border min-h-[80px] resize-none text-sm"
@@ -385,9 +402,9 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
         <Label className="text-foreground text-sm flex items-center gap-1.5">
           <span className="flex items-center gap-1.5">
             <Camera className="w-3.5 h-3.5" />
-            Photos
+            {t('photos')}
           </span>
-          <span className="text-muted-foreground text-xs">(optional)</span>
+          <span className="text-muted-foreground text-xs">{t('optional')}</span>
         </Label>
 
         <div className="grid grid-cols-4 gap-2">
@@ -443,22 +460,106 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onCancel }: 
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          className="flex-1 h-9 text-sm bg-transparent"
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          className="flex-1 h-9 text-sm bg-coffee-espresso hover:bg-coffee-espresso/90 text-coffee-crema"
-        >
-          <Save className="w-3.5 h-3.5 mr-1.5" />
-          Save Log
-        </Button>
+      <div className="flex flex-col gap-3 pt-2">
+        {hasChanges && onSaveAsNewRecipe && (
+          <div className="bg-accent/10 p-3 rounded-lg border border-accent/20 animate-in fade-in slide-in-from-bottom-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-accent-foreground mb-2">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Changes Detected
+            </div>
+            <ul className="text-[10px] text-muted-foreground space-y-1 mb-3 list-disc pl-4">
+              {coffeeWeight !== recipe.coffeeWeight && <li>Coffee: {recipe.coffeeWeight}g → {coffeeWeight}g</li>}
+              {totalWaterWeight !== recipe.totalWaterWeight && <li>Water: {recipe.totalWaterWeight}g → {totalWaterWeight}g</li>}
+              {grindSize !== recipe.grindSize && <li>Grind: {recipe.grindSize}µm → {grindSize}µm</li>}
+              {temperature !== (recipe.pours?.[0]?.temperature || 93) && <li>Temp: {recipe.pours?.[0]?.temperature || 93}°C → {temperature}°C</li>}
+            </ul>
+
+            {showSaveAsNew ? (
+              <div className="space-y-2">
+                <Input
+                  value={newRecipeName}
+                  onChange={(e) => setNewRecipeName(e.target.value)}
+                  placeholder="New Recipe Name"
+                  className="h-8 text-sm bg-background/50"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => setShowSaveAsNew(false)}
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1 h-8"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const log = {
+                        id: crypto.randomUUID(),
+                        recipeId: recipe.id,
+                        recipeName: recipe.name,
+                        method: recipe.method,
+                        date: new Date(),
+                        tasteProfile,
+                        rating,
+                        coffeeId: selectedCoffeeId,
+                        coffeeName: coffees.find(c => c.id === selectedCoffeeId)?.name,
+                        notes: notes || undefined,
+                        imageUrls,
+                        coffeeWeight,
+                        totalWaterWeight,
+                        grindSize,
+                        temperature,
+                        pours
+                      };
+                      onSaveAsNewRecipe(log, newRecipeName);
+                    }}
+                    disabled={!newRecipeName || isLoading}
+                    size="sm"
+                    className="flex-1 h-8 bg-accent text-accent-foreground hover:bg-accent/90"
+                  >
+                    <Plus className="w-3.5 h-3.5 mr-1.5" />
+                    Save as New Recipe
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                onClick={() => setShowSaveAsNew(true)}
+                variant="ghost"
+                className="w-full h-8 text-xs text-accent-foreground hover:bg-accent/20 hover:text-accent-foreground"
+              >
+                Save as New Recipe?
+              </Button>
+            )}
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            className="flex-1 h-9 text-sm bg-transparent"
+          >
+            {t('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="flex-1 h-9 text-sm bg-coffee-espresso hover:bg-coffee-espresso/90 text-coffee-crema"
+          >
+            {isLoading ? (
+              <CoffeeLoader className="w-3.5 h-3.5 mr-1.5" />
+            ) : (
+              <Save className="w-3.5 h-3.5 mr-1.5" />
+            )}
+            {t('save')}
+          </Button>
+        </div>
       </div>
     </form >
   );

@@ -8,7 +8,7 @@ import { METHOD_LABELS } from '@/lib/types';
 import type { BrewLog, Recipe, Coffee } from '@/lib/types';
 import { useRecipe, useCoffees, useLogs } from '@/lib/hooks';
 import { MethodIcon } from '@/components/coffee-journal/method-icons';
-import { ChevronLeft, Coffee as CoffeeIcon, Droplets, Scale, X, BookOpen, Thermometer, Hash, Zap, Edit2, Trash2 } from 'lucide-react';
+import { ChevronLeft, Coffee as CoffeeIcon, Droplets, Scale, X, BookOpen, Thermometer, Hash, Zap, Edit2, Trash2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PourTimeline } from '@/components/coffee-journal/pour-timeline';
 import { BrewLogForm } from '@/components/coffee-journal/brew-log-form';
@@ -16,18 +16,27 @@ import { BrewLogCard } from '@/components/coffee-journal/brew-log-card';
 import { RecipeForm } from '@/components/coffee-journal/recipe-form';
 import { DeleteConfirmDialog } from '@/components/coffee-journal/delete-confirm-dialog';
 import { cn } from '@/lib/utils';
+import { useSettings } from '@/lib/hooks/use-settings';
+import { micronsToClicks } from '@/lib/grinders';
+import type { User } from '@supabase/supabase-js';
+import { toast } from 'sonner';
+import { CoffeeLoader } from '@/components/ui/coffee-loader';
 
 interface RecipeDetailClientProps {
     initialRecipe?: Recipe;
     initialLogs?: BrewLog[];
     initialCoffees?: Coffee[];
     recipeId: string;
+    currentUser: User | null;
 }
 
-export default function RecipeDetailClient({ initialRecipe, initialLogs, initialCoffees, recipeId }: RecipeDetailClientProps) {
+export default function RecipeDetailClient({ initialRecipe, initialLogs, initialCoffees, recipeId, currentUser }: RecipeDetailClientProps) {
     const t = useTranslations('RecipeDetail');
     const tMethods = useTranslations('Methods');
+    const tCommon = useTranslations('Common');
+    const tHome = useTranslations('HomePage');
     const router = useRouter();
+    const { settings } = useSettings();
 
     // Using Hooks with properties
     const { recipe, isLoading: isLoadingRecipe, updateRecipe, deleteRecipe } = useRecipe(recipeId, initialRecipe);
@@ -37,17 +46,80 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
     const [showLogForm, setShowLogForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isSavingLog, setIsSavingLog] = useState(false);
+    const [isForking, setIsForking] = useState(false);
 
     const isLoading = isLoadingRecipe && !recipe;
+    const isOwner = currentUser && recipe ? recipe.owner_id === currentUser.id : false;
 
     const handleSaveLog = async (log: BrewLog) => {
-        await addLog(log);
-        setShowLogForm(false);
+        setIsSavingLog(true);
+        try {
+            if (!isOwner && currentUser) {
+                // Auto-fork logic
+                const { RecipeService, LogService } = await import('@/lib/db-client');
+                const newRecipeId = await RecipeService.forkRecipe(recipeId, currentUser.id);
+
+                // Create log with new recipe ID
+                const newLog = { ...log, recipeId: newRecipeId };
+                await LogService.createLog(newLog);
+
+                toast.success(tHome('recipeForkedSuccess', { name: recipe?.name || 'Recipe' }));
+                router.push(`/recipe/${newRecipeId}`);
+            } else {
+                // Normal owner save
+                await addLog(log);
+                toast.success(tCommon('savedSuccess'));
+            }
+            setShowLogForm(false);
+        } catch (error) {
+            console.error('Failed to save log:', error);
+            toast.error(tCommon('savedError'));
+        } finally {
+            setIsSavingLog(false);
+        }
+    };
+
+    const handleSaveAsNewRecipe = async (log: BrewLog, newName: string) => {
+        if (!currentUser || !recipe) return;
+        setIsSavingLog(true);
+        try {
+            const { RecipeService, LogService } = await import('@/lib/db-client');
+
+            // Create new recipe with tweaks
+            const newRecipe: Recipe = {
+                ...recipe,
+                id: crypto.randomUUID(),
+                owner_id: currentUser.id,
+                name: newName,
+                createdAt: new Date(),
+                coffeeWeight: log.coffeeWeight || recipe.coffeeWeight,
+                totalWaterWeight: log.totalWaterWeight || recipe.totalWaterWeight,
+                grindSize: log.grindSize || recipe.grindSize,
+                pours: log.pours || recipe.pours,
+                // Ensure we don't accidentally copy ID-specific fields if any (already handled by spread/overwrite)
+                isPublic: false // Default to private for variants
+            };
+
+            await RecipeService.createRecipe(newRecipe);
+
+            // Create log for the new recipe
+            await LogService.createLog({ ...log, recipeId: newRecipe.id, recipeName: newName });
+
+            toast.success(tCommon('savedSuccess'));
+            router.push(`/recipe/${newRecipe.id}`);
+        } catch (error) {
+            console.error('Failed to save new recipe:', error);
+            toast.error(tCommon('savedError'));
+        } finally {
+            setIsSavingLog(false);
+        }
     };
 
     const handleEditRecipe = async (updatedRecipe: Recipe) => {
         await updateRecipe(updatedRecipe);
         setShowEditForm(false);
+        toast.success(tCommon('savedSuccess'));
     };
 
     const handleDeleteRecipe = async () => {
@@ -55,8 +127,31 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
     };
 
     const confirmDelete = async () => {
-        await deleteRecipe();
-        router.push('/');
+        try {
+            await deleteRecipe();
+            toast.success(tHome('recipeDeletedSuccess'));
+            router.push('/');
+        } catch (error) {
+            console.error('Failed to delete', error);
+            toast.error(tHome('recipeDeleteFailed'));
+        }
+    };
+
+    const handleForkRecipe = async () => {
+        if (!currentUser || !recipe) return;
+        setIsForking(true);
+        try {
+            const { RecipeService } = await import('@/lib/db-client');
+            await RecipeService.forkRecipe(recipe.id, currentUser.id);
+            toast.success(tHome('recipeForkedSuccess', { name: recipe.name }));
+            // Redirect to home or stay? Maybe redirect to home to see the new copy
+            router.push('/');
+        } catch (error) {
+            console.error('Failed to fork recipe:', error);
+            toast.error(tHome('recipeForkFailed'));
+        } finally {
+            setIsForking(false);
+        }
     };
 
     if (isLoading) {
@@ -107,22 +202,40 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                 </div>
                             </div>
                             <div className="flex items-center gap-1 md:gap-2 absolute top-0 right-0 p-4 sm:relative sm:p-0">
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-primary rounded-full hover:bg-secondary"
-                                    onClick={() => setShowEditForm(true)}
-                                >
-                                    <Edit2 className="w-4 h-4 md:w-5 md:h-5" />
-                                </Button>
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/10"
-                                    onClick={handleDeleteRecipe}
-                                >
-                                    <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
-                                </Button>
+                                {isOwner ? (
+                                    <>
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-primary rounded-full hover:bg-secondary"
+                                            onClick={() => setShowEditForm(true)}
+                                        >
+                                            <Edit2 className="w-4 h-4 md:w-5 md:h-5" />
+                                        </Button>
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/10"
+                                            onClick={handleDeleteRecipe}
+                                        >
+                                            <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-primary rounded-full hover:bg-secondary"
+                                        onClick={handleForkRecipe}
+                                        disabled={isForking}
+                                    >
+                                        {isForking ? (
+                                            <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                        ) : (
+                                            <Heart className="w-4 h-4 md:w-5 md:h-5" />
+                                        )}
+                                    </Button>
+                                )}
                             </div>
                         </div>
 
@@ -161,6 +274,11 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                     <span className="text-[10px] md:text-xs font-bold uppercase">{t('grind')}</span>
                                 </div>
                                 <span className="text-sm md:text-lg font-medium">{recipe.grindSize}µm</span>
+                                {settings?.preferredGrinder && (
+                                    <span className="text-[10px] text-muted-foreground font-mono">
+                                        ~{micronsToClicks(recipe.grindSize, settings.preferredGrinder)}
+                                    </span>
+                                )}
                             </div>
 
                             {/* Temp */}
@@ -181,13 +299,20 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
 
                         {/* Action Button */}
                         <div className="sticky bottom-6 z-20">
-                            <Button
-                                onClick={() => setShowLogForm(true)}
-                                className="w-full h-16 text-lg font-bold rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20 transition-transform active:scale-95"
-                            >
-                                <CoffeeIcon className="w-6 h-6 mr-2" />
-                                {t('logBrew')}
-                            </Button>
+                            {currentUser && (
+                                <Button
+                                    onClick={() => setShowLogForm(true)}
+                                    className="w-full h-16 text-lg font-bold rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20 transition-transform active:scale-95"
+                                    disabled={isSavingLog || isForking}
+                                >
+                                    {(isSavingLog || isForking) ? (
+                                        <CoffeeLoader className="w-6 h-6 mr-2" />
+                                    ) : (
+                                        <CoffeeIcon className="w-6 h-6 mr-2" />
+                                    )}
+                                    {t('logBrew')}
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -241,7 +366,9 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                 coffees={coffees}
                                 onAddCoffee={addCoffee}
                                 onSave={handleSaveLog}
+                                onSaveAsNewRecipe={handleSaveAsNewRecipe}
                                 onCancel={() => setShowLogForm(false)}
+                                isLoading={isSavingLog}
                             />
                         </div>
                     </div>

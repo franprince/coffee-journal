@@ -15,9 +15,10 @@ import { Save, Coffee } from 'lucide-react';
 interface RecipeFormProps {
   onSave: (recipe: Recipe) => void;
   editRecipe?: Recipe;
+  isLoading?: boolean;
 }
 
-export function RecipeForm({ onSave, editRecipe }: RecipeFormProps) {
+export function RecipeForm({ onSave, editRecipe, isLoading }: RecipeFormProps) {
   const t = useTranslations('RecipeForm');
   const tCommon = useTranslations('Common');
   const [name, setName] = useState(editRecipe?.name || '');
@@ -180,9 +181,14 @@ export function RecipeForm({ onSave, editRecipe }: RecipeFormProps) {
       {/* Submit Button */}
       <Button
         type="submit"
+        disabled={isLoading}
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-10"
       >
-        <Save className="w-4 h-4 mr-2" />
+        {isLoading ? (
+          <div className="w-4 h-4 mr-2 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+        ) : (
+          <Save className="w-4 h-4 mr-2" />
+        )}
         {editRecipe ? t('update') : t('save')}
       </Button>
     </form>

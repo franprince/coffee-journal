@@ -8,7 +8,7 @@ import type { Recipe } from '@/lib/types';
 import { METHOD_LABELS } from '@/lib/types';
 import { MethodIcon } from './method-icons';
 import { RecipeExport } from './recipe-export';
-import { Clock, Droplets, Scale, Coffee, Trash2, Zap } from 'lucide-react';
+import { Clock, Droplets, Scale, Coffee, Trash2, Zap, Heart } from 'lucide-react';
 import { Button } from '../ui/button';
 import { DeleteConfirmDialog } from './delete-confirm-dialog';
 
@@ -16,9 +16,14 @@ interface RecipeCardProps {
   recipe: Recipe;
   onSelect?: (recipe: Recipe) => void;
   onDelete?: (id: string) => void;
+  onFork?: (recipe: Recipe) => void;
+  isOwner?: boolean;
+  isForking?: boolean;
+  isDeleting?: boolean;
 }
 
-export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
+export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true, isForking = false, isDeleting = false }: RecipeCardProps) {
+  // ... existing code ...
   const t = useTranslations('RecipeCard');
   const tMethods = useTranslations('Methods');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -151,7 +156,29 @@ export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
         className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
       >
         <RecipeExport recipe={recipe} />
-        {onDelete && (
+
+        {!isOwner && onFork && (
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-9 w-9 rounded-full bg-background shadow-lg hover:bg-primary hover:text-primary-foreground transition-colors border border-border/10"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onFork(recipe);
+            }}
+            disabled={isForking}
+            title="Save to My Recipes"
+          >
+            {isForking ? (
+              <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            ) : (
+              <Heart className="w-4 h-4" />
+            )}
+          </Button>
+        )}
+
+        {isOwner && onDelete && (
           <Button
             size="icon"
             variant="secondary"
@@ -161,8 +188,13 @@ export function RecipeCard({ recipe, onSelect, onDelete }: RecipeCardProps) {
               e.stopPropagation();
               setShowDeleteConfirm(true);
             }}
+            disabled={isDeleting}
           >
-            <Trash2 className="w-4 h-4" />
+            {isDeleting ? (
+              <div className="w-4 h-4 border-2 border-destructive/30 border-t-destructive rounded-full animate-spin group-hover:border-white/30 group-hover:border-t-white" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
           </Button>
         )}
       </div>

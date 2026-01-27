@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface HomePageClientProps {
   initialRecipes: Recipe[];
@@ -38,14 +39,26 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
   const tCommon = useTranslations('Common');
   const tRecipeForm = useTranslations('RecipeForm');
   const tSettings = useTranslations('Settings');
-  const { recipes, refresh: refreshRecipes, deleteRecipe } = useRecipes(initialRecipes);
-  const { logs, addLog: createLog } = useAllLogs(initialLogs);
-  const { coffees, addCoffee, updateCoffee, deleteCoffee } = useCoffees(initialCoffees);
+  const locale = useLocale();
 
   const [activeTab, setActiveTab] = useState('recipes');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const locale = useLocale();
+  const [recipeViewMode, setRecipeViewMode] = useState<'my' | 'community'>(user ? 'my' : 'community');
+  // Loading states
+  const [isSaving, setIsSaving] = useState(false);
+  const [forkingRecipeId, setForkingRecipeId] = useState<string | null>(null);
+  const [deletingRecipeId, setDeletingRecipeId] = useState<string | null>(null);
+
+  // My Recipes
+  const { recipes: myRecipes, refresh: refreshMyRecipes, deleteRecipe } = useRecipes(initialRecipes, user?.id ?? 'guest');
+
+  // Community Recipes (fetched only when tab is active or requested, or if guest)
+  const shouldFetchCommunity = !user || recipeViewMode === 'community';
+  const { recipes: communityRecipes, refresh: refreshCommunityRecipes } = useRecipes(undefined, undefined);
+
+  const { logs, addLog: createLog } = useAllLogs(initialLogs);
+  const { coffees, addCoffee, updateCoffee, deleteCoffee } = useCoffees(initialCoffees);
 
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -55,8 +68,12 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
     grindSizeRange: [0, 1400],
   });
 
-  // Filter recipes
-  const filteredRecipes = recipes.filter(recipe => {
+  // Filter recipes based on view mode
+  const currentRecipes = recipeViewMode === 'my'
+    ? myRecipes
+    : communityRecipes.filter(r => r.owner_id !== user?.id);
+
+  const filteredRecipes = currentRecipes.filter(recipe => {
     if (searchQuery && !recipe.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (filters.methods.length > 0 && !filters.methods.includes(recipe.method)) return false;
     if (filters.waterTypes.length > 0 && (!recipe.waterType || !filters.waterTypes.includes(recipe.waterType))) return false;
@@ -64,14 +81,49 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
     return true;
   });
 
+  const handleForkRecipe = async (recipe: Recipe) => {
+    if (!user) return; // Should prompt login if not logged in
+    try {
+      setForkingRecipeId(recipe.id);
+      const { RecipeService } = await import('@/lib/db-client');
+      await RecipeService.forkRecipe(recipe.id, user.id);
+      await refreshMyRecipes();
+      setRecipeViewMode('my');
+      toast.success(t('recipeForkedSuccess', { name: recipe.name }));
+    } catch (error) {
+      console.error('Failed to fork recipe:', error);
+      toast.error(t('recipeForkFailed'));
+    } finally {
+      setForkingRecipeId(null);
+    }
+  };
+
   const handleSaveRecipe = async (recipe: Recipe) => {
     try {
+      setIsSaving(true);
       const { RecipeService } = await import('@/lib/db-client');
       await RecipeService.createRecipe(recipe);
-      await refreshRecipes();
+      await refreshMyRecipes();
       setShowNewRecipe(false);
+      toast.success(tCommon('savedSuccess'));
     } catch (error) {
       console.error('Failed to save recipe:', error);
+      toast.error(tCommon('savedError'));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteRecipe = async (id: string) => {
+    try {
+      setDeletingRecipeId(id);
+      await deleteRecipe(id);
+      toast.success(t('recipeDeletedSuccess'));
+    } catch (error) {
+      console.error('Failed to delete recipe:', error);
+      toast.error(t('recipeDeleteFailed'));
+    } finally {
+      setDeletingRecipeId(null);
     }
   };
 
@@ -126,7 +178,6 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
       <SettingsDialog
         open={showSettings}
         onOpenChange={setShowSettings}
-        locale={locale}
       />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
@@ -162,10 +213,38 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
               filters={filters}
               onFiltersChange={setFilters}
               resultCount={filteredRecipes.length}
-              totalCount={recipes.length}
+              totalCount={currentRecipes.length}
             />
 
-            {recipes.length === 0 ? (
+            <div className="flex gap-4 mb-6 border-b border-border/40 pb-0">
+              {user && (
+                <button
+                  onClick={() => setRecipeViewMode('my')}
+                  className={cn(
+                    "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+                    recipeViewMode === 'my'
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {t('myRecipes')}
+                </button>
+              )}
+              <button
+                onClick={() => { setRecipeViewMode('community'); refreshCommunityRecipes(); }}
+                className={cn(
+                  "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+                  recipeViewMode === 'community'
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
+                  !user && "border-primary text-primary" // Active style for guests
+                )}
+              >
+                {t('community')}
+              </button>
+            </div>
+
+            {currentRecipes.length === 0 ? (
               <div className="modern-card p-12 text-center mt-6 rounded-3xl">
                 <div className="w-12 h-12 mx-auto rounded-full bg-secondary flex items-center justify-center mb-4">
                   <CoffeeIcon className="w-6 h-6 text-muted-foreground" />
@@ -182,7 +261,14 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
               <div className="grid sm:grid-cols-2 gap-6 mt-6">
                 {filteredRecipes.map((recipe, index) => (
                   <div key={recipe.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 4)}`}>
-                    <RecipeCard recipe={recipe} onDelete={deleteRecipe} />
+                    <RecipeCard
+                      recipe={recipe}
+                      onDelete={recipeViewMode === 'my' ? handleDeleteRecipe : undefined}
+                      onFork={recipeViewMode === 'community' ? handleForkRecipe : undefined}
+                      isOwner={recipe.owner_id === user?.id}
+                      isForking={forkingRecipeId === recipe.id}
+                      isDeleting={deletingRecipeId === recipe.id}
+                    />
                   </div>
                 ))}
               </div>
@@ -225,7 +311,7 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
                 <X className="w-5 h-5" />
               </Button>
             </div>
-            <RecipeForm onSave={handleSaveRecipe} />
+            <RecipeForm onSave={handleSaveRecipe} isLoading={isSaving} />
           </div>
         </div>
       )}
