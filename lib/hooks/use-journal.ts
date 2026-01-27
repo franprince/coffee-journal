@@ -57,6 +57,48 @@ export function useJournal({ initialRecipes, initialLogs, initialCoffees, user }
         }
     };
 
+    const saveLogAsRecipe = async (log: BrewLog, newName: string) => {
+        try {
+            setIsSaving(true);
+            const { RecipeService, LogService } = await import('@/lib/db-client');
+
+            // Find the original recipe for base data
+            const originalRecipe = myRecipes.find(r => r.id === log.recipeId) ||
+                communityRecipes.find(r => r.id === log.recipeId);
+
+            if (!originalRecipe || !user) throw new Error('Original recipe or user not found');
+
+            // Create new recipe with tweaks
+            const newRecipe: Recipe = {
+                ...originalRecipe,
+                id: crypto.randomUUID(),
+                owner_id: user.id,
+                name: newName,
+                createdAt: new Date(),
+                coffeeWeight: log.coffeeWeight || originalRecipe.coffeeWeight,
+                totalWaterWeight: log.totalWaterWeight || originalRecipe.totalWaterWeight,
+                grindSize: log.grindSize || originalRecipe.grindSize,
+                pours: log.pours || originalRecipe.pours,
+                isPublic: false
+            };
+
+            await RecipeService.createRecipe(newRecipe);
+
+            // Create log for the new recipe
+            await LogService.createLog({ ...log, recipeId: newRecipe.id, recipeName: newName });
+
+            await refreshMyRecipes();
+            toast.success(tCommon('savedSuccess'));
+            return newRecipe.id;
+        } catch (error) {
+            console.error('Failed to save log as recipe:', error);
+            toast.error(tCommon('savedError'));
+            return null;
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     const createRecipe = async (recipe: Recipe) => {
         try {
             setIsSaving(true);
@@ -107,6 +149,7 @@ export function useJournal({ initialRecipes, initialLogs, initialCoffees, user }
         refreshCommunityRecipes,
         forkRecipe,
         createRecipe,
+        saveLogAsRecipe,
         deleteRecipe,
 
         // Coffee Actions
