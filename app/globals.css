@@ -210,3 +210,27 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted-foreground);
 }
+
+@keyframes steam {
+  0% { transform: translateY(0) scaleX(1); opacity: 0; }
+  15% { opacity: 1; }
+  50% { transform: translateY(-5px) scaleX(1.5); }
+  95% { opacity: 0; }
+  100% { transform: translateY(-10px) scaleX(1); opacity: 0; }
+}
+
+.animate-steam-1 {
+  animation: steam 1.5s infinite ease-out;
+  animation-delay: 0.1s;
+}
+.animate-steam-2 {
+  animation: steam 1.5s infinite ease-out;
+  animation-delay: 0.5s;
+}
+.animate-steam-3 {
+  animation: steam 1.5s infinite ease-out;
+  animation-delay: 0.9s;
+}
+.animate-pulse-slow {
+   animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
+import { CoffeeLoader } from '@/components/ui/coffee-loader';
 
 interface DeleteConfirmDialogProps {
     isOpen: boolean;
@@ -17,6 +18,7 @@ interface DeleteConfirmDialogProps {
     onConfirm: () => void;
     title: string;
     description: string;
+    isLoading?: boolean;
 }
 
 export function DeleteConfirmDialog({
@@ -25,9 +27,10 @@ export function DeleteConfirmDialog({
     onConfirm,
     title,
     description,
+    isLoading = false,
 }: DeleteConfirmDialogProps) {
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && !isLoading && onClose()}>
             <DialogContent className="glass-card border-border sm:max-w-[400px] animate-in zoom-in-95 duration-200">
                 <DialogHeader className="flex flex-col items-center gap-4 text-center">
                     <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive mb-2">
@@ -42,19 +45,22 @@ export function DeleteConfirmDialog({
                     <Button
                         variant="ghost"
                         onClick={onClose}
+                        disabled={isLoading}
                         className="flex-1 rounded-xl h-11 font-bold"
                     >
                         Cancel
                     </Button>
                     <Button
                         variant="destructive"
-                        onClick={() => {
-                            onConfirm();
-                            onClose();
-                        }}
+                        onClick={onConfirm}
+                        disabled={isLoading}
                         className="flex-1 rounded-xl h-11 font-bold shadow-lg shadow-destructive/20"
                     >
-                        Delete
+                        {isLoading ? (
+                            <CoffeeLoader className="w-4 h-4 mr-2" />
+                        ) : (
+                            'Delete'
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>

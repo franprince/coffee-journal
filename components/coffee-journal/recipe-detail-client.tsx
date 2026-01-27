@@ -20,6 +20,7 @@ import { useSettings } from '@/lib/hooks/use-settings';
 import { micronsToClicks } from '@/lib/grinders';
 import type { User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
+import { CoffeeLoader } from '@/components/ui/coffee-loader';
 
 interface RecipeDetailClientProps {
     initialRecipe?: Recipe;
@@ -73,6 +74,42 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
             setShowLogForm(false);
         } catch (error) {
             console.error('Failed to save log:', error);
+            toast.error(tCommon('savedError'));
+        } finally {
+            setIsSavingLog(false);
+        }
+    };
+
+    const handleSaveAsNewRecipe = async (log: BrewLog, newName: string) => {
+        if (!currentUser || !recipe) return;
+        setIsSavingLog(true);
+        try {
+            const { RecipeService, LogService } = await import('@/lib/db-client');
+
+            // Create new recipe with tweaks
+            const newRecipe: Recipe = {
+                ...recipe,
+                id: crypto.randomUUID(),
+                owner_id: currentUser.id,
+                name: newName,
+                createdAt: new Date(),
+                coffeeWeight: log.coffeeWeight || recipe.coffeeWeight,
+                totalWaterWeight: log.totalWaterWeight || recipe.totalWaterWeight,
+                grindSize: log.grindSize || recipe.grindSize,
+                pours: log.pours || recipe.pours,
+                // Ensure we don't accidentally copy ID-specific fields if any (already handled by spread/overwrite)
+                isPublic: false // Default to private for variants
+            };
+
+            await RecipeService.createRecipe(newRecipe);
+
+            // Create log for the new recipe
+            await LogService.createLog({ ...log, recipeId: newRecipe.id, recipeName: newName });
+
+            toast.success(tCommon('savedSuccess'));
+            router.push(`/recipe/${newRecipe.id}`);
+        } catch (error) {
+            console.error('Failed to save new recipe:', error);
             toast.error(tCommon('savedError'));
         } finally {
             setIsSavingLog(false);
@@ -269,7 +306,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                     disabled={isSavingLog || isForking}
                                 >
                                     {(isSavingLog || isForking) ? (
-                                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                                        <CoffeeLoader className="w-6 h-6 mr-2" />
                                     ) : (
                                         <CoffeeIcon className="w-6 h-6 mr-2" />
                                     )}
@@ -329,6 +366,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                 coffees={coffees}
                                 onAddCoffee={addCoffee}
                                 onSave={handleSaveLog}
+                                onSaveAsNewRecipe={handleSaveAsNewRecipe}
                                 onCancel={() => setShowLogForm(false)}
                                 isLoading={isSavingLog}
                             />

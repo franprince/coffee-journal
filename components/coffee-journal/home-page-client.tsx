@@ -227,7 +227,7 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
                       : "border-transparent text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  My Recipes
+                  {t('myRecipes')}
                 </button>
               )}
               <button
@@ -240,7 +240,7 @@ export default function HomePageClient({ initialRecipes, initialLogs, initialCof
                   !user && "border-primary text-primary" // Active style for guests
                 )}
               >
-                Community
+                {t('community')}
               </button>
             </div>
 

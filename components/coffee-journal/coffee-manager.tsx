@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Plus, Bean, MapPin, Factory, Camera, Edit2, Trash2, MoreVertical } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import type { Coffee } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,15 +18,17 @@ import { DeleteConfirmDialog } from './delete-confirm-dialog';
 
 interface CoffeeManagerProps {
     coffees: Coffee[];
-    onAddCoffee: (coffee: Coffee) => void;
-    onUpdateCoffee: (coffee: Coffee) => void;
-    onDeleteCoffee: (id: string) => void;
+    onAddCoffee: (coffee: Coffee) => Promise<void>;
+    onUpdateCoffee: (coffee: Coffee) => Promise<void>;
+    onDeleteCoffee: (id: string) => Promise<void>;
 }
 
 export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCoffee }: CoffeeManagerProps) {
+    const t = useTranslations('CoffeeManager');
     const [isOpen, setIsOpen] = useState(false);
     const [coffeeToEdit, setCoffeeToEdit] = useState<Coffee | null>(null);
     const [idToDelete, setIdToDelete] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleEdit = (coffee: Coffee) => {
         setCoffeeToEdit(coffee);
@@ -35,12 +39,27 @@ export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCo
         setIdToDelete(id);
     };
 
+    const handleConfirmDelete = async () => {
+        if (!idToDelete) return;
+        setIsDeleting(true);
+        try {
+            await onDeleteCoffee(idToDelete);
+            toast.success(t('deleteSuccess'));
+            setIdToDelete(null);
+        } catch (error) {
+            console.error('Failed to delete coffee:', error);
+            toast.error(t('deleteFailed'));
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-display text-foreground flex items-center gap-2">
                     <Bean className="w-5 h-5 text-primary" />
-                    My Coffee Beans
+                    {t('title')}
                 </h3>
                 <Dialog open={isOpen} onOpenChange={(open) => {
                     setIsOpen(open);
@@ -49,20 +68,24 @@ export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCo
                     <DialogTrigger asChild>
                         <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
                             <Plus className="w-4 h-4 mr-1.5" />
-                            Add Coffee
+                            {t('addCoffee')}
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="glass-card border-border sm:max-w-[425px]">
+                    <DialogContent
+                        className="glass-card border-border sm:max-w-[425px]"
+                        onInteractOutside={(e) => e.preventDefault()}
+                    >
                         <DialogHeader>
-                            <DialogTitle>{coffeeToEdit ? 'Edit Coffee' : 'Add New Coffee'}</DialogTitle>
+                            <DialogTitle className="sr-only">{coffeeToEdit ? t('editTitle') : t('addTitle')}</DialogTitle>
                         </DialogHeader>
                         <AddCoffeeForm
                             editCoffee={coffeeToEdit || undefined}
-                            onSuccess={(coffee) => {
+                            defaultName={`Coffee Bean #${coffees.length + 1}`}
+                            onSubmit={async (coffee) => {
                                 if (coffeeToEdit) {
-                                    onUpdateCoffee(coffee);
+                                    await onUpdateCoffee(coffee);
                                 } else {
-                                    onAddCoffee(coffee);
+                                    await onAddCoffee(coffee);
                                 }
                                 setIsOpen(false);
                                 setCoffeeToEdit(null);
@@ -135,10 +158,11 @@ export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCo
 
             <DeleteConfirmDialog
                 isOpen={!!idToDelete}
-                onClose={() => setIdToDelete(null)}
-                onConfirm={() => idToDelete && onDeleteCoffee(idToDelete)}
-                title="Remove Coffee?"
-                description="This will permanently remove this coffee from your collection. You'll need to add it again manually if you want it back."
+                onClose={() => !isDeleting && setIdToDelete(null)}
+                onConfirm={handleConfirmDelete}
+                title={t('removeTitle')}
+                description={t('removeDesc')}
+                isLoading={isDeleting}
             />
         </div>
     );
