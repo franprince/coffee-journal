@@ -430,7 +430,7 @@ export const LogService = {
             custom_pours: log.pours,
             image_urls: log.imageUrls || [], // Image support
             date: log.date.toISOString(),
-            coffee_id: log.coffeeId, // Link to coffee
+            coffee_id: log.coffeeId || null, // Ensure empty string becomes null
             owner_id: user.id
         };
         const { error } = await supabase.from('brew_logs').insert(dbLog);
