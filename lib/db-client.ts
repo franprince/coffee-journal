@@ -302,6 +302,7 @@ export const CoffeeService = {
             roast_level: coffee.roastLevel,
             origin: coffee.origin,
             process: coffee.process,
+            flavors: coffee.flavors,
             notes: coffee.notes,
             image_url: coffee.imageUrl, // Image support
             is_archived: coffee.isArchived || false,
@@ -323,6 +324,7 @@ export const CoffeeService = {
             roast_level: coffee.roastLevel,
             origin: coffee.origin,
             process: coffee.process,
+            flavors: coffee.flavors,
             notes: coffee.notes,
             image_url: coffee.imageUrl,
             is_archived: coffee.isArchived || false,

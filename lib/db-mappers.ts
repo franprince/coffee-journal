@@ -8,6 +8,7 @@ export function mapCoffeeFromDB(dbCoffee: any): Coffee {
         roastLevel: dbCoffee.roast_level,
         origin: dbCoffee.origin,
         process: dbCoffee.process,
+        flavors: dbCoffee.flavors || [],
         notes: dbCoffee.notes,
         imageUrl: dbCoffee.image_url,
         isArchived: dbCoffee.is_archived,

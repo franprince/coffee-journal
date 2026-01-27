@@ -85,6 +85,7 @@ export interface Coffee {
   roastLevel?: RoastLevel;
   origin?: string;
   process?: string;
+  flavors?: string[];
   notes?: string;
   imageUrl?: string;
   isArchived?: boolean;
