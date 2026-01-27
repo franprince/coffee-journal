@@ -19,6 +19,8 @@ import { Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AddCoffeeForm } from './add-coffee-form';
 
+import { ImageCropper } from '@/components/ui/image-cropper';
+
 interface BrewLogFormProps {
   recipe: Recipe;
   coffees: Coffee[];
@@ -60,6 +62,11 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onSaveAsNewR
   const [isAddCoffeeOpen, setIsAddCoffeeOpen] = useState(false);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Cropper State
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [tempImageSrc, setTempImageSrc] = useState<string | null>(null);
+  const [originalFileName, setOriginalFileName] = useState<string>('image.jpg');
 
   // New Recipe State
   const [showSaveAsNew, setShowSaveAsNew] = useState(false);
@@ -436,16 +443,15 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onSaveAsNewR
                     return;
                   }
 
-                  setIsUploading(true);
-                  try {
-                    const url = await LogService.uploadLogImage(file, file.name);
-                    setImageUrls(prev => [...prev, url]);
-                  } catch (error) {
-                    console.error("Upload failed", error);
-                    alert("Upload failed. Please try again.");
-                  } finally {
-                    setIsUploading(false);
-                  }
+                  // Start Cropping Flow
+                  setOriginalFileName(file.name);
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setTempImageSrc(reader.result as string);
+                    setCropperOpen(true);
+                  };
+                  reader.readAsDataURL(file);
+                  e.target.value = ''; // Reset input
                 }}
                 disabled={isUploading}
               />
@@ -457,6 +463,34 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onSaveAsNewR
             </label>
           )}
         </div>
+
+        <ImageCropper
+          imageSrc={tempImageSrc}
+          open={cropperOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setCropperOpen(false);
+              setTempImageSrc(null);
+            }
+          }}
+          onCropComplete={async (croppedBlob) => {
+            setIsUploading(true);
+            setCropperOpen(false);
+            setTempImageSrc(null);
+
+            try {
+              const file = new File([croppedBlob], originalFileName, { type: 'image/jpeg' });
+              const url = await LogService.uploadLogImage(file, originalFileName);
+              setImageUrls(prev => [...prev, url]);
+            } catch (error) {
+              console.error("Upload failed", error);
+              alert("Upload failed. Please try again.");
+            } finally {
+              setIsUploading(false);
+            }
+          }}
+          aspect={1} // 1:1 for brew logs looks better in grid
+        />
       </div>
 
       {/* Actions */}

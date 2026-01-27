@@ -167,7 +167,9 @@
         "loading": "Loading...",
         "back": "Back",
         "savedSuccess": "Saved successfully",
-        "savedError": "Failed to save"
+        "savedError": "Failed to save",
+        "cropImage": "Crop Image",
+        "confirm": "Confirm"
     },
     "Auth": {
         "signIn": "Sign In",

@@ -167,7 +167,9 @@
         "loading": "Cargando...",
         "back": "Volver",
         "savedSuccess": "Guardado correctamente",
-        "savedError": "Error al guardar"
+        "savedError": "Error al guardar",
+        "cropImage": "Recortar Imagen",
+        "confirm": "Confirmar"
     },
     "Auth": {
         "signIn": "Iniciar Sesión",

@@ -12,6 +12,7 @@ import { RoastLevelSelector } from './roast-level-selector';
 import { CoffeeLoader } from '@/components/ui/coffee-loader';
 import { CoffeeService } from '@/lib/db-client';
 import { optimizeImage } from '@/lib/images';
+import { ImageCropper } from '@/components/ui/image-cropper';
 
 interface AddCoffeeFormProps {
     onSubmit: (coffee: Coffee) => Promise<void>;
@@ -26,6 +27,11 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(editCoffee?.imageUrl || null);
 
+    // Cropper State
+    const [cropperOpen, setCropperOpen] = useState(false);
+    const [tempImageSrc, setTempImageSrc] = useState<string | null>(null);
+    const [originalFileName, setOriginalFileName] = useState<string>('image.jpg');
+
     const [newCoffee, setNewCoffee] = useState<Partial<Coffee>>({
         name: editCoffee?.name || defaultName || 'Coffee Bean',
         roaster: editCoffee?.roaster || '',
@@ -39,13 +45,24 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setImageFile(file);
+            setOriginalFileName(file.name);
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImagePreview(reader.result as string);
+                setTempImageSrc(reader.result as string);
+                setCropperOpen(true);
             };
             reader.readAsDataURL(file);
+            // Reset input so same file can be selected again if needed
+            e.target.value = '';
         }
+    };
+
+    const handleCropComplete = async (croppedBlob: Blob) => {
+        const file = new File([croppedBlob], originalFileName, { type: 'image/jpeg' });
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(croppedBlob));
+        setCropperOpen(false);
+        setTempImageSrc(null);
     };
 
     const clearImage = () => {
@@ -139,6 +156,18 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
                         </label>
                     )}
                 </div>
+                <ImageCropper
+                    imageSrc={tempImageSrc}
+                    open={cropperOpen}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setCropperOpen(false);
+                            setTempImageSrc(null);
+                        }
+                    }}
+                    onCropComplete={handleCropComplete}
+                    aspect={3 / 2}
+                />
             </div>
 
             <div className="space-y-4">
