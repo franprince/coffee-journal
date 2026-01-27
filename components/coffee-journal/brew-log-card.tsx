@@ -8,9 +8,10 @@ import { useFormatter, useTranslations } from 'next-intl';
 
 interface BrewLogCardProps {
   log: BrewLog;
+  onClick?: () => void;
 }
 
-export function BrewLogCard({ log }: BrewLogCardProps) {
+export function BrewLogCard({ log, onClick }: BrewLogCardProps) {
   const t = useTranslations('BrewLogCard');
   const tTaste = useTranslations('Taste');
   const format = useFormatter();
@@ -31,7 +32,13 @@ export function BrewLogCard({ log }: BrewLogCardProps) {
   ];
 
   return (
-    <div className="modern-card p-5 hover:shadow-lg transition-all relative group bg-card border-none ring-1 ring-border/20">
+    <div
+      onClick={onClick}
+      className={cn(
+        "modern-card p-5 hover:shadow-lg transition-all relative group bg-card border-none ring-1 ring-border/20",
+        onClick && "cursor-pointer active:scale-[0.98]"
+      )}
+    >
       {/* Tweak Indicator */}
       {hasTweaks && (
         <div className="absolute top-4 right-4 text-accent bg-accent/10 p-1 rounded-full" title={t('recipeModified')}>

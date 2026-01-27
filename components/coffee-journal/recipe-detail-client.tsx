@@ -15,6 +15,7 @@ import { BrewLogForm } from '@/components/coffee-journal/brew-log-form';
 import { BrewLogCard } from '@/components/coffee-journal/brew-log-card';
 import { RecipeForm } from '@/components/coffee-journal/recipe-form';
 import { DeleteConfirmDialog } from '@/components/coffee-journal/delete-confirm-dialog';
+import { BrewLogDetailDialog } from '@/components/coffee-journal/brew-log-detail-dialog';
 import { cn } from '@/lib/utils';
 import { useSettings } from '@/lib/hooks/use-settings';
 import { micronsToClicks } from '@/lib/grinders';
@@ -48,6 +49,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isSavingLog, setIsSavingLog] = useState(false);
     const [isForking, setIsForking] = useState(false);
+    const [selectedLog, setSelectedLog] = useState<BrewLog | null>(null);
 
     const isLoading = isLoadingRecipe && !recipe;
     const isOwner = currentUser && recipe ? recipe.owner_id === currentUser.id : false;
@@ -340,7 +342,11 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                     ) : (
                         <div className="grid sm:grid-cols-2 gap-6">
                             {logs.map((log) => (
-                                <BrewLogCard key={log.id} log={log} />
+                                <BrewLogCard
+                                    key={log.id}
+                                    log={log}
+                                    onClick={() => setSelectedLog(log)}
+                                />
                             ))}
                         </div>
                     )}
@@ -401,6 +407,14 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                 onConfirm={confirmDelete}
                 title={t('deleteRecipeTitle')}
                 description={t('deleteRecipeDesc', { name: recipe.name })}
+            />
+
+            <BrewLogDetailDialog
+                log={selectedLog}
+                isOpen={!!selectedLog}
+                onClose={() => setSelectedLog(null)}
+                onSaveAsRecipe={handleSaveAsNewRecipe}
+                isLoading={isSavingLog}
             />
         </div>
     );

@@ -12,6 +12,7 @@ import { RoastLevelSelector } from './roast-level-selector';
 import { CoffeeLoader } from '@/components/ui/coffee-loader';
 import { CoffeeService } from '@/lib/db-client';
 import { optimizeImage } from '@/lib/images';
+import { ImageCropper } from '@/components/ui/image-cropper';
 
 interface AddCoffeeFormProps {
     onSubmit: (coffee: Coffee) => Promise<void>;
@@ -26,6 +27,11 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(editCoffee?.imageUrl || null);
 
+    // Cropper State
+    const [cropperOpen, setCropperOpen] = useState(false);
+    const [tempImageSrc, setTempImageSrc] = useState<string | null>(null);
+    const [originalFileName, setOriginalFileName] = useState<string>('image.jpg');
+
     const [newCoffee, setNewCoffee] = useState<Partial<Coffee>>({
         name: editCoffee?.name || defaultName || 'Coffee Bean',
         roaster: editCoffee?.roaster || '',
@@ -39,13 +45,24 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setImageFile(file);
+            setOriginalFileName(file.name);
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImagePreview(reader.result as string);
+                setTempImageSrc(reader.result as string);
+                setCropperOpen(true);
             };
             reader.readAsDataURL(file);
+            // Reset input so same file can be selected again if needed
+            e.target.value = '';
         }
+    };
+
+    const handleCropComplete = async (croppedBlob: Blob) => {
+        const file = new File([croppedBlob], originalFileName, { type: 'image/jpeg' });
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(croppedBlob));
+        setCropperOpen(false);
+        setTempImageSrc(null);
     };
 
     const clearImage = () => {
@@ -101,124 +118,138 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-            {/* Editable Header Title */}
-            <div className="flex items-center justify-center -mt-2 pb-2">
-                <div className="relative group">
-                    <input
-                        type="text"
-                        value={newCoffee.name}
-                        onChange={(e) => setNewCoffee({ ...newCoffee, name: e.target.value })}
-                        className="text-2xl font-display font-bold text-center bg-transparent border-none focus:ring-0 p-0 w-full placeholder:text-muted-foreground/50 max-w-[280px]"
-                        placeholder={defaultName || t('form.namePlaceholder')}
-                        required
-                    />
-                    <Edit2 className="w-4 h-4 text-muted-foreground absolute -right-6 top-1/2 -translate-y-1/2 opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        <form onSubmit={handleSubmit} className="flex flex-col max-h-[80vh]">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden pr-1 space-y-4 pt-2 custom-scrollbar">
+                {/* Editable Header Title */}
+                <div className="flex items-center justify-center pb-2">
+                    <div className="relative group">
+                        <input
+                            type="text"
+                            value={newCoffee.name}
+                            onChange={(e) => setNewCoffee({ ...newCoffee, name: e.target.value })}
+                            className="text-2xl font-display font-bold text-center bg-transparent border-none focus:ring-0 p-0 w-full placeholder:text-muted-foreground/50 max-w-[280px]"
+                            placeholder={defaultName || t('form.namePlaceholder')}
+                            required
+                        />
+                        <Edit2 className="w-4 h-4 text-muted-foreground absolute -right-6 top-1/2 -translate-y-1/2 opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                    </div>
                 </div>
-            </div>
 
-            {/* Image Upload Area */}
-            <div className="space-y-2">
-                <div className="flex flex-col items-center gap-4">
-                    {imagePreview ? (
-                        <div className="relative w-full aspect-[3/2] rounded-xl overflow-hidden border border-border group">
-                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                            <button
-                                type="button"
-                                onClick={clearImage}
-                                className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                                <CloseIcon className="w-4 h-4" />
-                            </button>
-                        </div>
-                    ) : (
-                        <label className="w-full aspect-[3/2] rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-muted/20">
-                            <Camera className="w-8 h-8 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground font-medium">{t('form.uploadPlaceholder')}</span>
-                            <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                        </label>
-                    )}
-                </div>
-            </div>
-
-            <div className="space-y-4">
+                {/* Image Upload Area */}
                 <div className="space-y-2">
-                    <Label htmlFor="roaster" className="text-sm font-medium">{t('form.roasterLabel')}</Label>
-                    <Input
-                        id="roaster"
-                        placeholder={t('form.roasterPlaceholder')}
-                        value={newCoffee.roaster}
-                        onChange={(e) => setNewCoffee({ ...newCoffee, roaster: e.target.value })}
-                        required
-                        className="bg-background/50 border-input h-10"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor="origin" className="text-sm font-medium">{t('form.originLabel')} <span className="text-xs text-muted-foreground font-normal">{t('form.optional')}</span></Label>
-                    <Input
-                        id="origin"
-                        placeholder={t('form.originPlaceholder')}
-                        value={newCoffee.origin}
-                        onChange={(e) => setNewCoffee({ ...newCoffee, origin: e.target.value })}
-                        className="bg-background/50 border-input h-10"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t('form.roastLevelLabel')}</Label>
-                    <RoastLevelSelector
-                        value={newCoffee.roastLevel || 'medium'}
-                        onChange={(val) => setNewCoffee({ ...newCoffee, roastLevel: val })}
-                    />
-                </div>
-
-                {/* Flavors Tag Input */}
-                <div className="space-y-2">
-                    <Label htmlFor="flavors" className="text-sm font-medium">{t('form.flavorsLabel')}</Label>
-                    <div className="bg-background/50 border border-input rounded-md px-3 py-2 min-h-[2.5rem] flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ring-offset-background">
-                        {(newCoffee.flavors || []).map((flavor, index) => (
-                            <div key={index} className="flex items-center bg-secondary text-secondary-foreground text-xs font-semibold px-2 py-1 rounded-md">
-                                {flavor}
+                    <div className="flex flex-col items-center gap-4">
+                        {imagePreview ? (
+                            <div className="relative w-full aspect-[3/2] rounded-xl overflow-hidden border border-border group">
+                                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        const updated = (newCoffee.flavors || []).filter((_, i) => i !== index);
-                                        setNewCoffee({ ...newCoffee, flavors: updated });
-                                    }}
-                                    className="ml-1 hover:text-destructive focus:outline-none"
+                                    onClick={clearImage}
+                                    className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
-                                    <CloseIcon className="w-3 h-3" />
+                                    <CloseIcon className="w-4 h-4" />
                                 </button>
                             </div>
-                        ))}
-                        <input
-                            id="flavors"
-                            type="text"
-                            className="flex-1 bg-transparent border-none outline-none text-sm min-w-[120px] placeholder:text-muted-foreground"
-                            placeholder={t('form.flavorsPlaceholder')}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    const val = e.currentTarget.value.trim();
-                                    if (val) {
-                                        const current = newCoffee.flavors || [];
-                                        if (!current.includes(val)) {
-                                            setNewCoffee({ ...newCoffee, flavors: [...current, val] });
-                                        }
-                                        e.currentTarget.value = '';
-                                    }
-                                } else if (e.key === 'Backspace' && !e.currentTarget.value && (newCoffee.flavors?.length || 0) > 0) {
-                                    const current = newCoffee.flavors || [];
-                                    setNewCoffee({ ...newCoffee, flavors: current.slice(0, -1) });
-                                }
-                            }}
+                        ) : (
+                            <label className="w-full aspect-[3/2] rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-muted/20">
+                                <Camera className="w-8 h-8 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground font-medium">{t('form.uploadPlaceholder')}</span>
+                                <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                            </label>
+                        )}
+                    </div>
+                    <ImageCropper
+                        imageSrc={tempImageSrc}
+                        open={cropperOpen}
+                        onOpenChange={(open) => {
+                            if (!open) {
+                                setCropperOpen(false);
+                                setTempImageSrc(null);
+                            }
+                        }}
+                        onCropComplete={handleCropComplete}
+                        aspect={3 / 2}
+                    />
+                </div>
+
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="roaster" className="text-sm font-medium">{t('form.roasterLabel')}</Label>
+                        <Input
+                            id="roaster"
+                            placeholder={t('form.roasterPlaceholder')}
+                            value={newCoffee.roaster}
+                            onChange={(e) => setNewCoffee({ ...newCoffee, roaster: e.target.value })}
+                            required
+                            className="bg-background/50 border-input h-10"
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="origin" className="text-sm font-medium">{t('form.originLabel')} <span className="text-xs text-muted-foreground font-normal">{t('form.optional')}</span></Label>
+                        <Input
+                            id="origin"
+                            placeholder={t('form.originPlaceholder')}
+                            value={newCoffee.origin}
+                            onChange={(e) => setNewCoffee({ ...newCoffee, origin: e.target.value })}
+                            className="bg-background/50 border-input h-10"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium">{t('form.roastLevelLabel')}</Label>
+                        <RoastLevelSelector
+                            value={newCoffee.roastLevel || 'medium'}
+                            onChange={(val) => setNewCoffee({ ...newCoffee, roastLevel: val })}
+                        />
+                    </div>
+
+                    {/* Flavors Tag Input */}
+                    <div className="space-y-2 pb-4">
+                        <Label htmlFor="flavors" className="text-sm font-medium">{t('form.flavorsLabel')}</Label>
+                        <div className="bg-background/50 border border-input rounded-md px-3 py-2 min-h-[2.5rem] flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ring-offset-background">
+                            {(newCoffee.flavors || []).map((flavor, index) => (
+                                <div key={index} className="flex items-center bg-secondary text-secondary-foreground text-xs font-semibold px-2 py-1 rounded-md">
+                                    {flavor}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const updated = (newCoffee.flavors || []).filter((_, i) => i !== index);
+                                            setNewCoffee({ ...newCoffee, flavors: updated });
+                                        }}
+                                        className="ml-1 hover:text-destructive focus:outline-none"
+                                    >
+                                        <CloseIcon className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            ))}
+                            <input
+                                id="flavors"
+                                type="text"
+                                className="flex-1 bg-transparent border-none outline-none text-sm min-w-[120px] placeholder:text-muted-foreground"
+                                placeholder={t('form.flavorsPlaceholder')}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        const val = e.currentTarget.value.trim();
+                                        if (val) {
+                                            const current = newCoffee.flavors || [];
+                                            if (!current.includes(val)) {
+                                                setNewCoffee({ ...newCoffee, flavors: [...current, val] });
+                                            }
+                                            e.currentTarget.value = '';
+                                        }
+                                    } else if (e.key === 'Backspace' && !e.currentTarget.value && (newCoffee.flavors?.length || 0) > 0) {
+                                        const current = newCoffee.flavors || [];
+                                        setNewCoffee({ ...newCoffee, flavors: current.slice(0, -1) });
+                                    }
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-4 border-t bg-background mt-2">
                 {onCancel && (
                     <Button
                         type="button"
