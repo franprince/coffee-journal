@@ -283,6 +283,7 @@ export default function HomePageClient(props: HomePageClientProps) {
               onAddCoffee={addCoffee}
               onUpdateCoffee={updateCoffee}
               onDeleteCoffee={deleteCoffee}
+              user={user}
             />
           </TabsContent>
         </Tabs>

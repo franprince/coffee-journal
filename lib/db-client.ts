@@ -343,6 +343,10 @@ export const CoffeeService = {
         if (!isSupabaseConfigured()) return;
         const supabase = createClient();
 
+        // Check authentication
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('You must be logged in to delete coffee');
+
         // 1. Fetch coffee to get image URL
         const { data: coffee } = await supabase
             .from('coffees')
