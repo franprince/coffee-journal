@@ -25,25 +25,40 @@ export async function signInWithGoogle() {
     }
 }
 
-export async function signInWithTwitter() {
+export async function signInWithEmail(email: string) {
     const supabase = await createClient();
     const origin = (await headers()).get('origin');
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'twitter',
+    const { error } = await supabase.auth.signInWithOtp({
+        email,
         options: {
-            redirectTo: `${origin}/auth/callback`,
+            emailRedirectTo: `${origin}/auth/callback`,
         },
     });
 
     if (error) {
-        console.error('Twitter sign in error:', error);
-        return;
+        console.error('Email sign in error:', error);
+        throw new Error(error.message);
     }
 
-    if (data.url) {
-        redirect(data.url);
+    return { success: true };
+}
+
+export async function verifyOtp(email: string, token: string) {
+    const supabase = await createClient();
+
+    const { error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: 'email',
+    });
+
+    if (error) {
+        console.error('OTP verification error:', error);
+        throw new Error(error.message);
     }
+
+    return { success: true };
 }
 
 export async function signOut() {
