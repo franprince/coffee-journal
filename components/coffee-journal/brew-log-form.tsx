@@ -10,6 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { LogService } from '@/lib/db-client';
+import type { User } from '@supabase/supabase-js';
 import type { BrewLog, Recipe, TasteProfile, Coffee } from '@/lib/types';
 import { Star, Zap, Candy, Circle, AlertTriangle, Save, ChevronDown, Scale, Droplets, Thermometer, Hash, Bean, Camera, X } from 'lucide-react';
 import { CoffeeLoader } from '@/components/ui/coffee-loader';
@@ -18,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AddCoffeeForm } from './add-coffee-form';
+import { AuthDialog } from '@/components/coffee-journal/auth-dialog';
 
 import { ImageCropper } from '@/components/ui/image-cropper';
 
@@ -29,6 +31,7 @@ interface BrewLogFormProps {
   onSaveAsNewRecipe?: (log: BrewLog, newName: string) => void;
   onCancel: () => void;
   isLoading?: boolean;
+  user: User | null;
 }
 
 const TASTE_DIMENSIONS = [
@@ -38,7 +41,7 @@ const TASTE_DIMENSIONS = [
   { key: 'bitterness' as const, label: 'Bitterness', icon: AlertTriangle, description: 'Dark, roasty, intense' },
 ];
 
-export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onSaveAsNewRecipe, onCancel, isLoading }: BrewLogFormProps) {
+export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onSaveAsNewRecipe, onCancel, isLoading, user }: BrewLogFormProps) {
   const t = useTranslations('BrewLogForm');
   const tTaste = useTranslations('Taste');
   const [tasteProfile, setTasteProfile] = useState<TasteProfile>({
@@ -581,18 +584,22 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onSaveAsNewR
           >
             {t('cancel')}
           </Button>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="flex-1 h-9 text-sm bg-coffee-espresso hover:bg-coffee-espresso/90 text-coffee-crema"
-          >
-            {isLoading ? (
-              <CoffeeLoader className="w-3.5 h-3.5 mr-1.5" />
-            ) : (
-              <Save className="w-3.5 h-3.5 mr-1.5" />
-            )}
-            {t('save')}
-          </Button>
+          {user ? (
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="flex-1 h-9 text-sm bg-coffee-espresso hover:bg-coffee-espresso/90 text-coffee-crema"
+            >
+              {isLoading ? (
+                <CoffeeLoader className="w-3.5 h-3.5 mr-1.5" />
+              ) : (
+                <Save className="w-3.5 h-3.5 mr-1.5" />
+              )}
+              {t('save')}
+            </Button>
+          ) : (
+            <AuthDialog />
+          )}
         </div>
       </div>
     </form >
