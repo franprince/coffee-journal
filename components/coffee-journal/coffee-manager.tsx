@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Plus, Bean, MapPin, Factory, Camera, Edit2, Trash2, MoreVertical } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import type { User } from '@supabase/supabase-js';
 import type { Coffee } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,9 +24,10 @@ interface CoffeeManagerProps {
     onAddCoffee: (coffee: Coffee) => Promise<void>;
     onUpdateCoffee: (coffee: Coffee) => Promise<void>;
     onDeleteCoffee: (id: string) => Promise<void>;
+    user: User | null;
 }
 
-export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCoffee }: CoffeeManagerProps) {
+export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCoffee, user }: CoffeeManagerProps) {
     const t = useTranslations('CoffeeManager');
     const [isOpen, setIsOpen] = useState(false);
     const [coffeeToEdit, setCoffeeToEdit] = useState<Coffee | null>(null);
@@ -43,6 +45,14 @@ export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCo
 
     const handleConfirmDelete = async () => {
         if (!idToDelete) return;
+
+        // Check authentication before attempting delete
+        if (!user) {
+            toast.error(t('deleteFailed'));
+            setIdToDelete(null);
+            return;
+        }
+
         setIsDeleting(true);
         try {
             await onDeleteCoffee(idToDelete);
@@ -63,42 +73,44 @@ export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCo
                     <Bean className="w-5 h-5 text-primary" />
                     {t('title')}
                 </h3>
-                <Dialog open={isOpen} onOpenChange={(open) => {
-                    setIsOpen(open);
-                    if (!open) setCoffeeToEdit(null);
-                }}>
-                    <DialogTrigger asChild>
-                        <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                            <Plus className="w-4 h-4 mr-1.5" />
-                            {t('addCoffee')}
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent
-                        className="glass-card border-border sm:max-w-[425px]"
-                        onInteractOutside={(e) => e.preventDefault()}
-                    >
-                        <DialogHeader>
-                            <DialogTitle className="sr-only">{coffeeToEdit ? t('editTitle') : t('addTitle')}</DialogTitle>
-                        </DialogHeader>
-                        <AddCoffeeForm
-                            editCoffee={coffeeToEdit || undefined}
-                            defaultName={`Coffee Bean #${coffees.length + 1}`}
-                            onSubmit={async (coffee) => {
-                                if (coffeeToEdit) {
-                                    await onUpdateCoffee(coffee);
-                                } else {
-                                    await onAddCoffee(coffee);
-                                }
-                                setIsOpen(false);
-                                setCoffeeToEdit(null);
-                            }}
-                            onCancel={() => {
-                                setIsOpen(false);
-                                setCoffeeToEdit(null);
-                            }}
-                        />
-                    </DialogContent>
-                </Dialog>
+                {user && (
+                    <Dialog open={isOpen} onOpenChange={(open) => {
+                        setIsOpen(open);
+                        if (!open) setCoffeeToEdit(null);
+                    }}>
+                        <DialogTrigger asChild>
+                            <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                                <Plus className="w-4 h-4 mr-1.5" />
+                                {t('addCoffee')}
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent
+                            className="glass-card border-border sm:max-w-[425px]"
+                            onInteractOutside={(e) => e.preventDefault()}
+                        >
+                            <DialogHeader>
+                                <DialogTitle className="sr-only">{coffeeToEdit ? t('editTitle') : t('addTitle')}</DialogTitle>
+                            </DialogHeader>
+                            <AddCoffeeForm
+                                editCoffee={coffeeToEdit || undefined}
+                                defaultName={`Coffee Bean #${coffees.length + 1}`}
+                                onSubmit={async (coffee) => {
+                                    if (coffeeToEdit) {
+                                        await onUpdateCoffee(coffee);
+                                    } else {
+                                        await onAddCoffee(coffee);
+                                    }
+                                    setIsOpen(false);
+                                    setCoffeeToEdit(null);
+                                }}
+                                onCancel={() => {
+                                    setIsOpen(false);
+                                    setCoffeeToEdit(null);
+                                }}
+                            />
+                        </DialogContent>
+                    </Dialog>
+                )}
             </div>
 
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
@@ -125,24 +137,26 @@ export function CoffeeManager({ coffees, onAddCoffee, onUpdateCoffee, onDeleteCo
                         <div className="p-4 flex flex-col gap-2 relative">
                             <div className="flex justify-between items-start gap-2">
                                 <span className="font-bold text-foreground text-lg leading-tight group-hover/card:text-primary transition-colors pr-16">{coffee.name}</span>
-                                <div className="absolute top-4 right-4 flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity">
-                                    <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                                        onClick={() => handleEdit(coffee)}
-                                    >
-                                        <Edit2 className="w-4 h-4" />
-                                    </Button>
-                                    <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                        onClick={() => handleDelete(coffee.id)}
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                </div>
+                                {user && (
+                                    <div className="absolute top-4 right-4 flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                            onClick={() => handleEdit(coffee)}
+                                        >
+                                            <Edit2 className="w-4 h-4" />
+                                        </Button>
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                            onClick={() => handleDelete(coffee.id)}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                )}
                                 {(() => {
                                     const roast = ROAST_LEVELS.find(r => r.id === coffee.roastLevel);
                                     return (

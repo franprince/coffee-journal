@@ -375,6 +375,7 @@ export default function RecipeDetailClient({ initialRecipe, initialLogs, initial
                                 onSaveAsNewRecipe={handleSaveAsNewRecipe}
                                 onCancel={() => setShowLogForm(false)}
                                 isLoading={isSavingLog}
+                                user={currentUser}
                             />
                         </div>
                     </div>
