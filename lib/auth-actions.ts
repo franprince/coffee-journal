@@ -6,12 +6,18 @@ import { headers } from 'next/headers';
 
 export async function signInWithGoogle() {
     const supabase = await createClient();
-    const origin = (await headers()).get('origin');
+    const headersList = await headers();
+    const origin = headersList.get('origin');
+    const host = headersList.get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+
+    // Fallback to host if origin is missing (common in some server environments)
+    const redirectBase = origin || `${protocol}://${host}`;
 
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: `${origin}/auth/callback`,
+            redirectTo: `${redirectBase}/auth/callback`,
         },
     });
 
@@ -27,34 +33,22 @@ export async function signInWithGoogle() {
 
 export async function signInWithEmail(email: string) {
     const supabase = await createClient();
-    const origin = (await headers()).get('origin');
+    const headersList = await headers();
+    const origin = headersList.get('origin');
+    const host = headersList.get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+
+    const redirectBase = origin || `${protocol}://${host}`;
 
     const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-            emailRedirectTo: `${origin}/auth/callback`,
+            emailRedirectTo: `${redirectBase}/auth/callback`,
         },
     });
 
     if (error) {
         console.error('Email sign in error:', error);
-        throw new Error(error.message);
-    }
-
-    return { success: true };
-}
-
-export async function verifyOtp(email: string, token: string) {
-    const supabase = await createClient();
-
-    const { error } = await supabase.auth.verifyOtp({
-        email,
-        token,
-        type: 'email',
-    });
-
-    if (error) {
-        console.error('OTP verification error:', error);
         throw new Error(error.message);
     }
 
