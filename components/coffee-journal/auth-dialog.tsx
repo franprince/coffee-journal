@@ -11,19 +11,18 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { signInWithGoogle, signInWithEmail, verifyOtp } from '@/lib/auth-actions';
+import { signInWithGoogle, signInWithEmail } from '@/lib/auth-actions';
 import { useState } from 'react';
-import { Mail, KeyRound } from 'lucide-react';
+import { Mail, KeyRound, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-type AuthStep = 'options' | 'email-input' | 'otp-verify';
+type AuthStep = 'options' | 'email-input' | 'email-sent';
 
 export function AuthDialog() {
     const t = useTranslations('Auth');
     const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState<AuthStep>('options');
     const [email, setEmail] = useState('');
-    const [otp, setOtp] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -31,27 +30,9 @@ export function AuthDialog() {
         setIsLoading(true);
         try {
             await signInWithEmail(email);
-            toast.success('Check your email for the verification code');
-            setStep('otp-verify');
+            setStep('email-sent');
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Failed to send verification email');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleOtpSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            await verifyOtp(email, otp);
-            toast.success('Successfully signed in!');
-            setIsOpen(false);
-            setStep('options');
-            setEmail('');
-            setOtp('');
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Invalid verification code');
+            toast.error(error instanceof Error ? error.message : 'Failed to send magic link');
         } finally {
             setIsLoading(false);
         }
@@ -60,18 +41,19 @@ export function AuthDialog() {
     const handleBackToOptions = () => {
         setStep('options');
         setEmail('');
-        setOtp('');
+    };
+
+    const handleClose = () => {
+        setIsOpen(false);
+        // Reset after animation
+        setTimeout(() => {
+            setStep('options');
+            setEmail('');
+        }, 200);
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => {
-            setIsOpen(open);
-            if (!open) {
-                setStep('options');
-                setEmail('');
-                setOtp('');
-            }
-        }}>
+        <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogTrigger asChild>
                 <Button variant="outline" className="rounded-full px-6 border-accent text-accent hover:bg-accent hover:text-accent-foreground transition-all">
                     {t('signIn')}
@@ -80,11 +62,11 @@ export function AuthDialog() {
             <DialogContent className="sm:max-w-md rounded-3xl p-8">
                 <DialogHeader className="space-y-4 text-center">
                     <DialogTitle className="text-2xl font-serif font-bold text-primary italic">
-                        {step === 'otp-verify' ? 'Enter Verification Code' : t('dialogTitle')}
+                        {step === 'email-sent' ? 'Check Your Email' : t('dialogTitle')}
                     </DialogTitle>
                     <DialogDescription className="text-muted-foreground">
-                        {step === 'otp-verify'
-                            ? `Enter the 6-digit code sent to ${email}`
+                        {step === 'email-sent'
+                            ? `We sent a sign-in link to ${email}`
                             : t('dialogDescription')}
                     </DialogDescription>
                 </DialogHeader>
@@ -131,6 +113,7 @@ export function AuthDialog() {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             className="h-12 rounded-xl"
+                            autoFocus
                         />
                         <div className="flex gap-2">
                             <Button
@@ -146,41 +129,33 @@ export function AuthDialog() {
                                 disabled={isLoading}
                                 className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90"
                             >
-                                {isLoading ? 'Sending...' : 'Send Code'}
+                                {isLoading ? 'Sending...' : 'Send Link'}
                             </Button>
                         </div>
                     </form>
                 )}
 
-                {step === 'otp-verify' && (
-                    <form onSubmit={handleOtpSubmit} className="flex flex-col gap-4 py-8">
-                        <Input
-                            type="text"
-                            placeholder="000000"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                            required
-                            maxLength={6}
-                            className="h-12 rounded-xl text-center text-2xl tracking-widest font-mono"
-                        />
-                        <div className="flex gap-2">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={handleBackToOptions}
-                                className="flex-1"
-                            >
-                                Back
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={isLoading || otp.length !== 6}
-                                className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90"
-                            >
-                                {isLoading ? 'Verifying...' : 'Verify'}
-                            </Button>
+                {step === 'email-sent' && (
+                    <div className="flex flex-col items-center gap-6 py-8">
+                        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                            <CheckCircle2 className="w-8 h-8 text-primary" />
                         </div>
-                    </form>
+                        <div className="text-center space-y-2">
+                            <p className="text-sm text-muted-foreground">
+                                Click the link in your email to sign in.
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                The link will expire in 1 hour.
+                            </p>
+                        </div>
+                        <Button
+                            onClick={handleClose}
+                            variant="outline"
+                            className="w-full"
+                        >
+                            Close
+                        </Button>
+                    </div>
                 )}
             </DialogContent>
         </Dialog>
