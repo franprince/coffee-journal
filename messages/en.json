@@ -177,7 +177,17 @@
         "signInWithGoogle": "Continue with Google",
         "signInWithTwitter": "Continue with Twitter",
         "dialogTitle": "Welcome to Brew Journal",
-        "dialogDescription": "Sign in to save your recipes and brew logs across devices."
+        "dialogDescription": "Sign in to save your recipes and brew logs across devices.",
+        "continueWithEmail": "Continue with Email",
+        "emailPlaceholder": "Enter your email",
+        "back": "Back",
+        "sendLink": "Send Link",
+        "sending": "Sending...",
+        "checkEmail": "Check Your Email",
+        "sentLinkTo": "We sent a sign-in link to {email}",
+        "clickLinkToSignIn": "Click the link in your email to sign in.",
+        "linkExpires": "The link will expire in 1 hour.",
+        "close": "Close"
     },
     "CoffeeManager": {
         "title": "My Coffee Beans",

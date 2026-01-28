@@ -177,7 +177,17 @@
         "signInWithGoogle": "Continuar con Google",
         "signInWithTwitter": "Continuar con Twitter",
         "dialogTitle": "Bienvenido a Brew Journal",
-        "dialogDescription": "Inicia sesión para guardar tus recetas e historial en todos tus dispositivos."
+        "dialogDescription": "Inicia sesión para guardar tus recetas e historial en todos tus dispositivos.",
+        "continueWithEmail": "Continuar con Email",
+        "emailPlaceholder": "Ingresa tu email",
+        "back": "Volver",
+        "sendLink": "Enviar Enlace",
+        "sending": "Enviando...",
+        "checkEmail": "Revisa tu Email",
+        "sentLinkTo": "Enviamos un enlace de inicio de sesión a {email}",
+        "clickLinkToSignIn": "Haz clic en el enlace de tu email para iniciar sesión.",
+        "linkExpires": "El enlace expirará en 1 hora.",
+        "close": "Cerrar"
     },
     "CoffeeManager": {
         "title": "Mis Granos de Café",

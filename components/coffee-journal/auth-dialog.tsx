@@ -53,7 +53,7 @@ export function AuthDialog() {
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={handleClose}>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline" className="rounded-full px-6 border-accent text-accent hover:bg-accent hover:text-accent-foreground transition-all">
                     {t('signIn')}
@@ -62,11 +62,11 @@ export function AuthDialog() {
             <DialogContent className="sm:max-w-md rounded-3xl p-8">
                 <DialogHeader className="space-y-4 text-center">
                     <DialogTitle className="text-2xl font-serif font-bold text-primary italic">
-                        {step === 'email-sent' ? 'Check Your Email' : t('dialogTitle')}
+                        {step === 'email-sent' ? t('checkEmail') : t('dialogTitle')}
                     </DialogTitle>
                     <DialogDescription className="text-muted-foreground">
                         {step === 'email-sent'
-                            ? `We sent a sign-in link to ${email}`
+                            ? t('sentLinkTo', { email })
                             : t('dialogDescription')}
                     </DialogDescription>
                 </DialogHeader>
@@ -98,8 +98,8 @@ export function AuthDialog() {
                             className="h-12 rounded-xl text-md font-medium flex items-center justify-center gap-3 border-border hover:bg-secondary/50 transition-colors"
                             onClick={() => setStep('email-input')}
                         >
-                            <KeyRound className="w-5 h-5" />
-                            Continue with Email
+                            <Mail className="w-5 h-5" />
+                            {t('continueWithEmail')}
                         </Button>
                     </div>
                 )}
@@ -108,7 +108,7 @@ export function AuthDialog() {
                     <form onSubmit={handleEmailSubmit} className="flex flex-col gap-4 py-8">
                         <Input
                             type="email"
-                            placeholder="Enter your email"
+                            placeholder={t('emailPlaceholder')}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -122,14 +122,14 @@ export function AuthDialog() {
                                 onClick={handleBackToOptions}
                                 className="flex-1"
                             >
-                                Back
+                                {t('back')}
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={isLoading}
                                 className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90"
                             >
-                                {isLoading ? 'Sending...' : 'Send Link'}
+                                {isLoading ? t('sending') : t('sendLink')}
                             </Button>
                         </div>
                     </form>
@@ -142,10 +142,10 @@ export function AuthDialog() {
                         </div>
                         <div className="text-center space-y-2">
                             <p className="text-sm text-muted-foreground">
-                                Click the link in your email to sign in.
+                                {t('clickLinkToSignIn')}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                                The link will expire in 1 hour.
+                                {t('linkExpires')}
                             </p>
                         </div>
                         <Button
@@ -153,7 +153,7 @@ export function AuthDialog() {
                             variant="outline"
                             className="w-full"
                         >
-                            Close
+                            {t('close')}
                         </Button>
                     </div>
                 )}
