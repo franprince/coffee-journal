@@ -12,7 +12,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { signInWithGoogle, signInWithEmail } from '@/lib/auth-actions';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Mail, KeyRound, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -24,15 +24,33 @@ export function AuthDialog() {
     const [step, setStep] = useState<AuthStep>('options');
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [countdown, setCountdown] = useState(0);
+
+    useEffect(() => {
+        if (countdown > 0) {
+            const timer = setInterval(() => {
+                setCountdown((prev) => prev - 1);
+            }, 1000);
+            return () => clearInterval(timer);
+        }
+    }, [countdown]);
 
     const handleEmailSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (countdown > 0) return;
+
         setIsLoading(true);
         try {
             await signInWithEmail(email);
             setStep('email-sent');
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Failed to send magic link');
+            setCountdown(60); // 60 seconds throttle
+        } catch (error: any) {
+            if (error.code === 'over_email_send_rate_limit') {
+                toast.error(t('rateLimitExceeded'));
+                setCountdown(60); // Also throttle on rate limit error
+            } else {
+                toast.error(error instanceof Error ? error.message : 'Failed to send magic link');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -126,10 +144,14 @@ export function AuthDialog() {
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={isLoading || countdown > 0}
                                 className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90"
                             >
-                                {isLoading ? t('sending') : t('sendLink')}
+                                {isLoading
+                                    ? t('sending')
+                                    : countdown > 0
+                                        ? t('waitSeconds', { seconds: countdown })
+                                        : t('sendLink')}
                             </Button>
                         </div>
                     </form>
