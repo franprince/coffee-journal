@@ -187,7 +187,9 @@
         "sentLinkTo": "Enviamos un enlace de inicio de sesión a {email}",
         "clickLinkToSignIn": "Haz clic en el enlace de tu email para iniciar sesión.",
         "linkExpires": "El enlace expirará en 1 hora.",
-        "close": "Cerrar"
+        "close": "Cerrar",
+        "rateLimitExceeded": "Se ha excedido el límite de correos. Por favor, espera unos minutos antes de intentarlo de nuevo.",
+        "waitSeconds": "Espera {seconds}s"
     },
     "CoffeeManager": {
         "title": "Mis Granos de Café",

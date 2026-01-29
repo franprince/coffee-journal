@@ -187,7 +187,9 @@
         "sentLinkTo": "We sent a sign-in link to {email}",
         "clickLinkToSignIn": "Click the link in your email to sign in.",
         "linkExpires": "The link will expire in 1 hour.",
-        "close": "Close"
+        "close": "Close",
+        "rateLimitExceeded": "Email rate limit exceeded. Please wait a few minutes before trying again.",
+        "waitSeconds": "Wait {seconds}s"
     },
     "CoffeeManager": {
         "title": "My Coffee Beans",
