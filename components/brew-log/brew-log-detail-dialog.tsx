@@ -27,7 +27,7 @@ import {
     X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MethodIcon } from './method-icons';
+import { MethodIcon } from '@/components/shared';
 import { CoffeeLoader } from '@/components/ui/coffee-loader';
 
 interface BrewLogDetailDialogProps {

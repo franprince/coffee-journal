@@ -16,8 +16,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { AddCoffeeForm } from './add-coffee-form';
-import { DeleteConfirmDialog } from './delete-confirm-dialog';
-import { ROAST_LEVELS } from './roast-level-selector';
+import { DeleteConfirmDialog, ROAST_LEVELS } from '@/components/shared';
 import { getCountryFlag } from '@/lib/country-flags';
 
 interface CoffeeManagerProps {

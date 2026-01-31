@@ -1,5 +1,5 @@
 import { RecipeServiceServer, LogServiceServer, CoffeeServiceServer } from '@/lib/db-server';
-import HomePageClient from '@/components/coffee-journal/home-page-client';
+import HomePageClient from '@/components/home/home-page-client';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import type { BrewLog } from '@/lib/types';
-import { MethodIcon } from './method-icons';
+import { MethodIcon } from '@/components/shared';
 import { Star, Calendar, Zap, Candy, Circle, AlertTriangle, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFormatter, useTranslations } from 'next-intl';
