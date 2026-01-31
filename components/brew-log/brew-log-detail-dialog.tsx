@@ -29,6 +29,9 @@ import {
 import { cn } from '@/lib/utils';
 import { MethodIcon } from '@/components/shared';
 import { CoffeeLoader } from '@/components/ui/coffee-loader';
+import { useSettings } from '@/lib/hooks/use-settings';
+import { micronsToClicks, getGrindLabel } from '@/lib/grinders';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface BrewLogDetailDialogProps {
     log: BrewLog | null;
@@ -48,8 +51,10 @@ export function BrewLogDetailDialog({
     const t = useTranslations('BrewLogCard');
     const tForm = useTranslations('BrewLogForm');
     const tTaste = useTranslations('Taste');
+    const tGrind = useTranslations('GrindSizes');
     const tCommon = useTranslations('Common');
     const format = useFormatter();
+    const { settings } = useSettings();
 
     const [showSaveAsNew, setShowSaveAsNew] = useState(false);
     const [newRecipeName, setNewRecipeName] = useState('');
@@ -216,7 +221,23 @@ export function BrewLogDetailDialog({
                                         <div className="flex items-center gap-1.5 text-accent text-[10px] font-bold uppercase mb-1">
                                             <Hash className="w-3 h-3" /> {tForm('tweaks.grind')}
                                         </div>
-                                        <div className="text-sm font-mono font-bold">{log.grindSize}µm</div>
+                                        <div className="flex flex-col">
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <span className="text-sm font-bold cursor-help decoration-dotted underline-offset-4 hover:underline">
+                                                        {tGrind(getGrindLabel(log.grindSize))}
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>{log.grindSize}µm</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            {settings?.preferredGrinder && (
+                                                <span className="text-[10px] text-muted-foreground font-mono mt-0.5">
+                                                    ~{micronsToClicks(log.grindSize, settings.preferredGrinder)}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                                 {log.temperature && (
