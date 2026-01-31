@@ -54,7 +54,7 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
     <div className="relative group">
       <Link href={`/recipe/${createRecipeSlug(recipe.method, recipe.id)}`}>
         <div
-          className="modern-card group relative cursor-pointer hover:shadow-lg active:scale-[0.98] overflow-hidden bg-card"
+          className="modern-card group relative cursor-pointer overflow-hidden bg-card"
         >
           {recipe.coffeeImageUrl && (
             <div className="w-full aspect-[2/1] border-b border-border/20 max-h-[500px] overflow-hidden relative">
@@ -63,7 +63,7 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
                 src={recipe.coffeeImageUrl}
                 alt={recipe.name}
                 fill
-                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                className="w-full h-full object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             </div>

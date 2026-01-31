@@ -83,7 +83,7 @@ export function RecipeList({
             ) : (
                 <div className="grid sm:grid-cols-2 gap-6 mt-6">
                     {recipes.map((recipe, index) => (
-                        <div key={recipe.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 4)}`}>
+                        <div key={recipe.id}>
                             <RecipeCard
                                 recipe={recipe}
                                 onDelete={onDeleteRecipe}
