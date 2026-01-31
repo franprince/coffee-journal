@@ -3,9 +3,10 @@
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { MethodIcon } from '@/components/shared';
-import { Edit2, Trash2, Heart } from 'lucide-react';
+import { Edit2, Trash2, Heart, Download } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 import { METHOD_LABELS } from '@/lib/types';
+import { RecipeExport } from './recipe-export';
 
 interface RecipeHeaderProps {
     recipe: Recipe;
@@ -81,6 +82,7 @@ export function RecipeHeader({
                         )}
                     </Button>
                 )}
+                <RecipeExport recipe={recipe} />
             </div>
         </div>
     );

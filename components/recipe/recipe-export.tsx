@@ -217,11 +217,11 @@ export function RecipeExport({ recipe }: RecipeExportProps) {
       <Button
         onClick={exportImage}
         variant="ghost"
-        size="sm"
-        className="gap-2 bg-black/40 hover:bg-primary hover:text-primary-foreground text-primary border border-white/10 backdrop-blur-md rounded-full font-bold shadow-lg transition-all"
+        size="icon"
+        className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-primary rounded-full hover:bg-secondary"
+        title="Export Recipe"
       >
-        <Download className="h-4 w-4" />
-        Export
+        <Download className="w-4 h-4 md:w-5 md:h-5" />
       </Button>
       <canvas ref={canvasRef} className="hidden" />
     </div>
