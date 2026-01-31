@@ -170,6 +170,41 @@
         "medium-dark": "Medio-Oscuro",
         "dark": "Oscuro"
     },
+    "GrindSizes": {
+        "extra-fine": "Extra Fina",
+        "fine": "Fina",
+        "medium-fine": "Media Fina",
+        "medium": "Media",
+        "medium-coarse": "Media Gruesa",
+        "coarse": "Gruesa"
+    },
+    "GrindSizeTable": {
+        "method": "Método",
+        "microns": "Micras",
+        "texture": "Textura",
+        "methods": {
+            "turkish": "Turco",
+            "espresso": "Espresso",
+            "mokaPot": "Moka Pot",
+            "aeropress": "AeroPress",
+            "v60": "V60",
+            "pourOver": "Pour Over",
+            "chemex": "Chemex",
+            "frenchPress": "Prensa Francesa",
+            "coldBrew": "Cold Brew"
+        },
+        "textures": {
+            "powder": "Polvo",
+            "fineSalt": "Sal fina",
+            "sand": "Arena",
+            "tableSalt": "Sal de mesa",
+            "seaSalt": "Sal marina",
+            "kosherSalt": "Sal kosher",
+            "coarseSalt": "Sal gruesa",
+            "breadcrumbs": "Pan rallado",
+            "rockSalt": "Sal de roca"
+        }
+    },
     "Common": {
         "cancel": "Cancelar",
         "loading": "Cargando...",
