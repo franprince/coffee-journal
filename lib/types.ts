@@ -83,12 +83,16 @@ export interface Coffee {
   name: string;
   roaster: string;
   roastLevel?: RoastLevel;
-  origin?: string;
-  process?: string;
+  origin?: string;      // Country and region (e.g., "Ethiopia, Yirgacheffe")
+  farm?: string;        // Farm/Estate name (e.g., "Finca El Paraíso")
+  altitude?: number;    // Altitude in meters
+  process?: string;     // Processing method (e.g., "Natural", "Honey", "Washed")
+  variety?: string;     // Coffee variety (e.g., "Geisha", "Caturra", "Bourbon")
   flavors?: string[];
   notes?: string;
   imageUrl?: string;
   isArchived?: boolean;
+  owner_id?: string;
 }
 
 export interface BrewLog {
