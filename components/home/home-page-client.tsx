@@ -114,23 +114,23 @@ export default function HomePageClient(props: HomePageClientProps) {
           <TabsList className="w-full sm:w-auto bg-transparent border-b border-border p-0 h-auto gap-6 justify-start rounded-none">
             <TabsTrigger
               value="recipes"
-              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-accent data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
+              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
             >
-              <FlaskConical className="w-4 h-4 mr-2 opacity-70" />
+              <FlaskConical className="w-4 h-4 mr-2" />
               {t('recipes')}
             </TabsTrigger>
             <TabsTrigger
               value="logs"
-              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-accent data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
+              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
             >
-              <BookOpen className="w-4 h-4 mr-2 opacity-70" />
+              <BookOpen className="w-4 h-4 mr-2" />
               {t('brewLog')}
             </TabsTrigger>
             <TabsTrigger
               value="coffees"
-              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-accent data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
+              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
             >
-              <Bean className="w-4 h-4 mr-2 opacity-70" />
+              <Bean className="w-4 h-4 mr-2" />
               {t('pantry')}
             </TabsTrigger>
           </TabsList>
