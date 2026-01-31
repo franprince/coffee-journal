@@ -13,6 +13,7 @@ import { CoffeeLoader } from '@/components/ui/coffee-loader';
 import { CoffeeService } from '@/lib/db-client';
 import { optimizeImage } from '@/lib/images';
 import { ImageCropper } from '@/components/ui/image-cropper';
+import { getCountryFlag } from '@/lib/country-flags';
 
 interface AddCoffeeFormProps {
     onSubmit: (coffee: Coffee) => Promise<void>;
@@ -37,7 +38,10 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
         roaster: editCoffee?.roaster || '',
         roastLevel: editCoffee?.roastLevel || 'medium',
         origin: editCoffee?.origin || '',
+        farm: editCoffee?.farm || '',
+        altitude: editCoffee?.altitude,
         process: editCoffee?.process || '',
+        variety: editCoffee?.variety || '',
         flavors: editCoffee?.flavors || [],
         notes: editCoffee?.notes || '',
     });
@@ -87,7 +91,10 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
                 roaster: newCoffee.roaster || 'Unknown Roaster',
                 roastLevel: (newCoffee.roastLevel as any) || 'medium',
                 origin: newCoffee.origin,
+                farm: newCoffee.farm,
+                altitude: newCoffee.altitude,
                 process: newCoffee.process,
+                variety: newCoffee.variety,
                 flavors: newCoffee.flavors,
                 notes: newCoffee.notes,
                 imageUrl: imageUrl || undefined,
@@ -103,7 +110,10 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
                     roaster: '',
                     roastLevel: 'medium',
                     origin: '',
+                    farm: '',
+                    altitude: undefined,
                     process: '',
+                    variety: '',
                     flavors: [],
                     notes: ''
                 });
@@ -186,11 +196,63 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
 
                     <div className="space-y-2">
                         <Label htmlFor="origin" className="text-sm font-medium">{t('form.originLabel')} <span className="text-xs text-muted-foreground font-normal">{t('form.optional')}</span></Label>
+                        <div className="relative">
+                            <Input
+                                id="origin"
+                                placeholder={t('form.originPlaceholder')}
+                                value={newCoffee.origin}
+                                onChange={(e) => setNewCoffee({ ...newCoffee, origin: e.target.value })}
+                                className="bg-background/50 border-input h-10 pr-10"
+                            />
+                            {newCoffee.origin && getCountryFlag(newCoffee.origin) && (
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xl pointer-events-none">
+                                    {getCountryFlag(newCoffee.origin)}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="farm" className="text-sm font-medium">{t('form.regionLabel')} <span className="text-xs text-muted-foreground font-normal">{t('form.optional')}</span></Label>
                         <Input
-                            id="origin"
-                            placeholder={t('form.originPlaceholder')}
-                            value={newCoffee.origin}
-                            onChange={(e) => setNewCoffee({ ...newCoffee, origin: e.target.value })}
+                            id="farm"
+                            placeholder={t('form.regionPlaceholder')}
+                            value={newCoffee.farm}
+                            onChange={(e) => setNewCoffee({ ...newCoffee, farm: e.target.value })}
+                            className="bg-background/50 border-input h-10"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="altitude" className="text-sm font-medium">{t('form.altitudeLabel')} <span className="text-xs text-muted-foreground font-normal">{t('form.optional')}</span></Label>
+                        <Input
+                            id="altitude"
+                            type="number"
+                            placeholder={t('form.altitudePlaceholder')}
+                            value={newCoffee.altitude || ''}
+                            onChange={(e) => setNewCoffee({ ...newCoffee, altitude: e.target.value ? parseInt(e.target.value) : undefined })}
+                            className="bg-background/50 border-input h-10"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="process" className="text-sm font-medium">{t('form.processLabel')} <span className="text-xs text-muted-foreground font-normal">{t('form.optional')}</span></Label>
+                        <Input
+                            id="process"
+                            placeholder={t('form.processPlaceholder')}
+                            value={newCoffee.process}
+                            onChange={(e) => setNewCoffee({ ...newCoffee, process: e.target.value })}
+                            className="bg-background/50 border-input h-10"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="variety" className="text-sm font-medium">{t('form.varietyLabel')} <span className="text-xs text-muted-foreground font-normal">{t('form.optional')}</span></Label>
+                        <Input
+                            id="variety"
+                            placeholder={t('form.varietyPlaceholder')}
+                            value={newCoffee.variety}
+                            onChange={(e) => setNewCoffee({ ...newCoffee, variety: e.target.value })}
                             className="bg-background/50 border-input h-10"
                         />
                     </div>

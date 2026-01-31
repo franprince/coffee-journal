@@ -7,11 +7,15 @@ export function mapCoffeeFromDB(dbCoffee: any): Coffee {
         roaster: dbCoffee.roaster,
         roastLevel: dbCoffee.roast_level,
         origin: dbCoffee.origin,
+        farm: dbCoffee.farm,
+        altitude: dbCoffee.altitude,
         process: dbCoffee.process,
+        variety: dbCoffee.variety,
         flavors: dbCoffee.flavors || [],
         notes: dbCoffee.notes,
         imageUrl: dbCoffee.image_url,
         isArchived: dbCoffee.is_archived,
+        owner_id: dbCoffee.owner_id,
     };
 }
 
