@@ -11,6 +11,9 @@ import { MethodIcon, DeleteConfirmDialog } from '@/components/shared';
 import { RecipeExport } from './recipe-export';
 import { Clock, Droplets, Scale, Coffee, Trash2, Zap, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSettings } from '@/lib/hooks/use-settings';
+import { getGrindLabel, micronsToClicks } from '@/lib/grinders';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -23,10 +26,14 @@ interface RecipeCardProps {
 }
 
 export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true, isForking = false, isDeleting = false }: RecipeCardProps) {
-  // ... existing code ...
   const t = useTranslations('RecipeCard');
   const tMethods = useTranslations('Methods');
+  const tGrind = useTranslations('GrindSizes');
+  const { settings } = useSettings();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const label = getGrindLabel(recipe.grindSize);
+
   const ratio = recipe.coffeeWeight > 0
     ? (recipe.totalWaterWeight / recipe.coffeeWeight).toFixed(1)
     : '0';
@@ -98,8 +105,24 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
                 <span className="font-mono font-medium">{recipe.totalWaterWeight}g</span>
               </div>
               <div className="flex items-center gap-1.5 p-2 rounded-lg bg-secondary/30">
-                <div className="w-4 h-4 flex items-center justify-center text-muted-foreground font-mono text-xs font-bold border border-border rounded-sm">µ</div>
-                <span className="font-mono font-medium">{recipe.grindSize}</span>
+                <div className="w-4 h-4 flex items-center justify-center text-muted-foreground font-mono text-[10px] font-bold border border-border rounded-sm">µ</div>
+                <div className="flex flex-col min-w-0">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="font-medium text-xs truncate max-w-[80px] cursor-help">
+                        {tGrind(label)}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{recipe.grindSize}µm</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  {settings?.preferredGrinder && (
+                    <span className="text-[10px] opacity-70 truncate max-w-[80px]">
+                      {micronsToClicks(recipe.grindSize, settings.preferredGrinder)}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-1.5 p-2 rounded-lg bg-secondary/30">
                 <Clock className="w-4 h-4 text-muted-foreground" />
@@ -159,7 +182,7 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
       {/* Action Buttons */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
       >
         <RecipeExport recipe={recipe} />
 

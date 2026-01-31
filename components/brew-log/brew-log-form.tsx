@@ -197,7 +197,7 @@ export function BrewLogForm({ recipe, coffees, onAddCoffee, onSave, onSaveAsNewR
               <button
                 type="button"
                 onClick={() => setImageUrls(prev => prev.filter((_, i) => i !== index))}
-                className="absolute top-1 right-1 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1 right-1 bg-black/50 text-white p-0.5 rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <X className="w-3 h-3" />
               </button>

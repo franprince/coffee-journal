@@ -30,10 +30,9 @@ export default function HomePageClient(props: HomePageClientProps) {
   const tRecipeForm = useTranslations('RecipeForm');
 
   // Local UI State
-  const [activeTab, setActiveTab] = useState('recipes');
+  const [activeTab, setActiveTab] = useState(props.user ? 'my-recipes' : 'community');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [recipeViewMode, setRecipeViewMode] = useState<'my' | 'community'>(props.user ? 'my' : 'community');
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<RecipeFilters>({
     methods: [],
@@ -62,24 +61,33 @@ export default function HomePageClient(props: HomePageClientProps) {
     saveLogAsRecipe
   } = useJournal(props);
 
-  // Derived Data (Filtering logic moves back to component)
-  const currentRecipes = recipeViewMode === 'my'
-    ? myRecipes
-    : communityRecipes.filter(r => r.owner_id !== user?.id);
+  // Filter Helper
+  const filterRecipes = (list: Recipe[]) => {
+    return list.filter(recipe => {
+      if (searchQuery && !recipe.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (filters.methods.length > 0 && !filters.methods.includes(recipe.method)) return false;
+      if (filters.waterTypes.length > 0 && (!recipe.waterType || !filters.waterTypes.includes(recipe.waterType))) return false;
+      if (recipe.grindSize < filters.grindSizeRange[0] || recipe.grindSize > filters.grindSizeRange[1]) return false;
+      return true;
+    });
+  };
 
-  const filteredRecipes = currentRecipes.filter(recipe => {
-    if (searchQuery && !recipe.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    if (filters.methods.length > 0 && !filters.methods.includes(recipe.method)) return false;
-    if (filters.waterTypes.length > 0 && (!recipe.waterType || !filters.waterTypes.includes(recipe.waterType))) return false;
-    if (recipe.grindSize < filters.grindSizeRange[0] || recipe.grindSize > filters.grindSizeRange[1]) return false;
-    return true;
-  });
+  const filteredMyRecipes = filterRecipes(myRecipes);
+  const filteredCommunityRecipes = filterRecipes(communityRecipes.filter(r => r.owner_id !== user?.id));
+
+  // Handle Tab Change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === 'community') {
+      refreshCommunityRecipes();
+    }
+  };
 
   // Local Handlers
   const handleForkRecipe = async (recipe: Recipe) => {
     const success = await forkRecipe(recipe);
     if (success) {
-      setRecipeViewMode('my');
+      setActiveTab('my-recipes');
     }
   };
 
@@ -87,12 +95,8 @@ export default function HomePageClient(props: HomePageClientProps) {
     const success = await createRecipe(recipe);
     if (success) {
       setShowNewRecipe(false);
+      setActiveTab('my-recipes');
     }
-  };
-
-  const handleSwitchToCommunity = () => {
-    setRecipeViewMode('community');
-    refreshCommunityRecipes();
   };
 
   return (
@@ -110,41 +114,45 @@ export default function HomePageClient(props: HomePageClientProps) {
       />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
-          <TabsList className="w-full sm:w-auto bg-transparent border-b border-border p-0 h-auto gap-6 justify-start rounded-none">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full space-y-8">
+          <TabsList className="w-full sm:w-auto bg-transparent border-b border-border p-0 h-auto gap-6 justify-start rounded-none overflow-x-auto">
+            {user && (
+              <TabsTrigger
+                value="my-recipes"
+                className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
+              >
+                <FlaskConical className="w-4 h-4 mr-2" />
+                {t('myRecipes')}
+              </TabsTrigger>
+            )}
             <TabsTrigger
-              value="recipes"
-              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-accent data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
+              value="community"
+              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
             >
-              <FlaskConical className="w-4 h-4 mr-2 opacity-70" />
-              {t('recipes')}
+              <FlaskConical className="w-4 h-4 mr-2" />
+              {t('community')}
             </TabsTrigger>
             <TabsTrigger
               value="logs"
-              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-accent data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
+              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
             >
-              <BookOpen className="w-4 h-4 mr-2 opacity-70" />
+              <BookOpen className="w-4 h-4 mr-2" />
               {t('brewLog')}
             </TabsTrigger>
             <TabsTrigger
               value="coffees"
-              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-accent data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
+              className="rounded-none border-b-2 border-transparent px-2 py-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-all font-serif text-muted-foreground hover:text-foreground"
             >
-              <Bean className="w-4 h-4 mr-2 opacity-70" />
+              <Bean className="w-4 h-4 mr-2" />
               {t('pantry')}
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="recipes">
+          <TabsContent value="my-recipes">
             <RecipeList
               user={user}
-              recipes={filteredRecipes}
-              totalCount={currentRecipes.length}
-              recipeViewMode={recipeViewMode}
-              onViewModeChange={(mode) => {
-                setRecipeViewMode(mode);
-                if (mode === 'community') refreshCommunityRecipes();
-              }}
+              recipes={filteredMyRecipes}
+              totalCount={myRecipes.length}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               filters={filters}
@@ -154,6 +162,23 @@ export default function HomePageClient(props: HomePageClientProps) {
               onForkRecipe={handleForkRecipe}
               forkingRecipeId={forkingRecipeId}
               deletingRecipeId={deletingRecipeId}
+            />
+          </TabsContent>
+
+          <TabsContent value="community">
+            <RecipeList
+              user={user}
+              recipes={filteredCommunityRecipes}
+              totalCount={communityRecipes.length}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              filters={filters}
+              onFiltersChange={setFilters}
+              onNewRecipe={() => setShowNewRecipe(true)}
+              onDeleteRecipe={async () => false}
+              onForkRecipe={handleForkRecipe}
+              forkingRecipeId={forkingRecipeId}
+              deletingRecipeId={null}
             />
           </TabsContent>
 
