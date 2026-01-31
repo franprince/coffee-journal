@@ -156,7 +156,7 @@
 }
 
 .modern-card:hover {
-  @apply shadow-md border-border/80 transform -translate-y-[2px];
+  @apply shadow-md border-border/80;
 }
 
 /* Animations */
