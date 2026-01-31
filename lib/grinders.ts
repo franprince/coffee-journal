@@ -62,3 +62,24 @@ export function clicksToMicrons(clicks: number, grinderId: GrinderId): number {
     if (!grinder) return 0;
     return clicks * grinder.micronPerClick;
 }
+
+export type GrindLabel = 'extra-fine' | 'fine' | 'medium-fine' | 'medium' | 'medium-coarse' | 'coarse';
+
+export const GRIND_LABEL_RANGES: { label: GrindLabel; min: number; max: number }[] = [
+    { label: 'extra-fine', min: 0, max: 200 },
+    { label: 'fine', min: 200, max: 400 },
+    { label: 'medium-fine', min: 400, max: 600 },
+    { label: 'medium', min: 600, max: 800 },
+    { label: 'medium-coarse', min: 800, max: 1000 },
+    { label: 'coarse', min: 1000, max: 1400 },
+];
+
+export function getGrindLabel(microns: number): GrindLabel {
+    const range = GRIND_LABEL_RANGES.find(r => microns >= r.min && microns < r.max);
+    return range ? range.label : 'coarse';
+}
+
+export function getMicronsForLabel(label: GrindLabel): number {
+    const range = GRIND_LABEL_RANGES.find(r => r.label === label);
+    return range ? (range.min + range.max) / 2 : 700;
+}

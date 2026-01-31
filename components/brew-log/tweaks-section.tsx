@@ -7,6 +7,9 @@ import { Scale, Droplets, Hash, Thermometer, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Pour } from '@/lib/types';
 import { useState } from 'react';
+import { useSettings } from '@/lib/hooks/use-settings';
+import { getGrindLabel, micronsToClicks } from '@/lib/grinders';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface TweaksSectionProps {
     coffeeWeight: number;
@@ -38,6 +41,10 @@ export function TweaksSection({
     onToggleTweaks
 }: TweaksSectionProps) {
     const t = useTranslations('BrewLogForm');
+    const tGrind = useTranslations('GrindSizes');
+    const { settings } = useSettings();
+
+    const label = getGrindLabel(grindSize);
 
     return (
         <div className="space-y-3">
@@ -75,15 +82,34 @@ export function TweaksSection({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                            <Hash className="w-3.5 h-3.5" /> {t('tweaks.grind')}
-                        </Label>
+                        <div className="flex items-center justify-between">
+                            <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                <Hash className="w-3.5 h-3.5" /> {t('tweaks.grind')}
+                            </Label>
+                            <span className="text-[10px] font-bold text-primary">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span className="cursor-help decoration-dotted underline-offset-4 hover:underline">
+                                            {tGrind(label)}
+                                        </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>{grindSize}µm</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </span>
+                        </div>
                         <Input
                             type="number"
                             value={grindSize}
                             onChange={(e) => setGrindSize(Number(e.target.value))}
                             className="h-8 text-sm"
                         />
+                        {settings?.preferredGrinder && (
+                            <p className="text-[10px] text-muted-foreground font-mono mt-0.5">
+                                ~{micronsToClicks(grindSize, settings.preferredGrinder)}
+                            </p>
+                        )}
                     </div>
                     <div className="space-y-1.5">
                         <Label className="text-xs text-muted-foreground flex items-center gap-1.5">

@@ -2,8 +2,9 @@
 
 import { useTranslations } from 'next-intl';
 import { useSettings } from '@/lib/hooks/use-settings';
-import { micronsToClicks } from '@/lib/grinders';
+import { micronsToClicks, getGrindLabel } from '@/lib/grinders';
 import { Scale, Droplets, Hash, Thermometer, Zap } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Recipe } from '@/lib/types';
 
 interface RecipeSpecsProps {
@@ -12,7 +13,10 @@ interface RecipeSpecsProps {
 
 export function RecipeSpecs({ recipe }: RecipeSpecsProps) {
     const t = useTranslations('RecipeDetail');
+    const tGrind = useTranslations('GrindSizes');
     const { settings } = useSettings();
+
+    const label = getGrindLabel(recipe.grindSize);
 
     return (
         <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-4 mb-6 md:mb-10">
@@ -48,12 +52,24 @@ export function RecipeSpecs({ recipe }: RecipeSpecsProps) {
                     <Hash className="w-3 h-3 md:w-4 md:h-4" />
                     <span className="text-[10px] md:text-xs font-bold uppercase">{t('grind')}</span>
                 </div>
-                <span className="text-sm md:text-lg font-medium">{recipe.grindSize}µm</span>
-                {settings?.preferredGrinder && (
-                    <span className="text-[10px] text-muted-foreground font-mono">
-                        ~{micronsToClicks(recipe.grindSize, settings.preferredGrinder)}
-                    </span>
-                )}
+                <div className="flex flex-col items-center">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <span className="text-sm md:text-lg font-medium leading-tight cursor-help decoration-dotted underline-offset-4 hover:underline">
+                                {tGrind(label)}
+                            </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{recipe.grindSize}µm</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    {settings?.preferredGrinder && (
+                        <span className="text-[10px] text-muted-foreground font-mono">
+                            {micronsToClicks(recipe.grindSize, settings.preferredGrinder)}
+                        </span>
+                    )}
+                </div>
             </div>
 
             {/* Temp */}

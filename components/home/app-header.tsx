@@ -40,7 +40,7 @@ export function AppHeader({ user, onNewRecipe, onOpenSettings }: AppHeaderProps)
                                     className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-medium shadow-none border border-transparent px-6"
                                 >
                                     <Plus className="w-4 h-4 mr-2" />
-                                    {t('createFirstRecipe')}
+                                    {t('addRecipe')}
                                 </Button>
                                 <UserNav user={user} />
                             </>
