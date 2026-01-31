@@ -11,6 +11,9 @@ import { PourSchedule } from '@/components/shared';
 import type { Recipe, Pour } from '@/lib/types';
 import { METHOD_SUGGESTIONS, WATER_SUGGESTIONS } from '@/lib/types';
 import { Save, Coffee } from 'lucide-react';
+import { useSettings } from '@/lib/hooks/use-settings';
+import { getGrindLabel, micronsToClicks } from '@/lib/grinders';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface RecipeFormProps {
   onSave: (recipe: Recipe) => void;
@@ -21,6 +24,7 @@ interface RecipeFormProps {
 export function RecipeForm({ onSave, editRecipe, isLoading }: RecipeFormProps) {
   const t = useTranslations('RecipeForm');
   const tCommon = useTranslations('Common');
+  const { settings } = useSettings();
   const [name, setName] = useState(editRecipe?.name || '');
   const [method, setMethod] = useState(editRecipe?.method || 'V60');
   const [coffeeWeight, setCoffeeWeight] = useState(editRecipe?.coffeeWeight || 18);
@@ -143,7 +147,23 @@ export function RecipeForm({ onSave, editRecipe, isLoading }: RecipeFormProps) {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <Label className="text-xs text-muted-foreground">{t('grindLabel')}</Label>
-            <span className="text-xs font-medium text-primary">{grindSize[0]}µm</span>
+            <div className="flex flex-col items-end">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-xs font-bold text-primary cursor-help decoration-dotted underline-offset-4 hover:underline">
+                    {useTranslations('GrindSizes')(getGrindLabel(grindSize[0]))}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{grindSize[0]}µm</p>
+                </TooltipContent>
+              </Tooltip>
+              {settings?.preferredGrinder && (
+                <span className="text-[10px] text-muted-foreground font-mono">
+                  {micronsToClicks(grindSize[0], settings.preferredGrinder)}
+                </span>
+              )}
+            </div>
           </div>
           <Slider
             value={grindSize}
