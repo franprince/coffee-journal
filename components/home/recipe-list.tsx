@@ -45,16 +45,8 @@ export function RecipeList({
 
     return (
         <div className="animate-fade-in-up">
-            <RecipeFiltersComponent
-                searchQuery={searchQuery}
-                onSearchChange={onSearchChange}
-                filters={filters}
-                onFiltersChange={onFiltersChange}
-                resultCount={recipes.length}
-                totalCount={totalCount}
-            />
-
-            <div className="flex items-center p-1 bg-secondary/50 rounded-lg w-fit mb-6 isolate">
+            {/* View Mode Switcher */}
+            <div className="flex items-center p-1 bg-secondary/50 rounded-lg w-fit mb-4 isolate">
                 {user && (
                     <button
                         onClick={() => onViewModeChange('my')}
@@ -81,6 +73,15 @@ export function RecipeList({
                     {t('community')}
                 </button>
             </div>
+
+            <RecipeFiltersComponent
+                searchQuery={searchQuery}
+                onSearchChange={onSearchChange}
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+                resultCount={recipes.length}
+                totalCount={totalCount}
+            />
 
             {recipes.length === 0 ? (
                 <div className="modern-card p-12 text-center mt-6 rounded-3xl">
