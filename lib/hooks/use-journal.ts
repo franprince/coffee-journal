@@ -3,7 +3,9 @@ import type { User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import type { Recipe, BrewLog, Coffee } from '@/lib/types';
-import { useRecipes, useCoffees, useAllLogs } from '../hooks';
+import { useRecipes } from './use-recipes';
+import { useCoffees } from './use-coffees';
+import { useAllLogs } from './use-logs';
 
 interface UseJournalProps {
     initialRecipes: Recipe[];
