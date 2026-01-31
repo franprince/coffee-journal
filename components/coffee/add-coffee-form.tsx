@@ -8,7 +8,7 @@ import type { Coffee } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RoastLevelSelector } from './roast-level-selector';
+import { RoastLevelSelector } from '@/components/shared';
 import { CoffeeLoader } from '@/components/ui/coffee-loader';
 import { CoffeeService } from '@/lib/db-client';
 import { optimizeImage } from '@/lib/images';

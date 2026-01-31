@@ -1,6 +1,6 @@
 import { RecipeServiceServer, LogServiceServer, CoffeeServiceServer } from '@/lib/db-server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
-import RecipeDetailClient from '@/components/coffee-journal/recipe-detail-client';
+import RecipeDetailClient from '@/components/recipe/recipe-detail-client';
 import { notFound } from 'next/navigation';
 import { extractIdFromSlug } from '@/lib/utils';
 import type { Metadata } from 'next';

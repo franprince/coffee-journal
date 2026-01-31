@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { AutocompleteInput } from '@/components/ui/autocomplete-input';
-import { PourSchedule } from './pour-schedule';
+import { PourSchedule } from '@/components/shared';
 import type { Recipe, Pour } from '@/lib/types';
 import { METHOD_SUGGESTIONS, WATER_SUGGESTIONS } from '@/lib/types';
 import { Save, Coffee } from 'lucide-react';

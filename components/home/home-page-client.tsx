@@ -1,32 +1,21 @@
 'use client';
+
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RecipeForm } from '@/components/coffee-journal/recipe-form';
-import { RecipeCard } from '@/components/coffee-journal/recipe-card';
-import { BrewLogCard } from '@/components/coffee-journal/brew-log-card';
-import { RecipeFiltersComponent } from '@/components/coffee-journal/recipe-filters';
+import { RecipeForm } from '@/components/recipe';
+import { BrewLogCard, BrewLogDetailDialog } from '@/components/brew-log';
 import type { Recipe, BrewLog, RecipeFilters, Coffee } from '@/lib/types';
 import type { User } from '@supabase/supabase-js';
 import { useJournal } from '@/lib/hooks/use-journal';
-import { CoffeeManager } from '@/components/coffee-journal/coffee-manager';
-import { AuthDialog } from '@/components/coffee-journal/auth-dialog';
-import { UserNav } from '@/components/coffee-journal/user-nav';
-import { SettingsDialog } from '@/components/coffee-journal/settings-dialog';
-import { BrewLogDetailDialog } from '@/components/coffee-journal/brew-log-detail-dialog';
-import { useLocale } from 'next-intl';
-import {
-  Coffee as CoffeeIcon,
-  Plus,
-  BookOpen,
-  FlaskConical,
-  X,
-  Bean,
-  Settings
-} from 'lucide-react';
+import { CoffeeManager } from '@/components/coffee';
+import { SettingsDialog } from '@/components/shared';
+import { BookOpen, FlaskConical, X, Bean } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+
+// Extracted Components
+import { AppHeader } from './app-header';
+import { RecipeList } from './recipe-list';
 
 interface HomePageClientProps {
   initialRecipes: Recipe[];
@@ -39,7 +28,6 @@ interface HomePageClientProps {
 export default function HomePageClient(props: HomePageClientProps) {
   const t = useTranslations('HomePage');
   const tRecipeForm = useTranslations('RecipeForm');
-  const tSettings = useTranslations('Settings');
 
   // Local UI State
   const [activeTab, setActiveTab] = useState('recipes');
@@ -107,56 +95,14 @@ export default function HomePageClient(props: HomePageClientProps) {
     refreshCommunityRecipes();
   };
 
-  // Wrapper for consistency
-  const handleDeleteRecipe = deleteRecipe;
-
   return (
     <main className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-accent-foreground">
-      {/* Header: Clean & Solid */}
-      <header className="sticky top-0 z-50 bg-background border-b border-border">
-        <div className="max-w-5xl mx-auto px-4 py-4 md:py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary text-primary-foreground border border-primary">
-                <CoffeeIcon className="w-5 h-5" />
-              </div>
-              <div>
-                <h1 className="font-serif text-2xl font-bold tracking-tight text-primary">
-                  Brew Journal
-                </h1>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {user ? (
-                <>
-                  <Button
-                    onClick={() => setShowNewRecipe(true)}
-                    className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-medium shadow-none border border-transparent px-6"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    {t('createFirstRecipe')}
-                  </Button>
-                  <UserNav user={user} />
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground hover:text-foreground"
-                    onClick={() => setShowSettings(true)}
-                    aria-label={tSettings('title')}
-                  >
-                    <Settings className="w-5 h-5" />
-                  </Button>
-                  <AuthDialog />
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Header */}
+      <AppHeader
+        user={user}
+        onNewRecipe={() => setShowNewRecipe(true)}
+        onOpenSettings={() => setShowSettings(true)}
+      />
 
       <SettingsDialog
         open={showSettings}
@@ -189,73 +135,26 @@ export default function HomePageClient(props: HomePageClientProps) {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="recipes" className="animate-fade-in-up">
-            <RecipeFiltersComponent
+          <TabsContent value="recipes">
+            <RecipeList
+              user={user}
+              recipes={filteredRecipes}
+              totalCount={currentRecipes.length}
+              recipeViewMode={recipeViewMode}
+              onViewModeChange={(mode) => {
+                setRecipeViewMode(mode);
+                if (mode === 'community') refreshCommunityRecipes();
+              }}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               filters={filters}
               onFiltersChange={setFilters}
-              resultCount={filteredRecipes.length}
-              totalCount={currentRecipes.length}
+              onNewRecipe={() => setShowNewRecipe(true)}
+              onDeleteRecipe={deleteRecipe}
+              onForkRecipe={handleForkRecipe}
+              forkingRecipeId={forkingRecipeId}
+              deletingRecipeId={deletingRecipeId}
             />
-
-            <div className="flex gap-4 mb-6 border-b border-border/40 pb-0">
-              {user && (
-                <button
-                  onClick={() => setRecipeViewMode('my')}
-                  className={cn(
-                    "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
-                    recipeViewMode === 'my'
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {t('myRecipes')}
-                </button>
-              )}
-              <button
-                onClick={handleSwitchToCommunity}
-                className={cn(
-                  "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
-                  recipeViewMode === 'community'
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground",
-                  !user && "border-primary text-primary" // Active style for guests
-                )}
-              >
-                {t('community')}
-              </button>
-            </div>
-
-            {currentRecipes.length === 0 ? (
-              <div className="modern-card p-12 text-center mt-6 rounded-3xl">
-                <div className="w-12 h-12 mx-auto rounded-full bg-secondary flex items-center justify-center mb-4">
-                  <CoffeeIcon className="w-6 h-6 text-muted-foreground" />
-                </div>
-                <h3 className="font-sans text-lg font-bold mb-2">{t('noRecipesTitle')}</h3>
-                <p className="text-muted-foreground text-sm mb-6 max-w-xs mx-auto">
-                  {t('noRecipesDesc')}
-                </p>
-                <Button onClick={() => setShowNewRecipe(true)} variant="outline">
-                  {t('createFirstRecipe')}
-                </Button>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 gap-6 mt-6">
-                {filteredRecipes.map((recipe, index) => (
-                  <div key={recipe.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 4)}`}>
-                    <RecipeCard
-                      recipe={recipe}
-                      onDelete={recipeViewMode === 'my' ? handleDeleteRecipe : undefined}
-                      onFork={recipeViewMode === 'community' ? handleForkRecipe : undefined}
-                      isOwner={recipe.owner_id === user?.id}
-                      isForking={forkingRecipeId === recipe.id}
-                      isDeleting={deletingRecipeId === recipe.id}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
           </TabsContent>
 
           <TabsContent value="logs" className="animate-fade-in-up">

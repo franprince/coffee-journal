@@ -7,11 +7,10 @@ import { Link } from '@/i18n/routing';
 import { createRecipeSlug } from '@/lib/utils';
 import type { Recipe } from '@/lib/types';
 import { METHOD_LABELS } from '@/lib/types';
-import { MethodIcon } from './method-icons';
+import { MethodIcon, DeleteConfirmDialog } from '@/components/shared';
 import { RecipeExport } from './recipe-export';
 import { Clock, Droplets, Scale, Coffee, Trash2, Zap, Heart } from 'lucide-react';
-import { Button } from '../ui/button';
-import { DeleteConfirmDialog } from './delete-confirm-dialog';
+import { Button } from '@/components/ui/button';
 
 interface RecipeCardProps {
   recipe: Recipe;
