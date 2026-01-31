@@ -69,7 +69,10 @@
         "editRecipeTitle": "Edit Recipe",
         "deleteRecipeTitle": "Delete Recipe?",
         "deleteRecipeDesc": "Are you sure you want to delete \"{name}\"?",
-        "saveToMyRecipes": "Save to My Recipes"
+        "saveToMyRecipes": "Save to My Recipes",
+        "history": "History",
+        "noLogs": "No brew logs yet",
+        "startBrewing": "Start brewing to see your history here."
     },
     "RecipeCard": {
         "steps": "STEPS",
@@ -124,7 +127,8 @@
         "optional": "(optional)",
         "uploading": "Uploading...",
         "save": "Save Log",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "saveAsNewRecipe": "Save as New Recipe"
     },
     "AddCoffeeForm": {
         "title": "Add New Coffee",

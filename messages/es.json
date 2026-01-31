@@ -69,7 +69,10 @@
         "editRecipeTitle": "Editar Receta",
         "deleteRecipeTitle": "¿Eliminar Receta?",
         "deleteRecipeDesc": "¿Estás seguro de que deseas eliminar \"{name}\"?",
-        "saveToMyRecipes": "Guardar en Mis Recetas"
+        "saveToMyRecipes": "Guardar en Mis Recetas",
+        "history": "Historial",
+        "noLogs": "Sin registros aún",
+        "startBrewing": "Comienza a preparar café para ver tu historial aquí."
     },
     "RecipeCard": {
         "steps": "PASOS",
@@ -124,7 +127,8 @@
         "optional": "(opcional)",
         "uploading": "Subiendo...",
         "save": "Guardar Log",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "saveAsNewRecipe": "Guardar como Nueva Receta"
     },
     "AddCoffeeForm": {
         "title": "Añadir Nuevo Café",
