@@ -54,15 +54,15 @@ export function RecipeList({
                 totalCount={totalCount}
             />
 
-            <div className="flex gap-4 mb-6 border-b border-border/40 pb-0">
+            <div className="flex items-center p-1 bg-secondary/50 rounded-lg w-fit mb-6 isolate">
                 {user && (
                     <button
                         onClick={() => onViewModeChange('my')}
                         className={cn(
-                            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+                            "px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200",
                             recipeViewMode === 'my'
-                                ? "border-primary text-primary"
-                                : "border-transparent text-muted-foreground hover:text-foreground"
+                                ? "bg-background text-foreground shadow-sm font-semibold"
+                                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                         )}
                     >
                         {t('myRecipes')}
@@ -71,11 +71,11 @@ export function RecipeList({
                 <button
                     onClick={() => onViewModeChange('community')}
                     className={cn(
-                        "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+                        "px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200",
                         recipeViewMode === 'community'
-                            ? "border-primary text-primary"
-                            : "border-transparent text-muted-foreground hover:text-foreground",
-                        !user && "border-primary text-primary" // Active style for guests
+                            ? "bg-background text-foreground shadow-sm font-semibold"
+                            : "text-muted-foreground hover:text-foreground hover:bg-background/50",
+                        !user && "bg-transparent text-primary" // Default look if single item
                     )}
                 >
                     {t('community')}
