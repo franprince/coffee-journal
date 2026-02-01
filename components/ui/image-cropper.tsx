@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { getCroppedImg } from '@/lib/images';
-import { Loader2, ZoomIn, ZoomOut } from 'lucide-react';
+import { Loader2, ZoomIn, ZoomOut, RotateCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface ImageCropperProps {
@@ -21,6 +21,7 @@ export function ImageCropper({ imageSrc, open, onOpenChange, onCropComplete, asp
     const t = useTranslations('Common');
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
+    const [rotation, setRotation] = useState(0);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -41,7 +42,7 @@ export function ImageCropper({ imageSrc, open, onOpenChange, onCropComplete, asp
 
         try {
             setIsProcessing(true);
-            const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+            const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels, rotation);
             onCropComplete(croppedBlob);
             onOpenChange(false);
         } catch (e) {
@@ -64,25 +65,41 @@ export function ImageCropper({ imageSrc, open, onOpenChange, onCropComplete, asp
                             image={imageSrc}
                             crop={crop}
                             zoom={zoom}
+                            rotation={rotation}
                             aspect={aspect}
                             onCropChange={onCropChange}
                             onCropComplete={onCropCompleteHandler}
                             onZoomChange={onZoomChange}
+                            onRotationChange={setRotation}
                         />
                     )}
                 </div>
 
-                <div className="flex items-center gap-2 py-2">
-                    <ZoomOut className="w-4 h-4 text-muted-foreground" />
-                    <Slider
-                        value={[zoom]}
-                        min={1}
-                        max={3}
-                        step={0.1}
-                        onValueChange={(val) => setZoom(val[0])}
-                        className="flex-1"
-                    />
-                    <ZoomIn className="w-4 h-4 text-muted-foreground" />
+                <div className="space-y-3 py-2">
+                    <div className="flex items-center gap-2">
+                        <ZoomOut className="w-4 h-4 text-muted-foreground" />
+                        <Slider
+                            value={[zoom]}
+                            min={1}
+                            max={3}
+                            step={0.1}
+                            onValueChange={(val) => setZoom(val[0])}
+                            className="flex-1"
+                        />
+                        <ZoomIn className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <RotateCw className="w-4 h-4 text-muted-foreground" />
+                        <Slider
+                            value={[rotation]}
+                            min={0}
+                            max={360}
+                            step={1}
+                            onValueChange={(val) => setRotation(val[0])}
+                            className="flex-1"
+                        />
+                        <span className="text-xs text-muted-foreground w-8 text-right">{rotation}°</span>
+                    </div>
                 </div>
 
                 <DialogFooter className="sm:justify-end gap-2">
