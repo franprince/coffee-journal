@@ -212,6 +212,7 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
         onConfirm={() => onDelete?.(recipe.id)}
         title={t('deleteTitle')}
         description={t('deleteDesc', { name: recipe.name })}
+        isLoading={isDeleting}
       />
     </div>
   );
