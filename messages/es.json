@@ -294,11 +294,17 @@
     },
     "Settings": {
         "title": "Configuración",
+        "description": "Personaliza tu experiencia en Brew Journal.",
         "language": "Idioma",
+        "languagePlaceholder": "Seleccionar idioma",
+        "defaultGrinder": "Molino por Defecto",
+        "grinderPlaceholder": "Seleccionar molino",
+        "grinderDescription": "Esto calculará automáticamente las estimaciones de clics en las recetas.",
         "theme": "Tema",
         "appearance": "Apariencia",
         "selectLanguage": "Seleccionar Idioma",
         "english": "Inglés",
-        "spanish": "Español"
+        "spanish": "Español",
+        "save": "Guardar"
     }
 }
