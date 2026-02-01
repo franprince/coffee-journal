@@ -72,7 +72,9 @@
         "saveToMyRecipes": "Save to My Recipes",
         "history": "History",
         "noLogs": "No brew logs yet",
-        "startBrewing": "Start brewing to see your history here."
+        "startBrewing": "Start brewing to see your history here.",
+        "deleteTitle": "Delete Recipe?",
+        "deleteDesc": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
     },
     "RecipeCard": {
         "steps": "STEPS",

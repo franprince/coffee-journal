@@ -41,7 +41,7 @@ export function DeleteConfirmDialog({
                         {description}
                     </DialogDescription>
                 </DialogHeader>
-                <DialogFooter className="flex gap-3 sm:gap-0 mt-4">
+                <DialogFooter className="flex gap-3 mt-4">
                     <Button
                         variant="ghost"
                         onClick={onClose}

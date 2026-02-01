@@ -72,7 +72,9 @@
         "saveToMyRecipes": "Guardar en Mis Recetas",
         "history": "Historial",
         "noLogs": "Sin registros aún",
-        "startBrewing": "Comienza a preparar café para ver tu historial aquí."
+        "startBrewing": "Comienza a preparar café para ver tu historial aquí.",
+        "deleteTitle": "¿Eliminar Receta?",
+        "deleteDesc": "¿Estás seguro de que deseas eliminar \"{name}\"? Esta acción no se puede deshacer."
     },
     "RecipeCard": {
         "steps": "PASOS",

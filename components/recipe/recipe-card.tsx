@@ -8,7 +8,6 @@ import { createRecipeSlug } from '@/lib/utils';
 import type { Recipe } from '@/lib/types';
 import { METHOD_LABELS } from '@/lib/types';
 import { MethodIcon, DeleteConfirmDialog } from '@/components/shared';
-import { RecipeExport } from './recipe-export';
 import { Clock, Droplets, Scale, Coffee, Trash2, Zap, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSettings } from '@/lib/hooks/use-settings';
@@ -55,7 +54,7 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
     <div className="relative group">
       <Link href={`/recipe/${createRecipeSlug(recipe.method, recipe.id)}`}>
         <div
-          className="modern-card group relative cursor-pointer hover:shadow-lg active:scale-[0.98] overflow-hidden bg-card"
+          className="modern-card group relative cursor-pointer overflow-hidden bg-card"
         >
           {recipe.coffeeImageUrl && (
             <div className="w-full aspect-[2/1] border-b border-border/20 max-h-[500px] overflow-hidden relative">
@@ -64,7 +63,7 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
                 src={recipe.coffeeImageUrl}
                 alt={recipe.name}
                 fill
-                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                className="w-full h-full object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             </div>
@@ -180,13 +179,11 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
       </Link>
 
       {/* Action Buttons */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
-      >
-        <RecipeExport recipe={recipe} />
-
-        {!isOwner && onFork && (
+      {!isOwner && onFork && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="absolute top-4 right-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
+        >
           <Button
             size="icon"
             variant="secondary"
@@ -205,28 +202,9 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
               <Heart className="w-4 h-4" />
             )}
           </Button>
-        )}
+        </div>
+      )}
 
-        {isOwner && onDelete && (
-          <Button
-            size="icon"
-            variant="secondary"
-            className="h-9 w-9 rounded-full bg-background shadow-lg hover:bg-destructive hover:text-white transition-colors border border-border/10"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowDeleteConfirm(true);
-            }}
-            disabled={isDeleting}
-          >
-            {isDeleting ? (
-              <div className="w-4 h-4 border-2 border-destructive/30 border-t-destructive rounded-full animate-spin group-hover:border-white/30 group-hover:border-t-white" />
-            ) : (
-              <Trash2 className="w-4 h-4" />
-            )}
-          </Button>
-        )}
-      </div>
 
       <DeleteConfirmDialog
         isOpen={showDeleteConfirm}
@@ -234,6 +212,7 @@ export function RecipeCard({ recipe, onSelect, onDelete, onFork, isOwner = true,
         onConfirm={() => onDelete?.(recipe.id)}
         title={t('deleteTitle')}
         description={t('deleteDesc', { name: recipe.name })}
+        isLoading={isDeleting}
       />
     </div>
   );
