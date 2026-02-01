@@ -46,7 +46,7 @@ export function RecipeHeader({
                     </h2>
                 </div>
             </div>
-            <div className="flex items-center gap-1 md:gap-2 absolute top-0 right-0 p-4 sm:relative sm:p-0">
+            <div className="flex items-center gap-2 md:gap-3 absolute top-0 right-0 p-4 sm:relative sm:p-0">
                 {isOwner ? (
                     <>
                         <Button
