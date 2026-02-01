@@ -294,11 +294,17 @@
     },
     "Settings": {
         "title": "Settings",
+        "description": "Customize your Brew Journal experience.",
         "language": "Language",
+        "languagePlaceholder": "Select language",
+        "defaultGrinder": "Default Grinder",
+        "grinderPlaceholder": "Select grinder",
+        "grinderDescription": "This will calculate click estimates in recipes automatically.",
         "theme": "Theme",
         "appearance": "Appearance",
         "selectLanguage": "Select Language",
         "english": "English",
-        "spanish": "Spanish"
+        "spanish": "Spanish",
+        "save": "Save"
     }
 }

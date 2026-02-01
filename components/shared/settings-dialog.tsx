@@ -1,12 +1,15 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { GRINDERS, GrinderId } from '@/lib/grinders';
 import { useSettings } from '@/lib/hooks/use-settings';
 import { usePathname, useRouter } from '@/i18n/routing';
+import { Loader2 } from 'lucide-react';
 
 interface SettingsDialogProps {
     open: boolean;
@@ -20,8 +23,46 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     const pathname = usePathname();
     const { settings, updateGrinder } = useSettings();
 
-    const handleLanguageChange = (newLocale: string) => {
-        router.replace(pathname, { locale: newLocale });
+    const [pendingLocale, setPendingLocale] = useState(locale);
+    const [pendingGrinder, setPendingGrinder] = useState<GrinderId>(settings.preferredGrinder);
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Sync pending states when dialog opens or settings load
+    useEffect(() => {
+        if (open) {
+            setPendingLocale(locale);
+            setPendingGrinder(settings.preferredGrinder);
+        }
+    }, [open, locale, settings.preferredGrinder]);
+
+    const handleSave = async () => {
+        try {
+            setIsSaving(true);
+
+            // Collect promises for concurrent execution if possible
+            const promises: Promise<any>[] = [];
+
+            if (pendingGrinder !== settings.preferredGrinder) {
+                promises.push(updateGrinder(pendingGrinder));
+            }
+
+            // Language transition is usually a redirect, so we handle it last or as part of the flow
+            if (pendingLocale !== locale) {
+                // If we also updated the grinder, we wait for that first to ensure data consistency
+                await Promise.all(promises);
+                router.replace(pathname, { locale: pendingLocale });
+                // router.replace will likely cause a full page remount, 
+                // but we keep the dialog closing logic for safety
+                onOpenChange(false);
+            } else {
+                await Promise.all(promises);
+                onOpenChange(false);
+            }
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -30,7 +71,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <DialogHeader>
                     <DialogTitle>{t('title')}</DialogTitle>
                     <DialogDescription>
-                        Customize your Brew Journal experience.
+                        {t('description')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -39,28 +80,28 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <div className="grid gap-2">
                         <Label htmlFor="language">{t('language')}</Label>
                         <Select
-                            value={locale}
-                            onValueChange={handleLanguageChange}
+                            value={pendingLocale}
+                            onValueChange={setPendingLocale}
                         >
                             <SelectTrigger id="language" className="bg-secondary/20 border-border/50">
-                                <SelectValue placeholder="Select language" />
+                                <SelectValue placeholder={t('languagePlaceholder')} />
                             </SelectTrigger>
                             <SelectContent className="glass-card">
-                                <SelectItem value="en">English</SelectItem>
-                                <SelectItem value="es">Español</SelectItem>
+                                <SelectItem value="en">{t('english')}</SelectItem>
+                                <SelectItem value="es">{t('spanish')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
                     {/* Grinder Settings */}
                     <div className="grid gap-2">
-                        <Label htmlFor="grinder">Default Grinder</Label>
+                        <Label htmlFor="grinder">{t('defaultGrinder')}</Label>
                         <Select
-                            value={settings.preferredGrinder}
-                            onValueChange={(val) => updateGrinder(val as GrinderId)}
+                            value={pendingGrinder}
+                            onValueChange={(val) => setPendingGrinder(val as GrinderId)}
                         >
                             <SelectTrigger id="grinder" className="bg-secondary/20 border-border/50">
-                                <SelectValue placeholder="Select grinder" />
+                                <SelectValue placeholder={t('grinderPlaceholder')} />
                             </SelectTrigger>
                             <SelectContent className="glass-card">
                                 {Object.values(GRINDERS).map((grinder) => (
@@ -71,10 +112,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                             </SelectContent>
                         </Select>
                         <p className="text-[10px] text-muted-foreground">
-                            This will calculate click estimates in recipes automatically.
+                            {t('grinderDescription')}
                         </p>
                     </div>
                 </div>
+
+                <DialogFooter>
+                    <Button onClick={handleSave} disabled={isSaving}>
+                        {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {t('save')}
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );
