@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Camera, X as CloseIcon, Edit2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -32,6 +32,7 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
     const [cropperOpen, setCropperOpen] = useState(false);
     const [tempImageSrc, setTempImageSrc] = useState<string | null>(null);
     const [originalFileName, setOriginalFileName] = useState<string>('image.jpg');
+    const uploadAreaRef = useRef<HTMLDivElement>(null);
 
     const [newCoffee, setNewCoffee] = useState<Partial<Coffee>>({
         name: editCoffee?.name || defaultName || 'Coffee Bean',
@@ -73,6 +74,44 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
         setImageFile(null);
         setImagePreview(null);
     };
+
+    const handlePaste = (e: ClipboardEvent) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const blob = items[i].getAsFile();
+                if (blob) {
+                    setOriginalFileName('pasted-image.jpg');
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setTempImageSrc(reader.result as string);
+                        setCropperOpen(true);
+                    };
+                    reader.readAsDataURL(blob);
+                    e.preventDefault();
+                    break;
+                }
+            }
+        }
+    };
+
+    const handleEditImage = () => {
+        if (imagePreview) {
+            setTempImageSrc(imagePreview);
+            setCropperOpen(true);
+        }
+    };
+
+    // Add paste event listener
+    useEffect(() => {
+        const handlePasteEvent = (e: ClipboardEvent) => handlePaste(e);
+        document.addEventListener('paste', handlePasteEvent);
+        return () => {
+            document.removeEventListener('paste', handlePasteEvent);
+        };
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -147,22 +186,34 @@ export function AddCoffeeForm({ onSubmit, onCancel, editCoffee, defaultName }: A
 
                 {/* Image Upload Area */}
                 <div className="space-y-2">
-                    <div className="flex flex-col items-center gap-4">
+                    <div className="flex flex-col items-center gap-4" ref={uploadAreaRef}>
                         {imagePreview ? (
                             <div className="relative w-full aspect-[3/2] rounded-xl overflow-hidden border border-border group">
                                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                <button
-                                    type="button"
-                                    onClick={clearImage}
-                                    className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    <CloseIcon className="w-4 h-4" />
-                                </button>
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleEditImage}
+                                        className="p-2 bg-white/90 text-foreground rounded-full hover:bg-white transition-colors"
+                                        title={t('form.editImage')}
+                                    >
+                                        <Edit2 className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={clearImage}
+                                        className="p-2 bg-white/90 text-foreground rounded-full hover:bg-white transition-colors"
+                                        title="Remove"
+                                    >
+                                        <CloseIcon className="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
                         ) : (
                             <label className="w-full aspect-[3/2] rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-muted/20">
                                 <Camera className="w-8 h-8 text-muted-foreground" />
                                 <span className="text-sm text-muted-foreground font-medium">{t('form.uploadPlaceholder')}</span>
+                                <span className="text-xs text-muted-foreground/70">{t('form.pasteHint')}</span>
                                 <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                             </label>
                         )}
